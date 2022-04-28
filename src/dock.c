@@ -2019,20 +2019,40 @@ void wDockLaunchWithState(WAppIcon *btn, WSavedState *state)
 
 void wDockDoAutoLaunch(WDock *dock, int workspace)
 {
-	WAppIcon *btn;
+	WAppIcon    *btn;
 	WSavedState *state;
-	int i;
+  char        *command = NULL;
+  char        *cmd = NULL;
 
-	for (i = 0; i < dock->max_icons; i++) {
+	for (int i = 0; i < dock->max_icons; i++) {
 		btn = dock->icon_array[i];
-		if (!btn || !btn->auto_launch)
-			continue;
+    if (!btn || !btn->auto_launch ||
+        !btn->command || btn->running || btn->launching) {
+      continue;
+    }
 
 		state = wmalloc(sizeof(WSavedState));
 		state->workspace = workspace;
 		/* TODO: this is klugy and is very difficult to understand
 		 * what's going on. Try to clean up */
+
+    if (!strcmp(btn->wm_class, "GNUstep") && !strstr(btn->command, "autolaunch")) {
+      cmd = wstrappend(btn->command, "  -autolaunch YES");
+      wfree(btn->command);
+      btn->command = cmd;
+    }
+
 		wDockLaunchWithState(btn, state);
+
+    // Return 'command' field into initial state (without -autolaunch)
+    if (!strcmp(btn->wm_class, "GNUstep") && command) {
+      wfree(btn->command);
+      btn->command = wstrdup(command);
+      wfree(command);
+      wfree(cmd);
+      command = NULL;
+      cmd = NULL;
+    }
 	}
 }
 
