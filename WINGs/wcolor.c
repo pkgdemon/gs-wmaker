@@ -234,6 +234,18 @@ WMColor *WMColorFromGS(WMScreen * scr, char * nm)
   return color;
 }
 
+WMColor *WMScrollerColor(WMScreen * scr)
+{
+  if (!scr->scroller) {
+    WMColor *color = WMColorFromGS(scr, "SYSTEM_SCROLLER_COLOR");
+
+    if (color) {
+	    scr->scroller = color;
+    } 
+  }
+	return WMRetainColor(scr->scroller);
+}
+
 WMColor *WMGrayColor(WMScreen * scr)
 {
   if (!scr->gray) {

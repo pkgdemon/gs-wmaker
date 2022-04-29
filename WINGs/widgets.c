@@ -721,6 +721,7 @@ WMScreen *WMCreateScreenWithRContext(Display * display, int screen, RContext * c
 	WMBlackColor(scrPtr);
 	WMGrayColor(scrPtr);
 	WMDarkGrayColor(scrPtr);
+	WMScrollerColor(scrPtr);
 
 	gcv.graphics_exposures = False;
 
@@ -748,9 +749,8 @@ WMScreen *WMCreateScreenWithRContext(Display * display, int screen, RContext * c
 	gcv.fill_style = FillStippled;
 	gcv.stipple = stipple;
 
-	WMColor* scroller = WMColorFromGS(scrPtr, "SYSTEM_SCROLLER_COLOR");
-  if (scroller) {
-	  scrPtr->stippleGC = WMColorGC(scroller);
+  if (scrPtr->scroller) {
+	  scrPtr->stippleGC = WMColorGC(scrPtr->scroller);
   }
   else {
 	  scrPtr->stippleGC = XCreateGC(display, W_DRAWABLE(scrPtr),

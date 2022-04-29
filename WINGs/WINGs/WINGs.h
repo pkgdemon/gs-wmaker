@@ -870,6 +870,8 @@ WMColor* WMBlackColor(WMScreen *scr);
 
 WMColor* WMWhiteColor(WMScreen *scr);
 
+WMColor* WMScrollerColor(WMScreen *scr);
+
 void WMSetColorInGC(WMColor *color, GC gc);
 
 GC WMColorGC(WMColor *color);

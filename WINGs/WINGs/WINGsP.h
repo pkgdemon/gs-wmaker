@@ -137,6 +137,7 @@ typedef struct W_Screen {
     W_Color *white;
     W_Color *black;
     W_Color *gray;
+    W_Color *scroller;
     W_Color *darkGray;
 
     GC stippleGC;
