@@ -4,7 +4,7 @@
 #include "wconfig.h"
 
 #include <wraster.h>
-#include <GNUstepLib/GNUstepLib.h>
+#include "./GNUstepLib/GNUstepLib.h"
 
 #define LIGHT_STIPPLE_WIDTH 4
 #define LIGHT_STIPPLE_HEIGHT 4

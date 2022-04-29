@@ -3,7 +3,7 @@
 #include "wconfig.h"
 
 #include <X11/Xlocale.h>
-#include <GNUstepLib/GNUstepLib.h>
+#include "./GNUstepLib/GNUstepLib.h"
 
 _WINGsConfiguration WINGsConfiguration;
 
