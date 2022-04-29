@@ -860,7 +860,7 @@ Pixmap WMGetPixmapMaskXID(WMPixmap *pixmap);
 WMPixmap* WMGetSystemPixmap(WMScreen *scr, int image);
 
 /* ---[ WINGs/wcolor.c ]-------------------------------------------------- */
-
+WMColor* colorFromENV(WMScreen * scr, char * nm);
 
 WMColor* WMDarkGrayColor(WMScreen *scr);
 

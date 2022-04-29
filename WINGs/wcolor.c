@@ -4,6 +4,7 @@
 #include "wconfig.h"
 
 #include <wraster.h>
+#include <AppKit/AppKit.h>
 
 #define LIGHT_STIPPLE_WIDTH 4
 #define LIGHT_STIPPLE_HEIGHT 4
@@ -216,12 +217,35 @@ WMColor *WMBlackColor(WMScreen * scr)
 	return WMRetainColor(scr->black);
 }
 
+WMColor *WMColorFromENV(WMScreen * scr, char * nm) 
+{
+  NSLog(@"xxxx");
+  WMColor *color = NULL;
+  char *cn = getenv(nm);
+  int r = 0;
+  int g = 0;
+  int b = 0;
+
+  if (cn && sscanf(cn, "#%02x%02x%02x", &r, &g, &b) > 0) {
+		color = WMCreateRGBColor(scr, r*255, g*255, b*255, True);
+		if (!color->flags.exact) {
+			wwarning(_("could not allocate %s color"), cn);
+    } 
+  }
+  else {
+		wwarning(_("could not parse color %s"), cn);
+  }
+  return color;
+}
+
 WMColor *WMGrayColor(WMScreen * scr)
 {
-	if (!scr->gray) {
-		WMColor *color;
+  if (!scr->gray) {
+    WMColor *color = WMColorFromENV(scr, "SYSTEM_GRAY_COLOR");
 
-		if (scr->depth == 1) {
+    if (color) {
+    } 
+    else if (scr->depth == 1) {
 			Pixmap stipple;
 			WMColor *white = WMWhiteColor(scr);
 			WMColor *black = WMBlackColor(scr);
@@ -257,9 +281,11 @@ WMColor *WMGrayColor(WMScreen * scr)
 WMColor *WMDarkGrayColor(WMScreen * scr)
 {
 	if (!scr->darkGray) {
-		WMColor *color;
+    WMColor *color = WMColorFromENV(scr, "SYSTEM_DARKGRAY_COLOR");
 
-		if (scr->depth == 1) {
+    if (color) {
+    }
+    else if (scr->depth == 1) {
 			Pixmap stipple;
 			WMColor *white = WMWhiteColor(scr);
 			WMColor *black = WMBlackColor(scr);
