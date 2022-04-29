@@ -3,6 +3,7 @@
 #include "wconfig.h"
 
 #include <X11/Xlocale.h>
+#include <GNUstepLib/GNUstepLib.h>
 
 _WINGsConfiguration WINGsConfiguration;
 
@@ -48,9 +49,15 @@ void W_ReadConfigurations(void)
 		WMPropList *val;
 		unsigned button;
 
-		WINGsConfiguration.systemFont = WMGetUDStringForKey(defaults, "SystemFont");
+		WINGsConfiguration.systemFont = GSGetFontForName("SYSTEM_FONT");
+    if (!WINGsConfiguration.systemFont) {
+		  WINGsConfiguration.systemFont = WMGetUDStringForKey(defaults, "SystemFont");
+    }
 
-		WINGsConfiguration.boldSystemFont = WMGetUDStringForKey(defaults, "BoldSystemFont");
+		WINGsConfiguration.boldSystemFont = GSGetFontForName("SYSTEM_BOLDFONT");
+    if (!WINGsConfiguration.boldSystemFont) {
+		  WINGsConfiguration.boldSystemFont = WMGetUDStringForKey(defaults, "BoldSystemFont");
+    }
 
 		val = WMGetUDObjectForKey(defaults, "AntialiasedText");
 		if (val && WMIsPLString(val) && WMGetFromPLString(val)) {
@@ -58,6 +65,13 @@ void W_ReadConfigurations(void)
 			WINGsConfiguration.antialiasedText =
 				WMGetUDBoolForKey(defaults, "AntialiasedText");
 		}
+
+    WINGsConfiguration.defaultFontSize = GSGetFontDefaultFontSize();
+
+    int da = GSGetAntialiasText();
+    if (da != -1) {
+			WINGsConfiguration.antialiasedText = da;
+    }
 
 		WINGsConfiguration.doubleClickDelay = WMGetUDIntegerForKey(defaults, "DoubleClickTime");
 
@@ -86,7 +100,9 @@ void W_ReadConfigurations(void)
 			WINGsConfiguration.mouseWheelDown = Button5;
 		}
 
-		WINGsConfiguration.defaultFontSize = WMGetUDIntegerForKey(defaults, "DefaultFontSize");
+    if (WINGsConfiguration.defaultFontSize == 0) {
+		  WINGsConfiguration.defaultFontSize = WMGetUDIntegerForKey(defaults, "DefaultFontSize");
+    }
 	}
 
 	if (!WINGsConfiguration.systemFont) {

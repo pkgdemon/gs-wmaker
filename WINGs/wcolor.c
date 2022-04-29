@@ -4,7 +4,7 @@
 #include "wconfig.h"
 
 #include <wraster.h>
-#include <AppKit/AppKit.h>
+#include <GNUstepLib/GNUstepLib.h>
 
 #define LIGHT_STIPPLE_WIDTH 4
 #define LIGHT_STIPPLE_HEIGHT 4
@@ -217,23 +217,19 @@ WMColor *WMBlackColor(WMScreen * scr)
 	return WMRetainColor(scr->black);
 }
 
-WMColor *WMColorFromENV(WMScreen * scr, char * nm) 
+WMColor *WMColorFromGS(WMScreen * scr, char * nm) 
 {
-  NSLog(@"xxxx");
   WMColor *color = NULL;
-  char *cn = getenv(nm);
-  int r = 0;
-  int g = 0;
-  int b = 0;
+  GSColorInfo info = GSGetColorForName(nm);
 
-  if (cn && sscanf(cn, "#%02x%02x%02x", &r, &g, &b) > 0) {
-		color = WMCreateRGBColor(scr, r*255, g*255, b*255, True);
+  if (info.valid) {
+		color = WMCreateRGBColor(scr, info.red*255, info.green*255, info.blue*255, True);
 		if (!color->flags.exact) {
-			wwarning(_("could not allocate %s color"), cn);
+			wwarning(_("could not allocate %s color"), nm);
     } 
   }
   else {
-		wwarning(_("could not parse color %s"), cn);
+		wwarning(_("color %s is not valid"), nm);
   }
   return color;
 }
@@ -241,7 +237,7 @@ WMColor *WMColorFromENV(WMScreen * scr, char * nm)
 WMColor *WMGrayColor(WMScreen * scr)
 {
   if (!scr->gray) {
-    WMColor *color = WMColorFromENV(scr, "SYSTEM_GRAY_COLOR");
+    WMColor *color = WMColorFromGS(scr, "SYSTEM_GRAY_COLOR");
 
     if (color) {
     } 
@@ -281,7 +277,7 @@ WMColor *WMGrayColor(WMScreen * scr)
 WMColor *WMDarkGrayColor(WMScreen * scr)
 {
 	if (!scr->darkGray) {
-    WMColor *color = WMColorFromENV(scr, "SYSTEM_DARKGRAY_COLOR");
+    WMColor *color = WMColorFromGS(scr, "SYSTEM_DARKGRAY_COLOR");
 
     if (color) {
     }
