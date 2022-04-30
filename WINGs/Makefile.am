@@ -17,6 +17,9 @@ libWUtil_la_LIBADD = @LIBBSD@
 
 EXTRA_DIST = BUGS make-rgb Examples Extras Tests
 
+all-local:
+	cd ./GNUstepLib && $(MAKE) all
+
 clean-local:
 	cd ./GNUstepLib && $(MAKE) clean
 
