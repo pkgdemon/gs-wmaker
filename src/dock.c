@@ -2022,6 +2022,7 @@ void wDockDoAutoLaunch(WDock *dock, int workspace)
 	WAppIcon    *btn;
 	WSavedState *state;
 	char        *orig_command = NULL;
+	char        *command = NULL;
 
 	for (int i = 0; i < dock->max_icons; i++) {
 		btn = dock->icon_array[i];
@@ -2037,16 +2038,19 @@ void wDockDoAutoLaunch(WDock *dock, int workspace)
 
 		if (btn->command && !strcmp(btn->wm_class, "GNUstep") && !strstr(btn->command, "autolaunch")) {
 		orig_command = btn->command;
-		btn->command = wstrappend(btn->command, "  -autolaunch YES");
+		command = wstrdup(orig_command);
+		command = wstrappend(command, "  -autolaunch YES");
+		btn->command = command;
 	}
 
 		wDockLaunchWithState(btn, state);
 
 		// Return 'command' field into initial state (without -autolaunch)
 		if (!strcmp(btn->wm_class, "GNUstep")) {
-			wfree(btn->command);
 			btn->command = orig_command;
+			wfree(command);
 			orig_command = NULL;
+			command = NULL;
 		}
 	}
 }
