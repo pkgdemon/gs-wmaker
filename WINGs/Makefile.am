@@ -23,9 +23,6 @@ clean-local:
 install-exec-hook:
 	cd ./GNUstepLib && $(MAKE) PREFIX=$(prefix) install
 
-libWINGs.la:
-	cd ./GNUstepLib && $(MAKE)
-
 # wbutton.c
 libWINGs_la_SOURCES = 	\
 	configuration.c \

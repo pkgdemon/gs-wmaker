@@ -1078,7 +1078,7 @@ static InspectorPanel *createInspectorForWindow(WWindow *wwin, int xpos, int ypo
 	WMSetButtonAction(panel->saveBtn, saveSettings, panel);
 	WMMoveWidget(panel->saveBtn, (2 * (btn_width + 10)) + 15, PHEIGHT - 40);
 	WMSetButtonText(panel->saveBtn, _("Save"));
-	WMResizeWidget(panel->saveBtn, btn_width, 28);
+	WMResizeWidget(panel->saveBtn, btn_width, 21);
 	if (wPreferences.flags.noupdates || !(wwin->wm_class || wwin->wm_instance))
 		WMSetButtonEnabled(panel->saveBtn, False);
 
@@ -1086,13 +1086,13 @@ static InspectorPanel *createInspectorForWindow(WWindow *wwin, int xpos, int ypo
 	WMSetButtonAction(panel->applyBtn, applySettings, panel);
 	WMMoveWidget(panel->applyBtn, btn_width + 10 + 15, PHEIGHT - 40);
 	WMSetButtonText(panel->applyBtn, _("Apply"));
-	WMResizeWidget(panel->applyBtn, btn_width, 28);
+	WMResizeWidget(panel->applyBtn, btn_width, 21);
 
 	panel->revertBtn = WMCreateCommandButton(panel->win);
 	WMSetButtonAction(panel->revertBtn, revertSettings, panel);
 	WMMoveWidget(panel->revertBtn, 15, PHEIGHT - 40);
 	WMSetButtonText(panel->revertBtn, _("Reload"));
-	WMResizeWidget(panel->revertBtn, btn_width, 28);
+	WMResizeWidget(panel->revertBtn, btn_width, 21);
 
 	/* page selection popup button */
 	panel->pagePopUp = WMCreatePopUpButton(panel->win);
