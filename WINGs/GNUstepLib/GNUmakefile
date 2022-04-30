@@ -24,12 +24,16 @@ include $(GNUSTEP_MAKEFILES)/common.make
 # Library
 #
 
+
 VERSION = 0.1
 PACKAGE_NAME = GNUstepLib
 LIBRARY_VAR = GNUSTEPLIB
 LIBRARY_NAME = WINGsGNUstep
-GNUstepLib_HEADER_FILES_DIR = .
-GNUstepLib_HEADER_FILES_INSTALL_DIR =
+
+ifneq ($(PREFIX),)
+  GNUSTEP_HEADERS = $(PREFIX)/include
+  LIBRARY_INSTALL_DIR = $(PREFIX)/lib
+endif
 
 #
 # Resource files
@@ -53,9 +57,6 @@ GNUstepLib.m
 #
 # Makefiles
 #
-
-install_lib:
-	cp -P ./obj/libWINGsGNUstep.so* /System/lib
 
 -include GNUmakefile.preamble
 include $(GNUSTEP_MAKEFILES)/aggregate.make

@@ -12,13 +12,19 @@ lib_LTLIBRARIES = libWUtil.la libWINGs.la
 
 
 LDADD= libWUtil.la libWINGs.la $(top_builddir)/wrlib/libwraster.la @INTLIBS@ 
-libWINGs_la_LIBADD = libWUtil.la $(top_builddir)/wrlib/libwraster.la @XLIBS@ @XFTLIBS@ @FCLIBS@ @LIBM@ @PANGOLIBS@ -L/System/lib -L./GNUstepLib/obj -lWINGsGNUstep
+libWINGs_la_LIBADD = libWUtil.la $(top_builddir)/wrlib/libwraster.la @XLIBS@ @XFTLIBS@ @FCLIBS@ @LIBM@ @PANGOLIBS@ -L./GNUstepLib/obj -lWINGsGNUstep
 libWUtil_la_LIBADD = @LIBBSD@
 
 EXTRA_DIST = BUGS make-rgb Examples Extras Tests
 
+clean-local:
+	cd ./GNUstepLib && $(MAKE) clean
+
 install-exec-hook:
-	@cd ./GNUstepLib && gmake install_lib
+	cd ./GNUstepLib && $(MAKE) PREFIX=$(prefix) install
+
+libWINGs.la:
+	cd ./GNUstepLib && $(MAKE)
 
 # wbutton.c
 libWINGs_la_SOURCES = 	\
