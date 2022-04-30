@@ -721,6 +721,7 @@ WMScreen *WMCreateScreenWithRContext(Display * display, int screen, RContext * c
 	WMBlackColor(scrPtr);
 	WMGrayColor(scrPtr);
 	WMDarkGrayColor(scrPtr);
+	WMScrollerColor(scrPtr);
 
 	gcv.graphics_exposures = False;
 
@@ -747,9 +748,15 @@ WMScreen *WMCreateScreenWithRContext(Display * display, int screen, RContext * c
 	gcv.background = W_PIXEL(scrPtr->gray);
 	gcv.fill_style = FillStippled;
 	gcv.stipple = stipple;
-	scrPtr->stippleGC = XCreateGC(display, W_DRAWABLE(scrPtr),
+
+  if (scrPtr->scroller) {
+	  scrPtr->stippleGC = WMColorGC(scrPtr->scroller);
+  }
+  else {
+	  scrPtr->stippleGC = XCreateGC(display, W_DRAWABLE(scrPtr),
 				      GCForeground | GCBackground | GCStipple
 				      | GCFillStyle | GCGraphicsExposures, &gcv);
+  }
 
 	scrPtr->drawStringGC = XCreateGC(display, W_DRAWABLE(scrPtr), GCGraphicsExposures, &gcv);
 	scrPtr->drawImStringGC = XCreateGC(display, W_DRAWABLE(scrPtr), GCGraphicsExposures, &gcv);

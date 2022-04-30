@@ -4,6 +4,7 @@
 #include "wconfig.h"
 
 #include <wraster.h>
+#include "./GNUstepLib/GNUstepLib.h"
 
 #define LIGHT_STIPPLE_WIDTH 4
 #define LIGHT_STIPPLE_HEIGHT 4
@@ -216,12 +217,43 @@ WMColor *WMBlackColor(WMScreen * scr)
 	return WMRetainColor(scr->black);
 }
 
+WMColor *WMColorFromGS(WMScreen * scr, char * nm) 
+{
+  WMColor *color = NULL;
+  GSColorInfo info = GSGetColorForName(nm);
+
+  if (info.valid) {
+		color = WMCreateRGBColor(scr, info.red*255, info.green*255, info.blue*255, True);
+		if (!color->flags.exact) {
+			wwarning(_("could not allocate %s color"), nm);
+    } 
+  }
+  else {
+		wwarning(_("color %s is not valid"), nm);
+  }
+  return color;
+}
+
+WMColor *WMScrollerColor(WMScreen * scr)
+{
+  if (!scr->scroller) {
+    WMColor *color = WMColorFromGS(scr, "SYSTEM_SCROLLER_COLOR");
+
+    if (color) {
+	    scr->scroller = color;
+    } 
+  }
+	return WMRetainColor(scr->scroller);
+}
+
 WMColor *WMGrayColor(WMScreen * scr)
 {
-	if (!scr->gray) {
-		WMColor *color;
+  if (!scr->gray) {
+    WMColor *color = WMColorFromGS(scr, "SYSTEM_GRAY_COLOR");
 
-		if (scr->depth == 1) {
+    if (color) {
+    } 
+    else if (scr->depth == 1) {
 			Pixmap stipple;
 			WMColor *white = WMWhiteColor(scr);
 			WMColor *black = WMBlackColor(scr);
@@ -257,9 +289,11 @@ WMColor *WMGrayColor(WMScreen * scr)
 WMColor *WMDarkGrayColor(WMScreen * scr)
 {
 	if (!scr->darkGray) {
-		WMColor *color;
+    WMColor *color = WMColorFromGS(scr, "SYSTEM_DARKGRAY_COLOR");
 
-		if (scr->depth == 1) {
+    if (color) {
+    }
+    else if (scr->depth == 1) {
 			Pixmap stipple;
 			WMColor *white = WMWhiteColor(scr);
 			WMColor *black = WMBlackColor(scr);

@@ -230,31 +230,31 @@ static void createMainWindow(WMScreen * scr)
 	WMSetScrollViewContentView(WPrefs.scrollV, WMWidgetView(WPrefs.buttonF));
 
 	WPrefs.undosBtn = WMCreateCommandButton(WPrefs.win);
-	WMResizeWidget(WPrefs.undosBtn, 90, 28);
+	WMResizeWidget(WPrefs.undosBtn, 90, 21);
 	WMMoveWidget(WPrefs.undosBtn, 135, 350);
 	WMSetButtonText(WPrefs.undosBtn, _("Revert Page"));
 	WMSetButtonAction(WPrefs.undosBtn, undo, NULL);
 
 	WPrefs.undoBtn = WMCreateCommandButton(WPrefs.win);
-	WMResizeWidget(WPrefs.undoBtn, 90, 28);
+	WMResizeWidget(WPrefs.undoBtn, 90, 21);
 	WMMoveWidget(WPrefs.undoBtn, 235, 350);
 	WMSetButtonText(WPrefs.undoBtn, _("Revert All"));
 	WMSetButtonAction(WPrefs.undoBtn, undoAll, NULL);
 
 	WPrefs.saveBtn = WMCreateCommandButton(WPrefs.win);
-	WMResizeWidget(WPrefs.saveBtn, 80, 28);
+	WMResizeWidget(WPrefs.saveBtn, 80, 21);
 	WMMoveWidget(WPrefs.saveBtn, 335, 350);
 	WMSetButtonText(WPrefs.saveBtn, _("Save"));
 	WMSetButtonAction(WPrefs.saveBtn, save, NULL);
 
 	WPrefs.closeBtn = WMCreateCommandButton(WPrefs.win);
-	WMResizeWidget(WPrefs.closeBtn, 80, 28);
+	WMResizeWidget(WPrefs.closeBtn, 80, 21);
 	WMMoveWidget(WPrefs.closeBtn, 425, 350);
 	WMSetButtonText(WPrefs.closeBtn, _("Close"));
 	WMSetButtonAction(WPrefs.closeBtn, quit, NULL);
 
 	WPrefs.balloonBtn = WMCreateSwitchButton(WPrefs.win);
-	WMResizeWidget(WPrefs.balloonBtn, 200, 28);
+	WMResizeWidget(WPrefs.balloonBtn, 200, 21);
 	WMMoveWidget(WPrefs.balloonBtn, 15, 350);
 	WMSetButtonText(WPrefs.balloonBtn, _("Balloon Help"));
 	WMSetButtonAction(WPrefs.balloonBtn, toggleBalloons, NULL);
