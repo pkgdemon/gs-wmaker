@@ -26,6 +26,8 @@
 #import	<AppKit/AppKit.h>
 
 const char* GSGetFontForName(char* name) {
+  return NULL;
+  /*
   CREATE_AUTORELEASE_POOL(pool);
 
   [NSApplication sharedApplication];
@@ -45,6 +47,7 @@ const char* GSGetFontForName(char* name) {
   else {
     return NULL;
   }
+  */
 }
 
 int GSGetAntialiasText() {
@@ -65,12 +68,14 @@ int GSGetAntialiasText() {
 
 int GSGetFontDefaultFontSize() {
   CGFloat sz = 0;
+  /*
   CREATE_AUTORELEASE_POOL(pool);
   [NSApplication sharedApplication];
 
   sz = [NSFont systemFontSize];
 
   RELEASE(pool);
+  */
   return (int)sz;
 }
 
