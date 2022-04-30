@@ -488,7 +488,7 @@ void wMenuRealize(WMenu * menu)
 		twidth = 0;
 		theight = 0;
 	}
-	eheight = WMFontHeight(scr->menu_entry_font) + 6 + wPreferences.menu_text_clearance * 2;
+	eheight = WMFontHeight(scr->menu_entry_font) + 5 + wPreferences.menu_text_clearance * 2;
 	menu->entry_height = eheight;
 	mrwidth = 0;
 	mwidth = 0;
