@@ -47,6 +47,7 @@ typedef struct WApplication {
 
 WApplication *wApplicationCreate(struct WWindow *wwin);
 WApplication *wApplicationOf(Window window);
+WApplication *wGNUstepApplicationOf(Window window);
 void wApplicationDestroy(WApplication *wapp);
 
 void wAppBounce(WApplication *);

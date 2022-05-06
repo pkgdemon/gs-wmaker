@@ -1673,11 +1673,13 @@ void wHideAll(WScreen *scr)
 void wHideOtherApplications(WWindow *awin)
 {
 	WWindow *wwin;
+  WApplication *wapp;
 	WApplication *tapp;
 
 	if (!awin)
 		return;
 	wwin = awin->screen_ptr->focused_window;
+  wapp = wApplicationOf(wwin->main_window);
 
 	while (wwin) {
 		if (wwin != awin
@@ -1686,7 +1688,11 @@ void wHideOtherApplications(WWindow *awin)
 		    && !wwin->flags.internal_window
 		    && wGetWindowOfInspectorForWindow(wwin) != awin && !WFLAGP(wwin, no_hide_others)) {
 
-			if (wwin->main_window == None || WFLAGP(wwin, no_appicon)) {
+      if (tapp != wapp && wwin->protocols.HIDE_APP) {
+        /* WMLogInfo("send WM_HIDE_APP protocol message to client."); */
+        wClientSendProtocol(wwin, w_global.atom.gnustep.wm_hide_app, CurrentTime);
+      }
+      else if (wwin->main_window == None || WFLAGP(wwin, no_appicon)) {
 				if (!WFLAGP(wwin, no_miniaturizable)) {
 					wwin->flags.skip_next_animation = 1;
 					wIconifyWindow(wwin);

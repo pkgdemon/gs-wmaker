@@ -1035,6 +1035,16 @@ static void handleClientMessage(XEvent * event)
 		WApplication *wapp;
 		int done = 0;
 		wapp = wApplicationOf(event->xclient.window);
+    if (!wapp) {
+      char* wm_class = NULL;
+      char* wm_instance = NULL;
+      if (PropGetWMClass(event->xclient.window, &wm_class, &wm_instance)) {
+        if (wm_class && !strcmp(wm_class, "GNUstep")) {
+          wapp = wGNUstepApplicationOf(event->xclient.window);
+        }
+      }
+    }
+
 		if (wapp) {
 			switch (event->xclient.data.l[0]) {
 			case WMFHideOtherApplications:

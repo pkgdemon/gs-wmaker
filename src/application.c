@@ -63,6 +63,41 @@ static WWindow *makeMainWindow(WScreen * scr, Window window)
 	return wwin;
 }
 
+#include <stdio.h>
+
+WApplication *wGNUstepApplicationOf(Window window)
+{
+	WApplication *wapp = NULL;
+
+	if (window == None) return NULL;
+	if (XFindContext(dpy, window, w_global.context.app_win, (XPointer *) & wapp) != XCSUCCESS) {
+    //try harder to figure out what this window belongs to
+    WWindow* wwin = wWindowFor(window);
+    if (wwin) {
+	    if (XFindContext(dpy, wwin->main_window, w_global.context.app_win, (XPointer *) & wapp) != XCSUCCESS) {
+        return NULL;
+      }
+    }
+    else {
+      WScreen* scr = wScreenForWindow(window);
+      if (scr) {
+        WWindow* wwin = scr->focused_window;
+        if (wwin) {
+          printf("%lx\n", wwin->client_win);
+          if (XFindContext(dpy, wwin->main_window, w_global.context.app_win, (XPointer *) & wapp) != XCSUCCESS) {
+          printf("XXXXXX\n");
+            return NULL;
+          }
+          else {
+            printf("YYYYYYY\n");
+          }
+        }
+      }
+    }
+  }
+	return wapp;
+}
+
 WApplication *wApplicationOf(Window window)
 {
 	WApplication *wapp;
@@ -71,6 +106,7 @@ WApplication *wApplicationOf(Window window)
 		return NULL;
 	if (XFindContext(dpy, window, w_global.context.app_win, (XPointer *) & wapp) != XCSUCCESS)
 		return NULL;
+
 	return wapp;
 }
 
