@@ -26,28 +26,22 @@
 #import	<AppKit/AppKit.h>
 
 const char* GSGetFontForName(char* name) {
-  return NULL;
-  /*
   CREATE_AUTORELEASE_POOL(pool);
 
-  [NSApplication sharedApplication];
-  NSFont* font = nil;
+  const char* val = NULL;
+  NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
+  NSMutableDictionary* domain = [[defaults persistentDomainForName:NSGlobalDomain] mutableCopy];
+
   if (strcmp(name, "SYSTEM_FONT") == 0) {
-    font = [NSFont systemFontOfSize:[NSFont systemFontSize]];
+    val = [[domain valueForKey:@"NSFont"] UTF8String];
   }
   else if (strcmp(name, "SYSTEM_BOLDFONT") == 0) {
-    font = [NSFont systemFontOfSize:[NSFont systemFontSize]];
+    val = [[domain valueForKey:@"NSBoldFont"] UTF8String];
   }
 
   RELEASE(pool);
 
-  if (font) {
-    return [[font fontName] UTF8String];
-  }
-  else {
-    return NULL;
-  }
-  */
+  return val;
 }
 
 int GSGetAntialiasText() {
@@ -67,16 +61,16 @@ int GSGetAntialiasText() {
 }
 
 int GSGetFontDefaultFontSize() {
-  CGFloat sz = 0;
-  /*
   CREATE_AUTORELEASE_POOL(pool);
-  [NSApplication sharedApplication];
+  int sz = 0;
 
-  sz = [NSFont systemFontSize];
+  NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
+  NSMutableDictionary* domain = [[defaults persistentDomainForName:NSGlobalDomain] mutableCopy];
+
+  sz = [[domain valueForKey:@"NSFontSize"] integerValue];
 
   RELEASE(pool);
-  */
-  return (int)sz;
+  return sz;
 }
 
 GSColorInfo GSGetColorForName(char* name) {
