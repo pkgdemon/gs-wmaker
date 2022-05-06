@@ -27,6 +27,7 @@
 #include <X11/Xutil.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 #include <math.h>
 #include <time.h>
@@ -1746,7 +1747,17 @@ void wHideApplication(WApplication *wapp)
 	animate = !wapp->flags.skip_next_animation;
 
 	while (wlist) {
+    int dohide = 0;
+
 		if (wlist->main_window == wapp->main_window) {
+      dohide = 1;
+    }
+    else if (wlist->flags.is_gnustep
+          && !strcmp(wlist->wm_instance, wapp->main_window_desc->wm_instance)) {
+      dohide = 1;
+    }
+
+		if (dohide) {
 			if (wlist->flags.focused)
 				hadfocus = 1;
 			if (wapp->app_icon) {
@@ -1755,6 +1766,7 @@ void wHideApplication(WApplication *wapp)
 				animate = False;
 			}
 		}
+
 		wlist = wlist->prev;
 	}
 
