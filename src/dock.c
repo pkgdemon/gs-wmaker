@@ -2036,17 +2036,17 @@ void wDockDoAutoLaunch(WDock *dock, int workspace)
 		/* TODO: this is klugy and is very difficult to understand
 		 * what's going on. Try to clean up */
 
-		if (btn->command && !strcmp(btn->wm_class, "GNUstep") && !strstr(btn->command, "autolaunch")) {
-		orig_command = btn->command;
-		command = wstrdup(orig_command);
-		command = wstrappend(command, "  -autolaunch YES");
-		btn->command = command;
-	}
+		if (btn->command && !strcmp(btn->wm_class, "GNUstep") && !strstr(btn->command, "-autolaunch")) {
+			orig_command = btn->command;
+			command = wstrdup(orig_command);
+			command = wstrappend(command, " -autolaunch YES");
+			btn->command = command;
+		}
 
 		wDockLaunchWithState(btn, state);
 
 		// Return 'command' field into initial state (without -autolaunch)
-		if (!strcmp(btn->wm_class, "GNUstep")) {
+		if (command && !strcmp(btn->wm_class, "GNUstep")) {
 			btn->command = orig_command;
 			wfree(command);
 			orig_command = NULL;
@@ -3209,6 +3209,7 @@ void wDockFinishLaunch(WAppIcon *icon)
 WAppIcon *wDockFindIconForWindow(WDock *dock, Window window)
 {
 	WAppIcon *icon;
+	char *wm_class, *wm_instance;
 	int i;
 
 	for (i = 0; i < dock->max_icons; i++) {
@@ -3216,6 +3217,26 @@ WAppIcon *wDockFindIconForWindow(WDock *dock, Window window)
 		if (icon && icon->main_window == window)
 			return icon;
 	}
+
+  //another try for GNUstep apps
+  //if autolaunched, there might not be a window yet
+	for (i = 0; i < dock->max_icons; i++) {
+		icon = dock->icon_array[i];
+		if (icon && !strcmp(icon->wm_class, "GNUstep")) {
+	    if (PropGetWMClass(window, &wm_class, &wm_instance)) {
+
+        //look for the same instance
+        if (!strcmp(icon->wm_instance, wm_instance)) {
+          free(wm_class);
+          free(wm_instance);
+			    return icon;
+        }
+      }
+      free(wm_class);
+      free(wm_instance);
+    }
+	}
+
 	return NULL;
 }
 
