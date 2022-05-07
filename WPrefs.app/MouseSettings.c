@@ -438,11 +438,13 @@ static void createPanel(Panel * p)
 {
 	_Panel *panel = (_Panel *) p;
 	WMScreen *scr = WMWidgetScreen(panel->parent);
+	WMUserDefaults *udb = WMGetStandardUserDefaults();
 	WMPixmap *icon;
 	char *buf1, *buf2;
 	int i;
 	RColor color;
 	char *path;
+	int nox = WMGetUDBoolForKey(udb, "NoXSetStuff");
 
 	color.red = 0xae;
 	color.green = 0xaa;
@@ -452,10 +454,11 @@ static void createPanel(Panel * p)
 	WMSetViewExpandsToParent(WMWidgetView(panel->box), 2, 2, 2, 2);
 
     /**************** Mouse Speed ****************/
+
 	panel->speedF = WMCreateFrame(panel->box);
 	WMResizeWidget(panel->speedF, 219, 85);
 	WMMoveWidget(panel->speedF, 9, 54);
-	WMSetFrameTitle(panel->speedF, _("Mouse Speed"));
+	if (!nox) WMSetFrameTitle(panel->speedF, _("Mouse Speed"));
 
 	panel->speedL = WMCreateLabel(panel->speedF);
 	WMResizeWidget(panel->speedL, 40, 46);
@@ -503,7 +506,7 @@ static void createPanel(Panel * p)
 	WMMoveWidget(panel->threT, 178, 56);
 	WMAddNotificationObserver(returnPressed, panel, WMTextDidEndEditingNotification, panel->threT);
 
-	WMMapSubwidgets(panel->speedF);
+	if (!nox) WMMapSubwidgets(panel->speedF);
 
 	/* ************** Grab Modifier **************** */
 	panel->grabF = WMCreateFrame(panel->box);
@@ -527,7 +530,7 @@ static void createPanel(Panel * p)
 	panel->ddelaF = WMCreateFrame(panel->box);
 	WMResizeWidget(panel->ddelaF, 219, 80);
 	WMMoveWidget(panel->ddelaF, 9, 142);
-	WMSetFrameTitle(panel->ddelaF, _("Double-Click Delay"));
+	if (!nox) WMSetFrameTitle(panel->ddelaF, _("Double-Click Delay"));
 
 	buf1 = wmalloc(strlen(DELAY_ICON) + 2);
 	buf2 = wmalloc(strlen(DELAY_ICON_S) + 2);
@@ -594,7 +597,7 @@ static void createPanel(Panel * p)
 	}
 	WMSetLabelText(panel->ddelaL, _("ms"));
 
-	WMMapSubwidgets(panel->ddelaF);
+	if (!nox) WMMapSubwidgets(panel->ddelaF);
 
 	/* ************** Workspace Action Buttons **************** */
 
