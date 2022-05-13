@@ -1707,8 +1707,6 @@ static void delaySelection(void *data)
 static void menuMouseDown(WObjDescriptor * desc, XEvent * event)
 {
 	WWindow *wwin;
-	WWindow *gnustep_menu = NULL;
-	WWindow *last_focused = NULL;
 	XButtonEvent *bev = &event->xbutton;
 	WMenu *menu = desc->parent;
 	WMenu *smenu;
@@ -1828,8 +1826,7 @@ static void menuMouseDown(WObjDescriptor * desc, XEvent * event)
 		}
 	}
 
-	gnustep_menu = wHideGNUstepMenu(scr);
-	last_focused = scr->focused_window;
+	wHideGNUstepMenu(scr);
 
 	prevx = bev->x_root;
 	prevy = bev->y_root;
@@ -2044,9 +2041,7 @@ static void menuMouseDown(WObjDescriptor * desc, XEvent * event)
 
 	((WMenu *) desc->parent)->flags.inside_handler = 0;
 
-	if (gnustep_menu && last_focused == scr->focused_window) {
-		wWindowMap(gnustep_menu);
-	}
+	wRestoreGNUstepMenu(scr);
 }
 
 void wMenuMove(WMenu * menu, int x, int y, int submenus)
