@@ -1718,23 +1718,45 @@ void wHideOtherApplications(WWindow *awin)
 	 */
 }
 
-WWindow* wHideGNUstepMenu(WScreen *scr)
+void wHideGNUstepMenu(WScreen *scr)
 {
 	WWindow *wlist;
 	wlist = scr->focused_window;
 	if (!wlist)
-		return NULL;
+		return;
 
 	while (wlist) {
 		if (wlist->flags.is_gnustep && wlist->client_flags.no_titlebar) {
 			wWindowUnmap(wlist);
-			return wlist;
+			wlist->flags.is_temp_hidden = 1;
+		}
+		else {
+			wlist->flags.is_temp_hidden = 0;
 		}
 
 		wlist = wlist->prev;
 	}
 
-	return NULL;
+	return;
+}
+
+void wRestoreGNUstepMenu(WScreen *scr)
+{
+	WWindow *wlist;
+	wlist = scr->focused_window;
+	if (!wlist)
+		return;
+
+	while (wlist) {
+		if (wlist->flags.is_temp_hidden) {
+			wWindowMap(wlist);
+			wlist->flags.is_temp_hidden = 0;
+		}
+
+		wlist = wlist->prev;
+	}
+
+	return;
 }
 
 void wHideApplication(WApplication *wapp)

@@ -264,6 +264,7 @@ typedef struct WWindow {
 #endif
 
 		/* info flags */
+		unsigned int is_temp_hidden:1;	/* menu temporarily hidden  */
 		unsigned int is_gnustep:1;	/* 1 if the window belongs to a GNUstep
 						 * app */
 		unsigned int is_dockapp:1;	/* 1 if the window belongs to a DockApp */

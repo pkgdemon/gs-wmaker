@@ -61,7 +61,8 @@ void wMaximizeWindow(WWindow *wwin, int directions, int head);
 void wUnmaximizeWindow(WWindow *wwin);
 void handleMaximize(WWindow *wwin, int directions);
 
-WWindow* wHideGNUstepMenu(WScreen *scr);
+void wHideGNUstepMenu(WScreen *scr);
+void wRestoreGNUstepMenu(WScreen *scr);
 
 void wHideAll(WScreen *src);
 void wHideOtherApplications(WWindow *wwin);
