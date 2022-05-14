@@ -1726,7 +1726,9 @@ void wHideGNUstepMenu(WScreen *scr)
 		return;
 
 	while (wlist) {
-		if (wlist->flags.is_gnustep && wlist->client_flags.no_titlebar) {
+		if (wlist->flags.is_gnustep && 
+				wlist->client_flags.no_titlebar && 
+				IS_GNUSTEP_MENU(wlist)) {
 			wWindowUnmap(wlist);
 			wlist->flags.is_temp_hidden = 1;
 		}
