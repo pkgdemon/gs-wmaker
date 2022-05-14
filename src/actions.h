@@ -44,6 +44,12 @@
 	((w)->wm_gnustep_attr->window_level == WMMainMenuWindowLevel || \
 	 (w)->wm_gnustep_attr->window_level == WMSubmenuWindowLevel))
 
+#define IS_GNUSTEP_POPUP_MENU(w) ((w)->wm_gnustep_attr && \
+	((w)->wm_gnustep_attr->flags & GSWindowLevelAttr) && \
+	 (w)->transient_for == 0 && \
+	 (w)->flags.focused == 1 && \
+	 (w)->wm_gnustep_attr->window_level == WMPopUpMenuWindowLevel)
+
 void wSetFocusTo(WScreen *scr, WWindow *wwin);
 
 int wMouseMoveWindow(WWindow *wwin, XEvent *ev);

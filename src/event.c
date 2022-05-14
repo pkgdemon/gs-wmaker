@@ -129,6 +129,9 @@ typedef struct DeadProcesses {
 static DeadProcesses deadProcesses[MAX_DEAD_PROCESSES];
 static int deadProcessPtr = 0;
 
+/* GNUstep menus */
+static Window GNUstep_popup_menu = -1;
+
 typedef struct DeathHandler {
 	WDeathHandler *callback;
 	pid_t pid;
@@ -594,6 +597,7 @@ static void handleMapRequest(XEvent * ev)
 	Window window = ev->xmaprequest.window;
 
 	wwin = wWindowFor(window);
+
 	if (wwin != NULL) {
 		if (wwin->flags.shaded) {
 			wUnshadeWindow(wwin);
@@ -615,6 +619,10 @@ static void handleMapRequest(XEvent * ev)
 	scr = wScreenForRootWindow(ev->xmaprequest.parent);
 
 	wwin = wManageWindow(scr, window);
+	if (IS_GNUSTEP_POPUP_MENU(wwin)) {
+		wHideGNUstepMenu(scr);
+		GNUstep_popup_menu = window;
+	}
 
 	/*
 	 * This is to let the Dock know that the application it launched
@@ -891,6 +899,7 @@ static void handleMapNotify(XEvent * event)
 	WWindow *wwin;
 
 	wwin = wWindowFor(event->xmap.event);
+
 	if (wwin && wwin->client_win == event->xmap.event) {
 		if (wwin->flags.miniaturized) {
 			wDeiconifyWindow(wwin);
@@ -912,8 +921,14 @@ static void handleUnmapNotify(XEvent * event)
 	/* only process windows with StructureNotify selected
 	 * (ignore SubstructureNotify) */
 	wwin = wWindowFor(event->xunmap.window);
-	if (!wwin)
+	if (!wwin) {
+		if (event->xunmap.window == GNUstep_popup_menu) {
+			WScreen* scr = wScreenForRootWindow(event->xmaprequest.parent);
+			wRestoreGNUstepMenu(scr);
+			GNUstep_popup_menu = -1;
+		}
 		return;
+	}
 
 	/* whether the event is a Withdrawal request */
 	if (event->xunmap.event == wwin->screen_ptr->root_win && event->xunmap.send_event)
