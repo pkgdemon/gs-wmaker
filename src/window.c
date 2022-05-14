@@ -236,6 +236,7 @@ void wWindowDestroy(WWindow *wwin)
 
 static void setupGNUstepHints(WWindow *wwin, GNUstepWMAttributes *gs_hints)
 {
+	wwin->client_flags.dont_move_off = 1;
 	if (gs_hints->flags & GSWindowStyleAttr) {
 		if (gs_hints->window_style == WMBorderlessWindowMask) {
 			wwin->client_flags.no_border = 1;
