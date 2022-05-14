@@ -619,7 +619,7 @@ static void handleMapRequest(XEvent * ev)
 	scr = wScreenForRootWindow(ev->xmaprequest.parent);
 
 	wwin = wManageWindow(scr, window);
-	if (IS_GNUSTEP_POPUP_MENU(wwin)) {
+	if (wwin && IS_GNUSTEP_POPUP_MENU(wwin)) {
 		wHideGNUstepMenu(scr);
 		GNUstep_popup_menu = window;
 	}
