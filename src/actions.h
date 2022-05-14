@@ -39,6 +39,11 @@
 #define SAVE_GEOMETRY_HEIGHT   (1 << 3)
 #define SAVE_GEOMETRY_ALL      SAVE_GEOMETRY_X | SAVE_GEOMETRY_Y | SAVE_GEOMETRY_WIDTH | SAVE_GEOMETRY_HEIGHT
 
+#define IS_GNUSTEP_MENU(w) ((w)->wm_gnustep_attr && \
+	((w)->wm_gnustep_attr->flags & GSWindowLevelAttr) && \
+	((w)->wm_gnustep_attr->window_level == WMMainMenuWindowLevel || \
+	 (w)->wm_gnustep_attr->window_level == WMSubmenuWindowLevel))
+
 void wSetFocusTo(WScreen *scr, WWindow *wwin);
 
 int wMouseMoveWindow(WWindow *wwin, XEvent *ev);

@@ -39,11 +39,6 @@
 #include "framewin.h"
 #include "switchmenu.h"
 
-#define IS_GNUSTEP_MENU(w) ((w)->wm_gnustep_attr && \
-	((w)->wm_gnustep_attr->flags & GSWindowLevelAttr) && \
-	((w)->wm_gnustep_attr->window_level == WMMainMenuWindowLevel || \
-	 (w)->wm_gnustep_attr->window_level == WMSubmenuWindowLevel))
-
 static int initialized = 0;
 static void observer(void *self, WMNotification * notif);
 static void wsobserver(void *self, WMNotification * notif);
