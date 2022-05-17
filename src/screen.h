@@ -281,6 +281,7 @@ typedef struct _WScreen {
 
 #ifdef USE_DOCK_XDND
     char *xdestring;
+		int xdest_is_gnustep;
 #endif
 
     struct NetData *netdata;

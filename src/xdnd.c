@@ -33,7 +33,9 @@
 #include "dock.h"
 #include "xdnd.h"
 #include "workspace.h"
+#include "properties.h"
 
+#include "../WINGs/GNUstepLib/GNUstepLib.h"
 
 static Atom _XA_XdndAware;
 static Atom _XA_XdndEnter;
@@ -291,6 +293,19 @@ Bool wXDNDProcessClientMessage(XClientMessageEvent *event)
 		if (XDND_DROP_SOURCE_WIN(event) == XGetSelectionOwner(dpy, _XA_XdndSelection)) {
 			XConvertSelection(dpy, _XA_XdndSelection, selected_typelist,
 					  _XA_WINDOWMAKER_XDNDEXCHANGE, event->window, CurrentTime);
+
+			char *wm_class = NULL;
+			char *wm_instance = NULL;
+			if (PropGetWMClass(XDND_DROP_SOURCE_WIN(event), &wm_class, &wm_instance) && !strcmp(wm_class, "GNUstep")) {
+				char* fl = GSGetDroppedFilePath();
+				if (fl != NULL) {
+					WScreen *scr = wScreenForWindow(event->window);
+					scr->xdestring = fl;
+					wDockReceiveDNDDrop(scr, (XEvent*)event);
+				}
+			}
+			free(wm_class);
+			free(wm_instance);
 		}
 		return True;
 	} else if (event->message_type == _XA_XdndPosition) {

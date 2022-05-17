@@ -506,7 +506,7 @@ getuserinput(WScreen *scr, const char *line, int *ptr, Bool advanced)
  * OPTION	W	NORMAL		<current workspace>
  * OPTION	etc.	NORMAL		%<input>
  */
-#define TMPBUFSIZE 64
+#define TMPBUFSIZE 256
 char *ExpandOptions(WScreen *scr, const char *cmdline)
 {
 	int ptr, optr, state, len, olen;
@@ -627,6 +627,7 @@ char *ExpandOptions(WScreen *scr, const char *cmdline)
 					goto error;
 				}
 				slen = strlen(scr->xdestring);
+				if (scr->xdest_is_gnustep) slen += 13;
 				olen += slen;
 				nout = realloc(out, olen);
 				if (!nout) {
@@ -634,6 +635,7 @@ char *ExpandOptions(WScreen *scr, const char *cmdline)
 					goto error;
 				}
 				out = nout;
+				if (scr->xdest_is_gnustep) strcat(out, "-GSFilePath ");
 				strcat(out, scr->xdestring);
 				optr += slen;
 				break;

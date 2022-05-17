@@ -25,10 +25,32 @@
 #import "GNUstepLib.h"
 #import	<AppKit/AppKit.h>
 
+const char* GSGetDroppedFilePath() {
+  CREATE_AUTORELEASE_POOL(pool);
+
+  const char* val = NULL;
+  char* rv = NULL;
+  NSPasteboard* pb = [NSPasteboard pasteboardWithName:NSDragPboard];
+  NSArray *ls = [pb propertyListForType:NSFilenamesPboardType];
+  NSString* path = [ls firstObject];
+  val = [path UTF8String];
+
+  if (val) {
+    int sz = strlen(val)+1;
+    rv = malloc(sz);
+    strncpy(rv, val, sz);
+  }
+
+  RELEASE(pool);
+
+  return rv;
+}
+
 const char* GSGetFontForName(char* name) {
   CREATE_AUTORELEASE_POOL(pool);
 
   const char* val = NULL;
+  char* rv = NULL;
   NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
   NSMutableDictionary* domain = [[defaults persistentDomainForName:NSGlobalDomain] mutableCopy];
 
@@ -37,6 +59,12 @@ const char* GSGetFontForName(char* name) {
   }
   else if (strcmp(name, "SYSTEM_BOLDFONT") == 0) {
     val = [[domain valueForKey:@"NSBoldFont"] UTF8String];
+  }
+
+  if (val) {
+    int sz = strlen(val)+1;
+    rv = malloc(sz);
+    strncpy(rv, val, sz);
   }
 
   RELEASE(pool);

@@ -2125,6 +2125,13 @@ int wDockReceiveDNDDrop(WScreen *scr, XEvent *event)
 				btn->running = 0;
 		}
 
+		if (!strcmp(btn->wm_class, "GNUstep")) {
+			scr->xdest_is_gnustep = 1;
+		}
+		else {
+			scr->xdest_is_gnustep = 1;
+		}
+
 		btn->paste_launch = 0;
 		btn->drop_launch = 1;
 		scr->last_dock = dock;
