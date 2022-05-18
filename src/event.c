@@ -623,19 +623,24 @@ static void handleMapRequest(XEvent * ev)
 
 	if (PropGetGNUstepWMAttr(window, &wm_gnustep_attr)) {
 		Window transient_for = 0;
+		WProtocols protocols;
 		XGetTransientForHint(dpy, window, &transient_for);
+		PropGetProtocols(window, &protocols);
 
 		if (wm_gnustep_attr->flags & GSWindowLevelAttr && \
 				transient_for == 0 && \
 				wm_gnustep_attr->window_level == WMPopUpMenuWindowLevel) {
 
-			if (GNUstep_popup_menu == -1) GNUstep_popup_menu = window;
+			if (protocols.TAKE_FOCUS == 1) { //is most likely a popup menu
+				if (GNUstep_popup_menu == -1) GNUstep_popup_menu = window;
+				wHideGNUstepMenu(scr);
+			}
 
-			wHideGNUstepMenu(scr);
 			XMapWindow(dpy, window);
 			XRaiseWindow(dpy, window);
 			XSync(dpy, False);
 			wfree(wm_gnustep_attr);
+
 			return;
 		}
 		if (wm_gnustep_attr->flags & GSWindowLevelAttr && \
