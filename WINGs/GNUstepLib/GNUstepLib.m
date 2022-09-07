@@ -24,6 +24,7 @@
 
 #import "GNUstepLib.h"
 #import	<AppKit/AppKit.h>
+#import <GNUstepGUI/GSTheme.h>
 
 const char* GSGetDroppedFilePath() {
   CREATE_AUTORELEASE_POOL(pool);
@@ -102,6 +103,7 @@ int GSGetFontDefaultFontSize() {
 }
 
 GSColorInfo GSGetColorForName(char* name) {
+  GSTheme* theme = [GSTheme theme];
   GSColorInfo i = {0, 0, 0, 0};
   CGFloat r, g, b, a;
 
