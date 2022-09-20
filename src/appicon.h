@@ -48,6 +48,7 @@ typedef struct WAppIcon {
 	pid_t pid;			 /* for apps launched from the dock */
 	Window main_window;
 	struct WDock *dock;		 /* In which dock is docked. */
+	struct WDock *drag_dock;
 	struct _AppSettingsPanel *panel; /* Settings Panel */
 	unsigned int docked:1;
 	unsigned int omnipresent:1;	 /* If omnipresent when
@@ -71,7 +72,11 @@ typedef struct WAppIcon {
 
 WAppIcon *wAppIconCreateForDock(WScreen *scr, const char *command, const char *wm_instance,
 				const char *wm_class, int tile);
+WAppIcon *wAppIconCreateForDrag(WScreen *scr, const char *command, const char *wm_instance,
+				const char *wm_class);
 Bool wHandleAppIconMove(WAppIcon *aicon, XEvent *event);
+Bool wHandleAppIconDrag(WAppIcon *aicon, XEvent *event, int drag);
+Bool wHandleAppIconMoveOrDrag(WAppIcon *aicon, XEvent *event, int drag);
 
 void wAppIconDestroy(WAppIcon *aicon);
 void wAppIconPaint(WAppIcon *aicon);

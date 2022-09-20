@@ -26,6 +26,14 @@
 #import	<AppKit/AppKit.h>
 #import <GNUstepGUI/GSTheme.h>
 
+int GSLaunchApp(const char *pathname, char *const argv[]) {
+  CREATE_AUTORELEASE_POOL(pool);
+  NSWorkspace* ws = [NSWorkspace sharedWorkspace];
+  //[ws openFile:path withApplication:app]
+  RELEASE(pool);
+  return -1;
+}
+
 const char* GSGetDroppedFilePath() {
   CREATE_AUTORELEASE_POOL(pool);
 

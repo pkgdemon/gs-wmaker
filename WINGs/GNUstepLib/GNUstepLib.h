@@ -32,6 +32,7 @@ typedef struct {
   int valid;
 } GSColorInfo;
 
+extern int GSLaunchApp(const char *pathname, char *const argv[]);
 extern int GSGetAntialiasText(void);
 extern int GSGetFontDefaultFontSize(void);
 extern int GSGetAntialiasText(void);

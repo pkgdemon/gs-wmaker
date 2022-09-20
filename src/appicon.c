@@ -28,6 +28,7 @@
 #include <libgen.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdio.h>
 #include <sys/stat.h>
 #include <errno.h>
 
@@ -105,6 +106,40 @@ void wApplicationExtractDirPackIcon(const char *path, const char *wm_instance, c
 		}
 	}
 }
+
+static WAppIcon* __sharedappicon = NULL;
+
+WAppIcon *wAppIconCreateForDrag(WScreen *scr, const char *command, const char *wm_instance, const char *wm_class)
+{
+	if (!__sharedappicon) {
+		WAppIcon *aicon;
+		aicon = wmalloc(sizeof(WAppIcon));
+		wretain(aicon);
+		aicon->yindex = -1;
+		aicon->xindex = -1;
+		aicon->prev = NULL;
+		aicon->next = NULL;
+		aicon->dock = NULL;
+		aicon->drag_dock = NULL;
+
+		if (command)
+			aicon->command = wstrdup(command);
+
+		if (wm_class)
+			aicon->wm_class = wstrdup(wm_class);
+
+		if (wm_instance)
+			aicon->wm_instance = wstrdup(wm_instance);
+
+		aicon->icon = icon_create_for_dock(scr, command, wm_instance, wm_class, TILE_NORMAL);
+		//aicon->icon = icon;	aicon->icon->core = wmalloc(sizeof(WCoreWindow));
+		//aicon->icon->core->screen_ptr = scr;
+		__sharedappicon = aicon;
+	}
+
+	return __sharedappicon;
+}
+
 
 WAppIcon *wAppIconCreateForDock(WScreen *scr, const char *command, const char *wm_instance, const char *wm_class, int tile)
 {
@@ -371,7 +406,9 @@ static void drawCorner(WIcon * icon)
 
 void wAppIconMove(WAppIcon * aicon, int x, int y)
 {
-	XMoveWindow(dpy, aicon->icon->core->window, x, y);
+	if (aicon->icon->core->window) {
+		XMoveWindow(dpy, aicon->icon->core->window, x, y);
+	}
 	aicon->x_pos = x;
 	aicon->y_pos = y;
 }
@@ -744,6 +781,24 @@ void appIconMouseDown(WObjDescriptor * desc, XEvent * event)
 
 Bool wHandleAppIconMove(WAppIcon *aicon, XEvent *event)
 {
+	/* this is normal appicon move */
+	return wHandleAppIconMoveOrDrag(aicon, event, 0);
+}
+
+Bool wHandleAppIconDrag(WAppIcon *aicon, XEvent *event, int drag)
+{
+	WScreen *scr = aicon->icon->core->screen_ptr;
+
+	add_to_appicon_list(scr, aicon); /* add icon into the list, so that we can find it */
+	Bool rv = wHandleAppIconMoveOrDrag(aicon, event, drag);
+	remove_from_appicon_list(scr, aicon); /* remove it again */
+
+	return rv;
+}
+
+/* very hacky way to support drag&drop on a dock using the same code */
+Bool wHandleAppIconMoveOrDrag(WAppIcon *aicon, XEvent *event, int drag)
+{
 	WIcon *icon = aicon->icon;
 	WScreen *scr = icon->core->screen_ptr;
 	WDock *originalDock = aicon->dock; /* can be NULL */
@@ -774,33 +829,6 @@ Bool wHandleAppIconMove(WAppIcon *aicon, XEvent *event)
 	if (wPreferences.flags.noupdates && originalDock != NULL)
 		return False;
 
-	if (!(event->xbutton.state & MOD_MASK))
-		wRaiseFrame(icon->core);
-	else {
-		/* If Mod is pressed for an docked appicon, assume it is to undock it,
-		 * so don't lower it */
-		if (originalDock == NULL)
-			wLowerFrame(icon->core);
-	}
-
-	if (XGrabPointer(dpy, icon->core->window, True, ButtonMotionMask
-			 | ButtonReleaseMask | ButtonPressMask, GrabModeAsync,
-			 GrabModeAsync, None, None, CurrentTime) != GrabSuccess) {
-		wwarning("Pointer grab failed in wHandleAppIconMove");
-	}
-
-	if (originalDock != NULL) {
-	    dockable = True;
-	    ondock = True;
-	}
-	else {
-		ondock = False;
-		if (wPreferences.flags.nodock && wPreferences.flags.noclip && wPreferences.flags.nodrawer)
-			dockable = 0;
-		else
-			dockable = canBeDocked(icon->owner);
-	}
-
 	/* We try the various docks in that order:
 	 * - First, the dock the appicon comes from, if any
 	 * - Then, the drawers
@@ -825,24 +853,72 @@ Bool wHandleAppIconMove(WAppIcon *aicon, XEvent *event)
 	for ( ; i < scr->drawer_count + 2; i++) /* In case the clip, the dock, or both, are disabled */
 		allDocks[ i ] = NULL;
 
-	wins[0] = icon->core->window;
-	wins[1] = scr->dock_shadow;
-	XRestackWindows(dpy, wins, 2);
-	XMoveResizeWindow(dpy, scr->dock_shadow, aicon->x_pos, aicon->y_pos, ICON_SIZE, ICON_SIZE);
-	if (superfluous) {
-		if (icon->pixmap != None)
-			ghost = MakeGhostIcon(scr, icon->pixmap);
-		else
-			ghost = MakeGhostIcon(scr, icon->core->window);
-		XSetWindowBackgroundPixmap(dpy, scr->dock_shadow, ghost);
-		XClearWindow(dpy, scr->dock_shadow);
+
+	if (drag) { 
+		/* GNUstep icon dragging */
+
 	}
-	if (ondock)
-		XMapWindow(dpy, scr->dock_shadow);
+	else {
+		/* normal appicon dragging */
+		if (!(event->xbutton.state & MOD_MASK))
+			wRaiseFrame(icon->core);
+		else {
+			/* If Mod is pressed for an docked appicon, assume it is to undock it,
+			 * so don't lower it */
+			if (originalDock == NULL)
+				wLowerFrame(icon->core);
+		}
+
+
+		if (XGrabPointer(dpy, icon->core->window, True, ButtonMotionMask
+			 | ButtonReleaseMask | ButtonPressMask, GrabModeAsync,
+				 GrabModeAsync, None, None, CurrentTime) != GrabSuccess) {
+			wwarning("Pointer grab failed in wHandleAppIconMove");
+		}
+
+		if (originalDock != NULL) {
+				dockable = True;
+				ondock = True;
+		}
+		else {
+			ondock = False;
+			if (wPreferences.flags.nodock && wPreferences.flags.noclip && wPreferences.flags.nodrawer)
+				dockable = 0;
+			else
+				dockable = canBeDocked(icon->owner);
+		}
+
+		wins[0] = icon->core->window;
+		wins[1] = scr->dock_shadow;
+		XRestackWindows(dpy, wins, 2);
+		XMoveResizeWindow(dpy, scr->dock_shadow, aicon->x_pos, aicon->y_pos, ICON_SIZE, ICON_SIZE);
+		if (superfluous) {
+			if (icon->pixmap != None)
+				ghost = MakeGhostIcon(scr, icon->pixmap);
+			else
+				ghost = MakeGhostIcon(scr, icon->core->window);
+			XSetWindowBackgroundPixmap(dpy, scr->dock_shadow, ghost);
+			XClearWindow(dpy, scr->dock_shadow);
+		}
+		if (ondock)
+			XMapWindow(dpy, scr->dock_shadow);
+	}
 
 	while (1) {
-		WMMaskEvent(dpy, PointerMotionMask | ButtonReleaseMask | ButtonPressMask
+		if (drag) {
+			/* we fake the event in order to process it using the same logic */
+			grabbed = 1;
+			dockable = 1;
+			memcpy(&ev, event, sizeof(XEvent));
+			ofs_x = 0;
+			ofs_y = 0;
+			ondock = 0;
+			ev.type = MotionNotify;
+		}
+		else {
+			WMMaskEvent(dpy, PointerMotionMask | ButtonReleaseMask | ButtonPressMask
 			    | ButtonMotionMask | ExposureMask | EnterWindowMask, &ev);
+		}
 		switch (ev.type) {
 		case Expose:
 			WMHandleEvent(&ev);
@@ -892,7 +968,12 @@ Bool wHandleAppIconMove(WAppIcon *aicon, XEvent *event)
 					WDock *theDock = allDocks[i];
 					if (theDock == NULL)
 						break;
+
 					if (wDockSnapIcon(theDock, aicon, x, y, &ix, &iy, (theDock == originalDock))) {
+						if (drag) {
+							aicon->xindex = ix;
+							aicon->yindex = iy;
+						}
 						theNewDock = theDock;
 						break;
 					}
@@ -943,7 +1024,7 @@ Bool wHandleAppIconMove(WAppIcon *aicon, XEvent *event)
 				ondock = 1;
 			} else {
 				lastDock = theNewDock; // i.e., NULL
-				if (ondock) {
+				if (ondock || drag) {
 					XUnmapWindow(dpy, scr->dock_shadow);
 					/*
 					 * Leaving that weird comment for now.
@@ -956,6 +1037,11 @@ Bool wHandleAppIconMove(WAppIcon *aicon, XEvent *event)
 				}
 				ondock = 0;
 			}
+			/* return after one interation */
+			if (drag) {
+				aicon->drag_dock = theNewDock;
+				return 0;
+			}
 			break;
 
 		case ButtonPress:
@@ -967,6 +1053,7 @@ Bool wHandleAppIconMove(WAppIcon *aicon, XEvent *event)
 			XUngrabPointer(dpy, CurrentTime);
 
 			Bool docked = False;
+
 			if (ondock) {
 				slide_window(icon->core->window, x, y, shad_x, shad_y);
 				XUnmapWindow(dpy, scr->dock_shadow);

@@ -70,6 +70,7 @@
 #include "balloon.h"
 #include "xinerama.h"
 #include "wmspec.h"
+#include "xdnd.h"
 #include "rootmenu.h"
 #include "colormap.h"
 #include "screen.h"
@@ -79,6 +80,8 @@
 #include "winmenu.h"
 #include "switchmenu.h"
 #include "wsmap.h"
+
+#include "../WINGs/GNUstepLib/GNUstepLib.h"
 
 
 #define MOD_MASK wPreferences.modifier_mask
@@ -1017,6 +1020,45 @@ static void handleConfigureRequest(XEvent * event)
 		/*
 		 * Configure request for unmapped window
 		 */
+
+		if (event->xconfigurerequest.type == 23 && event->xconfigurerequest.width == 48) {
+			char *xxx = GSGetDroppedFilePath();
+			wXDNDGetTypeListValue(dpy, event->xconfigurerequest.window);
+		fprintf(stderr, "2 %x %s\n", event->xconfigurerequest.window, xxx);
+			WScreen* scr = wScreenForRootWindow(event->xconfigurerequest.window);
+			WAppIcon* aicon = wAppIconCreateForDrag(scr, "Cest", "Test", "Xest");
+
+			/* pretend this is motion event */
+			event->xmotion.x = event->xconfigurerequest.x;
+			event->xmotion.x_root = event->xconfigurerequest.x;
+
+			event->xmotion.y = event->xconfigurerequest.y;
+			event->xmotion.y_root = event->xconfigurerequest.y;
+
+			Window root_return; Window child_return; int root_x_return; int root_y_return;
+			int win_x_return; int win_y_return; unsigned int mask_return;
+
+			XQueryPointer(event->xany.display, DefaultRootWindow(event->xany.display), &root_return, &child_return, &root_x_return, &root_y_return, &win_x_return, &win_y_return, &mask_return);
+			
+			if (mask_return) { //let's assume we are dragging becasue a mouse button is pressed
+				wHandleAppIconDrag(aicon, event, 1);
+			}
+			else if (aicon->drag_dock) {
+				XUnmapWindow(dpy, scr->dock_shadow);
+				XUnmapWindow(dpy, event->xconfigurerequest.window);
+				int x = aicon->xindex;
+				int y = aicon->yindex;
+				WDock* dock = aicon->drag_dock;
+				aicon->drag_dock = NULL;
+
+				aicon = wAppIconCreateForDock(scr, "Cest", "Test", "Xest", TILE_NORMAL);
+				wDockAttachIcon(dock, aicon, x, y, True);
+				aicon->running = 0;
+				aicon->docked = 1;
+				XMapWindow(dpy, aicon->icon->core->window);
+fprintf(stderr, "DROP\n");
+			}
+		}
 		wClientConfigure(NULL, &(event->xconfigurerequest));
 	} else {
 		wClientConfigure(wwin, &(event->xconfigurerequest));

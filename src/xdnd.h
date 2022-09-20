@@ -25,6 +25,7 @@ void wXDNDInitializeAtoms(void);
 Bool wXDNDProcessSelection(XEvent *event);
 Bool wXDNDProcessClientMessage(XClientMessageEvent *event);
 void wXDNDMakeAwareness(Window window);
+void wXDNDGetTypeListValue(Display *dpy, Window window);
 
 #define XDND_VERSION 3L
 

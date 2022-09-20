@@ -251,6 +251,7 @@ static void wXDNDGetTypeList(Display *dpy, Window window)
 						0, 0x8000000L, False, XA_ATOM,
 						&type, &format, &count, &remaining, &data);
 
+	
 	if (type != XA_ATOM || format != 32 || count == 0 || !data) {
 		if (data)
 			XFree(data);
@@ -262,6 +263,7 @@ static void wXDNDGetTypeList(Display *dpy, Window window)
 	a = (Atom *) data;
 	for (i = 0; i < count; i++) {
 		typelist[i] = a[i];
+		fprintf(stderr, "xxxxxxxxxxxx\n");
 		if (typelist[i] == supported_typelist) {
 			selected_typelist = typelist[i];
 			break;
@@ -270,6 +272,10 @@ static void wXDNDGetTypeList(Display *dpy, Window window)
 	typelist[count] = 0;
 	XFree(data);
 	free(typelist);
+}
+void wXDNDGetTypeListValue(Display *dpy, Window window)
+{
+	wXDNDGetTypeList(dpy, window);
 }
 
 Bool wXDNDProcessClientMessage(XClientMessageEvent *event)
