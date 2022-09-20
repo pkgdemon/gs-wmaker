@@ -32,10 +32,16 @@ typedef struct {
   int valid;
 } GSColorInfo;
 
+typedef struct {
+  char *name;
+  char *cmd;
+} GSAppInfo;
+
 extern int GSLaunchApp(const char *pathname, char *const argv[]);
 extern int GSGetAntialiasText(void);
 extern int GSGetFontDefaultFontSize(void);
 extern int GSGetAntialiasText(void);
+extern GSAppInfo GSGetDroppedAppInfo(void);
 extern const char* GSGetDroppedFilePath(void);
 extern const char* GSGetFontForName(char* name);
 extern GSColorInfo GSGetColorForName(char* name);

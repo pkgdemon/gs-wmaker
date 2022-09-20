@@ -80,12 +80,14 @@ void wApplicationExtractDirPackIcon(const char *path, const char *wm_instance, c
 	char *iconPath = NULL;
 	char *tmp = NULL;
 
+	fprintf(stderr, "XXXX %s", path);
 	if (strstr(path, ".app")) {
 		tmp = wmalloc(strlen(path) + 16);
 
 		if (wPreferences.supports_tiff) {
 			strcpy(tmp, path);
 			strcat(tmp, ".tiff");
+	fprintf(stderr, "TTTT %s", tmp);
 			if (access(tmp, R_OK) == 0)
 				iconPath = tmp;
 		}

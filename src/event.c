@@ -1011,22 +1011,81 @@ static void handleUnmapNotify(XEvent * event)
 	XUngrabServer(dpy);
 }
 
+static Bool isGNUstepWindow(Window window)
+{
+	char* wm_class = NULL;
+  char* wm_instance = NULL;
+  if (PropGetWMClass(window, &wm_class, &wm_instance)) {
+  	if (wm_class && !strcmp(wm_class, "GNUstep")) {
+			return True;
+		}
+	}
+	return False;
+}
+
+static Bool hasPointerInsideWindow(Window window, int x, int y)
+{
+  Window *children;
+  Window parent;
+  Window root;
+	Window win;
+  unsigned int nchildren;
+  XWindowAttributes wattrs;
+
+  int result = XQueryTree(dpy, DefaultRootWindow(dpy), &root, &parent, &children, &nchildren);
+	int c = nchildren;
+	int z = 0;
+  
+	fprintf(stderr, "WIN %x %d,%d (%d)\n", window, x, y, nchildren);
+
+  for (; result && c > 0; c--) {
+    win = children[c-1];
+    
+    int rv = XGetWindowAttributes(dpy, win, &wattrs);
+		if (rv && wattrs.map_state == IsViewable) {
+			if (x > wattrs.x && x < wattrs.x+wattrs.width && \
+					y > wattrs.y && y < wattrs.y+wattrs.height) {
+				if (z == 0) {
+					/* skip the first window, it is the icon itself */
+				}
+				if (win == window) {
+					break;
+				}
+				z++;
+				fprintf(stderr, "WIN %x %d,%d %dx%d\n", win, wattrs.x, wattrs.y, wattrs.width, wattrs.height);
+			}
+		}
+	}
+
+  if (result && children != NULL) {
+    XFree((char*) children);
+  }
+	
+	if (window == win && z == 1) return True;
+	else return False;
+}
+
 static void handleConfigureRequest(XEvent * event)
 {
 	WWindow *wwin;
 
 	wwin = wWindowFor(event->xconfigurerequest.window);
 	if (wwin == NULL) {
+
 		/*
 		 * Configure request for unmapped window
+		 * try to be very selective and catch only the drag icon
 		 */
 
-		if (event->xconfigurerequest.type == 23 && event->xconfigurerequest.width == 48) {
-			char *xxx = GSGetDroppedFilePath();
-			wXDNDGetTypeListValue(dpy, event->xconfigurerequest.window);
-		fprintf(stderr, "2 %x %s\n", event->xconfigurerequest.window, xxx);
+		if (event->xconfigurerequest.type == 23 && \
+				event->xconfigurerequest.value_mask == (CWX|CWY) && \
+				event->xconfigurerequest.width <= 48 && event->xconfigurerequest.height <= 48 && \
+				wIsXDNDSource(dpy, event->xconfigurerequest.window) == Success && \
+				GNUstep_popup_menu != event->xconfigure.window && \
+				isGNUstepWindow(event->xconfigurerequest.window)) {
+
 			WScreen* scr = wScreenForRootWindow(event->xconfigurerequest.window);
-			WAppIcon* aicon = wAppIconCreateForDrag(scr, "Cest", "Test", "Xest");
+			WAppIcon* aicon = wAppIconCreateForDrag(scr, "DUMMY", "DUMMY", "DUMMY");
 
 			/* pretend this is motion event */
 			event->xmotion.x = event->xconfigurerequest.x;
@@ -1039,24 +1098,33 @@ static void handleConfigureRequest(XEvent * event)
 			int win_x_return; int win_y_return; unsigned int mask_return;
 
 			XQueryPointer(event->xany.display, DefaultRootWindow(event->xany.display), &root_return, &child_return, &root_x_return, &root_y_return, &win_x_return, &win_y_return, &mask_return);
-			
+
+
 			if (mask_return) { //let's assume we are dragging becasue a mouse button is pressed
 				wHandleAppIconDrag(aicon, event, 1);
 			}
 			else if (aicon->drag_dock) {
-				XUnmapWindow(dpy, scr->dock_shadow);
-				XUnmapWindow(dpy, event->xconfigurerequest.window);
-				int x = aicon->xindex;
-				int y = aicon->yindex;
-				WDock* dock = aicon->drag_dock;
-				aicon->drag_dock = NULL;
+				if (hasPointerInsideWindow(scr->dock_shadow, root_x_return, root_y_return)) {
+					GSAppInfo info = GSGetDroppedAppInfo();
+					if (info.cmd) {
+						XUnmapWindow(dpy, event->xconfigurerequest.window);
+						int x = aicon->xindex;
+						int y = aicon->yindex;
+						WDock* dock = aicon->drag_dock;
 
-				aicon = wAppIconCreateForDock(scr, "Cest", "Test", "Xest", TILE_NORMAL);
-				wDockAttachIcon(dock, aicon, x, y, True);
-				aicon->running = 0;
-				aicon->docked = 1;
-				XMapWindow(dpy, aicon->icon->core->window);
-fprintf(stderr, "DROP\n");
+						aicon = wAppIconCreateForDock(scr, info.cmd, info.name, "GNUstep", TILE_NORMAL);
+						wDockAttachIcon(dock, aicon, x, y, True);
+						aicon->running = 0;
+						aicon->docked = 1;
+						XMapWindow(dpy, aicon->icon->core->window);
+
+						free(info.cmd);
+						free(info.name);
+					}
+	fprintf(stderr, "DROP\n");
+				}
+				aicon->drag_dock = NULL;
+				XUnmapWindow(dpy, scr->dock_shadow);
 			}
 		}
 		wClientConfigure(NULL, &(event->xconfigurerequest));

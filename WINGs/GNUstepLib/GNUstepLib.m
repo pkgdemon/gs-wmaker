@@ -34,6 +34,44 @@ int GSLaunchApp(const char *pathname, char *const argv[]) {
   return -1;
 }
 
+GSAppInfo GSGetDroppedAppInfo() {
+  GSAppInfo i = {NULL, NULL};
+  CREATE_AUTORELEASE_POOL(pool);
+
+  const char* val = NULL;
+  char* rv = NULL;
+  NSPasteboard* pb = [NSPasteboard pasteboardWithName:NSDragPboard];
+  NSArray *ls = [pb propertyListForType:NSFilenamesPboardType];
+  if ([ls count] == 0) return i;
+
+  NSString* path = [ls firstObject];
+  if (![path hasSuffix:@".app"]) return i;
+
+  NSString* name = [[path lastPathComponent] stringByDeletingPathExtension];
+  path = [path stringByAppendingFormat:@"/%@", name];
+  val = [path UTF8String];
+
+  if (val) {
+    int sz = strlen(val)+1;
+    rv = malloc(sz);
+    strncpy(rv, val, sz);
+    i.cmd = rv;
+  }
+
+  val = [name UTF8String];
+  if (val) {
+    int sz = strlen(val)+1;
+    rv = malloc(sz);
+    strncpy(rv, val, sz);
+    i.name = rv;
+  }
+
+  RELEASE(pool);
+
+  return i;
+}
+
+
 const char* GSGetDroppedFilePath() {
   CREATE_AUTORELEASE_POOL(pool);
 
@@ -41,6 +79,8 @@ const char* GSGetDroppedFilePath() {
   char* rv = NULL;
   NSPasteboard* pb = [NSPasteboard pasteboardWithName:NSDragPboard];
   NSArray *ls = [pb propertyListForType:NSFilenamesPboardType];
+  if ([ls count] == 0) return NULL;
+
   NSString* path = [ls firstObject];
   val = [path UTF8String];
 

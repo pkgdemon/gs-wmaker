@@ -278,6 +278,22 @@ void wXDNDGetTypeListValue(Display *dpy, Window window)
 	wXDNDGetTypeList(dpy, window);
 }
 
+Bool wIsXDNDSource(Display *dpy, Window window)
+{
+	Atom type, *a;
+	Atom *typelist;
+	int format, i;
+	unsigned long count, remaining;
+	unsigned char *data = NULL;
+
+	int rv = XGetWindowProperty(dpy, window, _XA_XdndTypeList,
+						0, 0x8000000L, False, XA_ATOM,
+						&type, &format, &count, &remaining, &data);
+
+	if (data) XFree(data);
+	return rv;
+}
+
 Bool wXDNDProcessClientMessage(XClientMessageEvent *event)
 {
 	if (event->message_type == _XA_XdndEnter) {
