@@ -76,12 +76,11 @@ RImage *get_rimage_icon_from_wm_hints(WIcon *icon);
 
 char *wIconStore(WIcon *icon);
 char *get_name_for_instance_class(const char *wm_instance, const char *wm_class);
+char *get_icon_cache_path(void);
 
 void wIconSetHighlited(WIcon *icon, Bool flag);
 void set_icon_image_from_image(WIcon *icon, RImage *image);
 void set_icon_minipreview(WIcon *icon, RImage *image);
-
-void make_app_image_from_path(const char *path, const char *wm_instance, const char *wm_class);
 
 void remove_cache_icon(char *filename);
 #endif /* WMICON_H_ */

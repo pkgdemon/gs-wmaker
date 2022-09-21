@@ -1112,10 +1112,8 @@ static void handleConfigureRequest(XEvent * event)
 						int y = aicon->yindex;
 						WDock* dock = aicon->drag_dock;
 
-						make_app_image_from_path(info.cmd, info.name, "GNUstep");
-
 						aicon = wAppIconCreateForDock(scr, info.cmd, info.name, "GNUstep", TILE_NORMAL);
-						wDockAttachIcon(dock, aicon, x, y, False);
+						wDockAttachIcon(dock, aicon, x, y, True);
 						aicon->running = 0;
 						aicon->docked = 1;
 						XMapWindow(dpy, aicon->icon->core->window);

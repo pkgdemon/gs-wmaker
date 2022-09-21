@@ -72,6 +72,30 @@ static void add_to_appicon_list(WScreen *scr, WAppIcon *appicon);
 static void remove_from_appicon_list(WScreen *scr, WAppIcon *appicon);
 static void create_appicon_from_dock(WWindow *wwin, WApplication *wapp, Window main_window);
 
+void make_app_image_from_path(const char *path, const char *wm_instance, const char *wm_class){
+	char* xpmpath = wmalloc(1024);
+	sprintf(xpmpath, "%s/%s.%s.xpm", get_icon_cache_path(), wm_instance, wm_class);
+
+	if (access(xpmpath, F_OK) == 0) {
+		wApplicationSaveIconPathFor(xpmpath, wm_instance, wm_class);
+	}
+	else {
+		char* tiffpath = GSCacheAppIcon(get_icon_cache_path(), path, wm_instance, wm_class);
+		if (tiffpath) {
+			RImage *image = RLoadImage(NULL, tiffpath, 0);
+			if (image) {
+				RSaveImage(image, xpmpath, "XPM");
+				RReleaseImage(image);
+				wApplicationSaveIconPathFor(xpmpath, wm_instance, wm_class);
+			}
+
+			//unlink(tiffpath);
+			free(tiffpath);
+		}
+	}
+	wfree(xpmpath);
+}
+
 /* This function is used if the application is a .app. It checks if it has an icon in it
  * like for example /usr/local/GNUstep/Applications/WPrefs.app/WPrefs.tiff
  */
@@ -104,10 +128,11 @@ void wApplicationExtractDirPackIcon(const char *path, const char *wm_instance, c
 		if (iconPath) {
 			wApplicationSaveIconPathFor(iconPath, wm_instance, wm_class);
 			wfree(iconPath);
+			return;
 		}
 
 		/* use GNUstep to generate cache anyway */
-		//make_app_image_from_path(path, wm_instance, wm_class);
+		make_app_image_from_path(path, wm_instance, wm_class);
 	}
 }
 
