@@ -89,7 +89,7 @@ void make_app_image_from_path(const char *path, const char *wm_instance, const c
 				wApplicationSaveIconPathFor(xpmpath, wm_instance, wm_class);
 			}
 
-			//unlink(tiffpath);
+			unlink(tiffpath);
 			free(tiffpath);
 		}
 	}

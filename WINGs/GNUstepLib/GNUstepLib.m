@@ -50,6 +50,7 @@ const char* GSCacheAppIcon(const char* cache_path, const char* path, const char 
 
   NSString* ip = [[NSString stringWithUTF8String:cache_path]
                  stringByAppendingPathComponent:[NSString stringWithFormat:@"%s.%s.tiff", wm_instance, wm_class]];
+
   [[img TIFFRepresentation] writeToFile:ip atomically:NO];
 
   NSLog(@"3 %@", ip);
