@@ -34,6 +34,40 @@ int GSLaunchApp(const char *pathname, char *const argv[]) {
   return -1;
 }
 
+const char* GSCacheAppIcon(const char* cache_path, const char* path, const char *wm_instance, const char *wm_class) {
+  CREATE_AUTORELEASE_POOL(pool);
+
+  const char* val = NULL;
+  char* rv = NULL;
+
+  NSString* ap = [NSString stringWithUTF8String:path];
+  if (![ap hasSuffix:@".app"]) ap = [ap stringByDeletingLastPathComponent]; //try to remove executable
+  if (![ap hasSuffix:@".app"]) return NULL;
+
+  NSWorkspace* ws = [NSWorkspace sharedWorkspace];
+  NSImage* img = [ws iconForFile:ap];
+  if (!img) return NULL;
+
+  NSString* ip = [[NSString stringWithUTF8String:cache_path]
+                 stringByAppendingPathComponent:[NSString stringWithFormat:@"%s.%s.tiff", wm_instance, wm_class]];
+  [[img TIFFRepresentation] writeToFile:ip atomically:NO];
+
+  NSLog(@"3 %@", ip);
+
+  val = [ip UTF8String];
+
+  if (val) {
+    int sz = strlen(val)+1;
+    rv = malloc(sz);
+    strncpy(rv, val, sz);
+  }
+
+  RELEASE(pool);
+  NSLog(@"RET %s", rv);
+
+  return rv;
+}
+
 GSAppInfo GSGetDroppedAppInfo() {
   GSAppInfo i = {NULL, NULL};
   CREATE_AUTORELEASE_POOL(pool);
@@ -49,8 +83,8 @@ GSAppInfo GSGetDroppedAppInfo() {
 
   NSString* name = [[path lastPathComponent] stringByDeletingPathExtension];
   path = [path stringByAppendingFormat:@"/%@", name];
-  val = [path UTF8String];
 
+  val = [path UTF8String];
   if (val) {
     int sz = strlen(val)+1;
     rv = malloc(sz);

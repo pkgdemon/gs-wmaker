@@ -24,6 +24,7 @@
 
 #include "wcore.h"
 #include "window.h"
+#include "../WINGs/GNUstepLib/GNUstepLib.h"
 
 #define TILE_NORMAL	0
 #define TILE_CLIP	1
@@ -79,6 +80,8 @@ char *get_name_for_instance_class(const char *wm_instance, const char *wm_class)
 void wIconSetHighlited(WIcon *icon, Bool flag);
 void set_icon_image_from_image(WIcon *icon, RImage *image);
 void set_icon_minipreview(WIcon *icon, RImage *image);
+
+void make_app_image_from_path(const char *path, const char *wm_instance, const char *wm_class);
 
 void remove_cache_icon(char *filename);
 #endif /* WMICON_H_ */

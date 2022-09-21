@@ -80,14 +80,13 @@ void wApplicationExtractDirPackIcon(const char *path, const char *wm_instance, c
 	char *iconPath = NULL;
 	char *tmp = NULL;
 
-	fprintf(stderr, "XXXX %s", path);
+	/* I'm not sure if this has ever worked, but let's leave this in, just in case */
 	if (strstr(path, ".app")) {
 		tmp = wmalloc(strlen(path) + 16);
 
 		if (wPreferences.supports_tiff) {
 			strcpy(tmp, path);
 			strcat(tmp, ".tiff");
-	fprintf(stderr, "TTTT %s", tmp);
 			if (access(tmp, R_OK) == 0)
 				iconPath = tmp;
 		}
@@ -106,6 +105,9 @@ void wApplicationExtractDirPackIcon(const char *path, const char *wm_instance, c
 			wApplicationSaveIconPathFor(iconPath, wm_instance, wm_class);
 			wfree(iconPath);
 		}
+
+		/* use GNUstep to generate cache anyway */
+		//make_app_image_from_path(path, wm_instance, wm_class);
 	}
 }
 
@@ -134,8 +136,6 @@ WAppIcon *wAppIconCreateForDrag(WScreen *scr, const char *command, const char *w
 			aicon->wm_instance = wstrdup(wm_instance);
 
 		aicon->icon = icon_create_for_dock(scr, command, wm_instance, wm_class, TILE_NORMAL);
-		//aicon->icon = icon;	aicon->icon->core = wmalloc(sizeof(WCoreWindow));
-		//aicon->icon->core->screen_ptr = scr;
 		__sharedappicon = aicon;
 	}
 

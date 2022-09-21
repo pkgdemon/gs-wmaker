@@ -42,6 +42,7 @@ extern int GSGetAntialiasText(void);
 extern int GSGetFontDefaultFontSize(void);
 extern int GSGetAntialiasText(void);
 extern GSAppInfo GSGetDroppedAppInfo(void);
+extern const char* GSCacheAppIcon(const char* cache_path, const char* path, const char *wm_instance, const char *wm_class);
 extern const char* GSGetDroppedFilePath(void);
 extern const char* GSGetFontForName(char* name);
 extern GSColorInfo GSGetColorForName(char* name);

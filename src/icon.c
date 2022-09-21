@@ -47,6 +47,7 @@
 #include "startup.h"
 #include "event.h"
 #include "winmenu.h"
+#include "wrlib/imgformat.h"
 
 /**** Global varianebles ****/
 
@@ -955,6 +956,25 @@ static void miniwindowMouseDown(WObjDescriptor *desc, XEvent *event)
 			return;
 
 		}
+	}
+}
+
+void make_app_image_from_path(const char *path, const char *wm_instance, const char *wm_class){
+	char* tiffpath = GSCacheAppIcon(get_icon_cache_path(), path, wm_instance, wm_class);
+	if (tiffpath) {
+		char* xpmpath = wmalloc(strlen(tiffpath));
+		sprintf(xpmpath, "%s/%s.%s.xpm", get_icon_cache_path(), wm_instance, wm_class);
+
+		RImage *image = RLoadTIFF(tiffpath, 0);
+		if (image) {
+			RSaveImage(image, xpmpath, "XPM");
+			//RReleaseImage(image);
+		}
+
+		unlink(tiffpath);
+
+		wfree(xpmpath);
+		free(tiffpath);
 	}
 }
 
