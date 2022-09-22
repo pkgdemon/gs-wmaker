@@ -3081,27 +3081,33 @@ static pid_t execCommand(WAppIcon *btn, const char *command, WSavedState *state)
 		return 0;
 	}
 
-	pid = fork();
-	if (pid == 0) {
-		char **args;
-		int i;
+	if (!strcmp(btn->wm_class, "GNUstep") && GSLaunchApp(cmdline)) {
+		/* the app has been launched by the NSWorkspace */
+	}
+	else {
+		/* this is traditional executable, fork it and exec */
+		pid = fork();
+		if (pid == 0) {
+			char **args;
+			int i;
 
-		SetupEnvironment(scr);
+			SetupEnvironment(scr);
 
 #ifdef HAVE_SETSID
-		setsid();
+			setsid();
 #endif
 
-		args = malloc(sizeof(char *) * (argc + 1));
-		if (!args)
+			args = malloc(sizeof(char *) * (argc + 1));
+			if (!args)
+				exit(111);
+
+			for (i = 0; i < argc; i++)
+				args[i] = argv[i];
+
+			args[argc] = NULL;
+			execvp(argv[0], args);
 			exit(111);
-
-		for (i = 0; i < argc; i++)
-			args[i] = argv[i];
-
-		args[argc] = NULL;
-		execvp(argv[0], args);
-		exit(111);
+		}
 	}
 	wtokenfree(argv, argc);
 

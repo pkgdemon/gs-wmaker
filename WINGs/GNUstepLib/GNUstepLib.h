@@ -37,7 +37,7 @@ typedef struct {
   char *cmd;
 } GSAppInfo;
 
-extern int GSLaunchApp(const char *pathname, char *const argv[]);
+extern int GSLaunchApp(const char *cmd);
 extern int GSGetAntialiasText(void);
 extern int GSGetFontDefaultFontSize(void);
 extern int GSGetAntialiasText(void);

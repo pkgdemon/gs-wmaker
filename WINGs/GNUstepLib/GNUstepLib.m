@@ -26,10 +26,62 @@
 #import	<AppKit/AppKit.h>
 #import <GNUstepGUI/GSTheme.h>
 
-int GSLaunchApp(const char *pathname, char *const argv[]) {
+int GSLaunchApp(const char *xcmd) {
   CREATE_AUTORELEASE_POOL(pool);
+  
+  BOOL autolaunch = NO;
+  NSString* cmd = [NSString stringWithUTF8String:xcmd];
+  NSString* ap = nil;
+  NSString* file = nil;
+  NSLog(@"CMD [%@]", cmd);
+
+  NSInteger i = [cmd indexOfString:@" -autolaunch "];
+  if (i != NSNotFound) {
+    ap = [cmd substringToIndex:i];
+    autolaunch = YES;
+  }
+
+  i = [cmd indexOfString:@" -GSFilePath "];
+  if (i != NSNotFound) {
+    ap = [cmd substringToIndex:i];
+    file = [cmd substringFromIndex:i+13];
+  }
+  else {
+    ap = cmd;
+  }
+
+  if (![ap hasSuffix:@".app"]) ap = [ap stringByDeletingLastPathComponent]; //try to remove executable
+  if (![ap hasSuffix:@".app"]) return -1;
+
+  NSString* aname = [ap lastPathComponent];
+
   NSWorkspace* ws = [NSWorkspace sharedWorkspace];
-  //[ws openFile:path withApplication:app]
+  NSString* ap2 = [ws fullPathForApplication:aname];
+
+  /*
+  if ([aname isEqualToString:@"GWorkspace.app"] || [aname isEqualToString:@"GWorkspace"]) {
+    NSLog(@"GWorspace");
+    return 1;
+  }
+  elsei */
+  if ([ap isEqualToString:ap2]) {
+    if (file) {
+      [ws openFile:file withApplication:aname];
+      return 1;
+    }
+    else if (autolaunch) {
+      [ws launchApplication:aname showIcon:NO autolaunch:YES];
+      return 1;
+    }
+    else {
+      [ws launchApplication:aname];
+      return 1;
+    }
+  }
+  else {
+    NSLog(@"%@ doesn't match %@, prevent from launching using GWorkspace");
+  }
+
   RELEASE(pool);
   return -1;
 }
@@ -53,8 +105,6 @@ const char* GSCacheAppIcon(const char* cache_path, const char* path, const char 
 
   [[img TIFFRepresentation] writeToFile:ip atomically:NO];
 
-  NSLog(@"3 %@", ip);
-
   val = [ip UTF8String];
 
   if (val) {
@@ -64,7 +114,6 @@ const char* GSCacheAppIcon(const char* cache_path, const char* path, const char 
   }
 
   RELEASE(pool);
-  NSLog(@"RET %s", rv);
 
   return rv;
 }
