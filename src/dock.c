@@ -3086,13 +3086,8 @@ static pid_t execCommand(WAppIcon *btn, const char *command, WSavedState *state)
 		/* the app has been launched by the NSWorkspace */
 		btn->launching = 1;
 		dockIconPaint(btn);
-		XSync(dpy, 0);
 
 		launched = GSLaunchApp(cmdline);
-		if (launched) {
-			btn->launching = 0;
-			dockIconPaint(btn);
-		}
 	}
 	if (!launched) {
 		/* this is traditional executable, fork it and exec */

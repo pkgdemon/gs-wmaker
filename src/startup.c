@@ -667,6 +667,7 @@ void StartUp(Bool defaultScreenOnly)
 		/* restore saved menus */
 		wMenuRestoreState(wScreen[j]);
 
+
 		/* If we're not restarting, restore session */
 		if (wPreferences.flags.restarting == 0 && !wPreferences.flags.norestore)
 			wSessionRestoreState(wScreen[j]);

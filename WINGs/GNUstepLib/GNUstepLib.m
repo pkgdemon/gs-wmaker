@@ -25,26 +25,38 @@
 #import "GNUstepLib.h"
 #import	<AppKit/AppKit.h>
 #import <GNUstepGUI/GSTheme.h>
+#import <dispatch/dispatch.h>
+
+void GSInitWorkspace() {
+  CREATE_AUTORELEASE_POOL(pool);
+
+  NSWorkspace* ws = [NSWorkspace sharedWorkspace];
+  NSLog(@"NSWorkspace should be up and running now");
+
+  RELEASE(pool);
+}
+
+static __GNUstepLib_exec_queue = NULL;
 
 int GSLaunchApp(const char *xcmd) {
   CREATE_AUTORELEASE_POOL(pool);
   
+  NSWorkspace* ws = [NSWorkspace sharedWorkspace];
   BOOL autolaunch = NO;
   NSString* cmd = [NSString stringWithUTF8String:xcmd];
   NSString* ap = nil;
   NSString* file = nil;
-  NSLog(@"CMD [%@]", cmd);
 
-  NSInteger i = [cmd indexOfString:@" -autolaunch "];
-  if (i != NSNotFound) {
-    ap = [cmd substringToIndex:i];
+  NSRange i = [cmd rangeOfString:@" -autolaunch "];
+  if (i.location != NSNotFound) {
+    ap = [cmd substringToIndex:i.location];
     autolaunch = YES;
   }
 
-  i = [cmd indexOfString:@" -GSFilePath "];
-  if (i != NSNotFound) {
-    ap = [cmd substringToIndex:i];
-    file = [cmd substringFromIndex:i+13];
+  i = [cmd rangeOfString:@" -GSFilePath "];
+  if (i.location != NSNotFound) {
+    ap = [cmd substringToIndex:i.location];
+    file = [cmd substringFromIndex:i.location+13];
   }
   else {
     ap = cmd;
@@ -55,31 +67,44 @@ int GSLaunchApp(const char *xcmd) {
 
   NSString* aname = [ap lastPathComponent];
 
-  NSWorkspace* ws = [NSWorkspace sharedWorkspace];
   NSString* ap2 = [ws fullPathForApplication:aname];
 
-  /*
+  if (__GNUstepLib_exec_queue == NULL) __GNUstepLib_exec_queue = dispatch_queue_create("GNUstepLib_exec", DISPATCH_QUEUE_SERIAL);
+  dispatch_queue_t xq = __GNUstepLib_exec_queue;
+
   if ([aname isEqualToString:@"GWorkspace.app"] || [aname isEqualToString:@"GWorkspace"]) {
-    NSLog(@"GWorspace");
-    return 1;
+    if (autolaunch) {
+      NSLog(@"GWorkspace");
+      return -1; /* launch it by regular exec */
+    }
   }
-  elsei */
+
   if ([ap isEqualToString:ap2]) {
     if (file) {
-      [ws openFile:file withApplication:aname];
+      dispatch_async(xq, ^{
+        NSWorkspace* xws = [NSWorkspace sharedWorkspace];
+        [xws openFile:file withApplication:aname];
+      });
       return 1;
     }
     else if (autolaunch) {
-      [ws launchApplication:aname showIcon:NO autolaunch:YES];
+      dispatch_async(xq, ^{
+        NSWorkspace* xws = [NSWorkspace sharedWorkspace];
+        [xws launchApplication:aname showIcon:NO autolaunch:YES];
+        sleep(1);
+      });
       return 1;
     }
     else {
-      [ws launchApplication:aname];
+      dispatch_async(xq, ^{
+        NSWorkspace* xws = [NSWorkspace sharedWorkspace];
+        [xws launchApplication:aname];
+      });
       return 1;
     }
   }
   else {
-    NSLog(@"%@ doesn't match %@, prevent from launching using GWorkspace");
+    NSLog(@"%@ doesn't match %@, prevent from launching using GWorkspace", ap, ap2);
   }
 
   RELEASE(pool);
