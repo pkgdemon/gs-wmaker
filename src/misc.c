@@ -1064,11 +1064,18 @@ static char *getCommandForWindow(Window win, int elements)
 {
 	char **argv, *command = NULL;
 	int argc;
+	XClassHint *classHint = XAllocClassHint();
 
 	if (XGetCommand(dpy, win, &argv, &argc)) {
 		if (argc > 0 && argv != NULL) {
 			if (elements == 0)
 				elements = argc;
+
+			if (elements > 1 && XGetClassHint(dpy, win, classHint)) {
+				if (strcmp(classHint->res_class, "GNUstep") == 0)
+					elements = 1;
+			}
+
 			command = wtokenjoin(argv, WMIN(argc, elements));
 			if (command[0] == 0) {
 				wfree(command);
@@ -1079,6 +1086,7 @@ static char *getCommandForWindow(Window win, int elements)
 			XFreeStringList(argv);
 		}
 	}
+	XFree(classHint);
 
 	return command;
 }

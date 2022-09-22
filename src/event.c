@@ -1121,7 +1121,6 @@ static void handleConfigureRequest(XEvent * event)
 						free(info.cmd);
 						free(info.name);
 					}
-	fprintf(stderr, "DROP\n");
 				}
 				aicon->drag_dock = NULL;
 				XUnmapWindow(dpy, scr->dock_shadow);

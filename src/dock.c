@@ -3056,7 +3056,7 @@ static void swapDock(WDock *dock)
 static pid_t execCommand(WAppIcon *btn, const char *command, WSavedState *state)
 {
 	WScreen *scr = btn->icon->core->screen_ptr;
-	pid_t pid;
+	pid_t pid = 0;
 	char **argv;
 	int argc;
 	char *cmdline;
@@ -3081,10 +3081,20 @@ static pid_t execCommand(WAppIcon *btn, const char *command, WSavedState *state)
 		return 0;
 	}
 
-	if (!strcmp(btn->wm_class, "GNUstep") && GSLaunchApp(cmdline)) {
+	int launched = 0;
+	if (!strcmp(btn->wm_class, "GNUstep")) {
 		/* the app has been launched by the NSWorkspace */
+		btn->launching = 1;
+		dockIconPaint(btn);
+		XSync(dpy, 0);
+
+		launched = GSLaunchApp(cmdline);
+		if (launched) {
+			btn->launching = 0;
+			dockIconPaint(btn);
+		}
 	}
-	else {
+	if (!launched) {
 		/* this is traditional executable, fork it and exec */
 		pid = fork();
 		if (pid == 0) {
