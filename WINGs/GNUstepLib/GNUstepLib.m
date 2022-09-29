@@ -25,17 +25,8 @@
 #import "GNUstepLib.h"
 #import	<AppKit/AppKit.h>
 #import <GNUstepGUI/GSTheme.h>
-#import <dispatch/dispatch.h>
 
-void GSInitWorkspace() {
-  CREATE_AUTORELEASE_POOL(pool);
-
-  NSWorkspace* ws = [NSWorkspace sharedWorkspace];
-  NSLog(@"NSWorkspace should be up and running now");
-
-  RELEASE(pool);
-}
-
+/* not useful at this moment as it has tendency to crash GWorkspace
 static __GNUstepLib_exec_queue = NULL;
 
 int GSLaunchApp(const char *xcmd) {
@@ -75,7 +66,7 @@ int GSLaunchApp(const char *xcmd) {
   if ([aname isEqualToString:@"GWorkspace.app"] || [aname isEqualToString:@"GWorkspace"]) {
     if (autolaunch) {
       NSLog(@"GWorkspace");
-      return -1; /* launch it by regular exec */
+      return -1; // launch it by regular exec
     }
   }
 
@@ -110,6 +101,7 @@ int GSLaunchApp(const char *xcmd) {
   RELEASE(pool);
   return -1;
 }
+*/
 
 const char* GSCacheAppIcon(const char* cache_path, const char* path, const char *wm_instance, const char *wm_class) {
   CREATE_AUTORELEASE_POOL(pool);
