@@ -30,7 +30,7 @@ ACLOCAL_AMFLAGS = -I m4
 AM_DISTCHECK_CONFIGURE_FLAGS = --enable-silent-rules LINGUAS='*'
 
 
-SUBDIRS = wrlib WINGs src util po WindowMaker wmlib WPrefs.app doc
+SUBDIRS = wrlib WINGs/GNUstepLib WINGs src util po WindowMaker wmlib WPrefs.app doc
 DIST_SUBDIRS = $(SUBDIRS) test
 
 EXTRA_DIST = TODO BUGS BUGFORM FAQ INSTALL \
