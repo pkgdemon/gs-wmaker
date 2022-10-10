@@ -21,4 +21,10 @@ Use color and font configuration from the GNUstep libraries. Note that WMaker li
 
 When you drop a file from one GNUstep app (e.g. GWorkspace) onto another GNUstep app (e.g. TextEditor.app) which is sitting in your dock, launch it with that file. This did not work before because the WMaker did not known about NSPasteboard, now it does.
 
+### Building with GNUstep
+
+Make certain you have GNUstep installed and have sourced the GNUstep.sh file.  Once this is done you can install the enhanced features using build.sh.  This should install GNUstepLib (the library that integrates WINGs with GS) and then builds WINGs and wmaker.
+
+Happy Hacking...
+
 
