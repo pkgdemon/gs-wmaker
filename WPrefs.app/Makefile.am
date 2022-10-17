@@ -59,4 +59,5 @@ WPrefs_LDADD = \
 	@XLFLAGS@ @XLIBS@ \
 	@LIBM@ \
 	@FCLIBS@ \
-	@INTLIBS@
+	@INTLIBS@ \
+	-L$(top_builddir)/WINGs/GNUstepLib/obj -lWINGsGNUstep

@@ -48,13 +48,15 @@ wmagnify_LDADD = \
 	$(top_builddir)/WINGs/libWINGs.la \
 	$(top_builddir)/WINGs/libWUtil.la \
 	$(top_builddir)/wrlib/libwraster.la \
-	@XLFLAGS@ @XLIBS@ @INTLIBS@
+	@XLFLAGS@ @XLIBS@ @INTLIBS@ \
+	-L$(top_builddir)/WINGs/GNUstepLib/obj -lWINGsGNUstep
 
 wmsetbg_LDADD = \
 	$(top_builddir)/WINGs/libWINGs.la \
 	$(top_builddir)/WINGs/libWUtil.la \
 	$(top_builddir)/wrlib/libwraster.la \
-	@XLFLAGS@ @LIBXINERAMA@ @XLIBS@ @INTLIBS@
+	@XLFLAGS@ @LIBXINERAMA@ @XLIBS@ @INTLIBS@ \
+	-L$(top_builddir)/WINGs/GNUstepLib/obj -lWINGsGNUstep
 
 wmgenmenu_LDADD = \
 	$(top_builddir)/WINGs/libWUtil.la \
