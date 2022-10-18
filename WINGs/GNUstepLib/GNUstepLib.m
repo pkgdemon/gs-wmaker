@@ -106,7 +106,7 @@ int GSLaunchApp(const char *xcmd) {
 int GSOpenDocument(const char *cmd) {
   CREATE_AUTORELEASE_POOL(pool);
   
-  NSInteger rv = -1;
+  int rv = -1;
   BOOL isdir = NO;
   NSString* path = [NSString stringWithUTF8String:cmd];
   NSString* ext = [path pathExtension];
@@ -115,18 +115,18 @@ int GSOpenDocument(const char *cmd) {
   NSWorkspace* ws = [NSWorkspace sharedWorkspace];
   if ([fm fileExistsAtPath:path isDirectory:&isdir]) {
     if (isdir && [ws isFilePackageAtPath:path] == NO) {
-      [ws selectFile:path inFileViewerRootedAtPath:@""];
+      [ws selectFile:@"." inFileViewerRootedAtPath:path];
       rv = 1;
     }
     else if ([ext isEqualToString: @"app"]
               || [ext isEqualToString: @"debug"]
               || [ext isEqualToString: @"profile"]) {
       [ws launchApplication:path];
-      rv = 1;
+      rv = 2;
     }
     else {
       [ws openFile:path];
-      rv = 1;
+      rv = 3;
     }
   }
   RELEASE(pool);

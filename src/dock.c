@@ -3089,7 +3089,7 @@ static pid_t execCommand(WAppIcon *btn, const char *command, WSavedState *state)
 	}
 
 	if (btn->one_shot) {
-		if (GSOpenDocument(cmdline)) {
+		if (GSOpenDocument(cmdline) > 0) {
 			return -999;
 		}
 	}
