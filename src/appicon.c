@@ -479,11 +479,18 @@ void wAppIconPaint(WAppIcon *aicon)
 	if (aicon->docked && scr->dock && scr->dock == aicon->dock && aicon->yindex == 0)
 		updateDockNumbers(scr);
 # endif
-	if (!aicon->one_shot && aicon->docked && !aicon->running && aicon->command != NULL) {
-		XSetClipMask(dpy, scr->copy_gc, scr->dock_dots->mask);
-		XSetClipOrigin(dpy, scr->copy_gc, 0, 0);
-		XCopyArea(dpy, scr->dock_dots->image, aicon->icon->core->window,
+	if (aicon->docked && !aicon->running && aicon->command != NULL) {
+		if (aicon->one_shot) {
+			XSetClipMask(dpy, scr->copy_gc, scr->dock_ldots->mask);
+			XSetClipOrigin(dpy, scr->copy_gc, 0, 0);
+			XCopyArea(dpy, scr->dock_ldots->image, aicon->icon->core->window,
+			  scr->copy_gc, 0, 0, scr->dock_ldots->width, scr->dock_ldots->height, 0, 0);
+		} else {
+			XSetClipMask(dpy, scr->copy_gc, scr->dock_dots->mask);
+			XSetClipOrigin(dpy, scr->copy_gc, 0, 0);
+			XCopyArea(dpy, scr->dock_dots->image, aicon->icon->core->window,
 			  scr->copy_gc, 0, 0, scr->dock_dots->width, scr->dock_dots->height, 0, 0);
+		}
 	}
 #ifdef HIDDENDOT
 	if (wapp && wapp->flags.hidden) {

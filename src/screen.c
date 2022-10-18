@@ -323,6 +323,41 @@ static void draw_dot(WScreen * scr, Drawable d, int x, int y, GC gc)
 	XDrawPoint(dpy, d, gc, x + 1, y + 1);
 }
 
+static WPixmap *makeLDots(WScreen * scr)
+{
+	WPixmap *wpix;
+	GC gc2, gc;
+	XGCValues gcv;
+	Pixmap pix, mask;
+
+	gc = scr->copy_gc;
+	pix = XCreatePixmap(dpy, scr->w_win, wPreferences.icon_size, wPreferences.icon_size, scr->w_depth);
+	XSetForeground(dpy, gc, scr->black_pixel);
+	XFillRectangle(dpy, pix, gc, 0, 0, wPreferences.icon_size, wPreferences.icon_size);
+	XSetForeground(dpy, gc, scr->white_pixel);
+	draw_dot(scr, pix, 4, wPreferences.icon_size - 6, gc);
+	draw_dot(scr, pix, 9, wPreferences.icon_size - 6, gc);
+	draw_dot(scr, pix, 4, wPreferences.icon_size - 10, gc);
+
+	mask = XCreatePixmap(dpy, scr->w_win, wPreferences.icon_size, wPreferences.icon_size, 1);
+	gcv.foreground = 0;
+	gcv.graphics_exposures = False;
+	gc2 = XCreateGC(dpy, mask, GCForeground | GCGraphicsExposures, &gcv);
+	XFillRectangle(dpy, mask, gc2, 0, 0, wPreferences.icon_size, wPreferences.icon_size);
+	XSetForeground(dpy, gc2, 1);
+	XFillRectangle(dpy, mask, gc2, 4, wPreferences.icon_size - 6, 3, 2);
+	XFillRectangle(dpy, mask, gc2, 9, wPreferences.icon_size - 6, 3, 2);
+	XFillRectangle(dpy, mask, gc2, 4, wPreferences.icon_size - 10, 3, 2);
+
+	XFreeGC(dpy, gc2);
+
+	wpix = wPixmapCreate(pix, mask);
+	wpix->shared = 1;
+
+	return wpix;
+}
+
+
 static WPixmap *make3Dots(WScreen * scr)
 {
 	WPixmap *wpix;
@@ -498,7 +533,8 @@ static void createPixmaps(WScreen * scr)
 
 	create_logo_image(scr);
 
-	scr->dock_dots = make3Dots(scr);
+	scr->dock_dots  = make3Dots(scr);
+	scr->dock_ldots = makeLDots(scr);
 
 	/* titlebar button pixmaps */
 	allocButtonPixmaps(scr);

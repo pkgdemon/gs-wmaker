@@ -223,6 +223,7 @@ typedef struct _WScreen {
     struct WDock *dock;		       /* the application dock */
     struct WMenu *dock_pos_menu;       /* Dock position menu */
     struct WPixmap *dock_dots;	       /* 3 dots for the Dock */
+    struct WPixmap *dock_ldots;	       /* L dots for the Dock */
     Window dock_shadow;		       /* shadow for dock buttons */
     struct WAppIcon *clip_icon;        /* The clip main icon, or the dock's, if they are merged */
     struct WMenu *clip_menu;           /* Menu for clips */
