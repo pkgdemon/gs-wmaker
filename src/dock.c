@@ -75,6 +75,7 @@ static WMPropList *dPasteCommand = NULL;
 #ifdef USE_DOCK_XDND
 static WMPropList *dDropCommand = NULL;
 #endif
+static WMPropList *dOneShot;
 static WMPropList *dAutoLaunch, *dLock;
 static WMPropList *dName, *dForced, *dBuggyApplication, *dYes, *dNo;
 static WMPropList *dHost, *dDock, *dClip;
@@ -139,6 +140,7 @@ static void make_keys(void)
 	dDropCommand = WMRetainPropList(WMCreatePLString("DropCommand"));
 #endif
 	dLock = WMRetainPropList(WMCreatePLString("Lock"));
+	dOneShot = WMRetainPropList(WMCreatePLString("OneShot"));
 	dAutoLaunch = WMRetainPropList(WMCreatePLString("AutoLaunch"));
 	dName = WMRetainPropList(WMCreatePLString("Name"));
 	dForced = WMRetainPropList(WMCreatePLString("Forced"));
@@ -936,6 +938,13 @@ static void launchDockedApplication(WAppIcon *btn, Bool withSelection)
 			} else {
 				dockIconPaint(btn);
 			}
+		} else if (btn->pid == -999) { //has been openned by GWorkspace
+			btn->pid = 0;
+			btn->launching = 1;
+			dockIconPaint(btn);
+			btn->launching = 0;
+			btn->running = 0;
+			WMAddTimerHandler(200, (WMCallback *) dockIconPaint, btn);
 		} else {
 			wwarning(_("could not launch application %s"), btn->command);
 			btn->launching = 0;
@@ -1453,7 +1462,7 @@ static WMPropList *make_icon_state(WAppIcon *btn)
 {
 	WMPropList *node = NULL;
 	WMPropList *command, *autolaunch, *lock, *name, *forced;
-	WMPropList *position, *buggy, *omnipresent;
+	WMPropList *position, *buggy, *omnipresent, *oneShot;
 	char *tmp;
 	char buffer[64];
 
@@ -1466,6 +1475,8 @@ static WMPropList *make_icon_state(WAppIcon *btn)
 		autolaunch = btn->auto_launch ? dYes : dNo;
 
 		lock = btn->lock ? dYes : dNo;
+
+		oneShot = btn->one_shot ? dYes : dNo;
 
 		tmp = EscapeWM_CLASS(btn->wm_instance, btn->wm_class);
 
@@ -1487,6 +1498,7 @@ static WMPropList *make_icon_state(WAppIcon *btn)
 					    dName, name,
 					    dAutoLaunch, autolaunch,
 					    dLock, lock,
+					    dOneShot, oneShot,
 					    dForced, forced, dBuggyApplication, buggy, dPosition, position, NULL);
 		WMReleasePropList(command);
 		WMReleasePropList(name);
@@ -1702,6 +1714,11 @@ static WAppIcon *restore_icon_state(WScreen *scr, WMPropList *info, int type, in
 	value = WMGetFromPLDictionary(info, dLock);
 
 	aicon->lock = getBooleanDockValue(value, dLock);
+
+	/* check one shot */
+	value = WMGetFromPLDictionary(info, dOneShot);
+
+	aicon->one_shot = getBooleanDockValue(value, dOneShot);
 
 	/* check if it wasn't normally docked */
 	value = WMGetFromPLDictionary(info, dForced);
@@ -2251,14 +2268,14 @@ Bool wDockAttachIcon(WDock *dock, WAppIcon *icon, int x, int y, Bool update_icon
 		wArrangeIcons(dock->screen_ptr, True);
 
 #ifdef USE_DOCK_XDND
-	if (icon->command && !icon->dnd_command) {
+	if (icon->command && !icon->dnd_command && !icon->one_shot) {
 		int len = strlen(icon->command) + 8;
 		icon->dnd_command = wmalloc(len);
 		snprintf(icon->dnd_command, len, "%s %%d", icon->command);
 	}
 #endif
 
-	if (icon->command && !icon->paste_command) {
+	if (icon->command && !icon->paste_command && !icon->one_shot) {
 		int len = strlen(icon->command) + 8;
 		icon->paste_command = wmalloc(len);
 		snprintf(icon->paste_command, len, "%s %%s", icon->command);
@@ -3069,6 +3086,12 @@ static pid_t execCommand(WAppIcon *btn, const char *command, WSavedState *state)
 		if (state)
 			wfree(state);
 		return 0;
+	}
+
+	if (btn->one_shot) {
+		if (GSOpenDocument(cmdline)) {
+			return -999;
+		}
 	}
 
 	wtokensplit(cmdline, &argv, &argc);

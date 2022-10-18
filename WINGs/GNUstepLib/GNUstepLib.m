@@ -103,6 +103,36 @@ int GSLaunchApp(const char *xcmd) {
 }
 */
 
+int GSOpenDocument(const char *cmd) {
+  CREATE_AUTORELEASE_POOL(pool);
+  
+  NSInteger rv = -1;
+  BOOL isdir = NO;
+  NSString* path = [NSString stringWithUTF8String:cmd];
+  NSString* ext = [path pathExtension];
+  NSFileManager* fm = [NSFileManager defaultManager] ;
+ 
+  NSWorkspace* ws = [NSWorkspace sharedWorkspace];
+  if ([fm fileExistsAtPath:path isDirectory:&isdir]) {
+    if (isdir && [ws isFilePackageAtPath:path] == NO) {
+      [ws selectFile:path inFileViewerRootedAtPath:@""];
+      rv = 1;
+    }
+    else if ([ext isEqualToString: @"app"]
+              || [ext isEqualToString: @"debug"]
+              || [ext isEqualToString: @"profile"]) {
+      [ws launchApplication:path];
+      rv = 1;
+    }
+    else {
+      [ws openFile:path];
+      rv = 1;
+    }
+  }
+  RELEASE(pool);
+  return rv;
+}
+
 const char* GSCacheAppIcon(const char* cache_path, const char* path, const char *wm_instance, const char *wm_class) {
   CREATE_AUTORELEASE_POOL(pool);
 
@@ -135,8 +165,42 @@ const char* GSCacheAppIcon(const char* cache_path, const char* path, const char 
   return rv;
 }
 
-GSAppInfo GSGetDroppedAppInfo() {
-  GSAppInfo i = {NULL, NULL};
+const char* GSCachePathIcon(const char* cache_path, const char* path, const char *wm_instance, const char *wm_class) {
+  CREATE_AUTORELEASE_POOL(pool);
+
+  const char* val = NULL;
+  char* rv = NULL;
+
+  NSString* p = [NSString stringWithUTF8String:path];
+
+  NSWorkspace* ws = [NSWorkspace sharedWorkspace];
+  NSImage* img = [ws iconForFile:p];
+
+NSLog(@"ICON for %@ -> %@", p, img);
+
+  if (!img) return NULL;
+
+  NSString* ip = [[NSString stringWithUTF8String:cache_path]
+                 stringByAppendingPathComponent:[NSString stringWithFormat:@"%s.%s.tiff", wm_instance, wm_class]];
+
+  [[img TIFFRepresentation] writeToFile:ip atomically:NO];
+
+  val = [ip UTF8String];
+
+  if (val) {
+    int sz = strlen(val)+1;
+    rv = malloc(sz);
+    strncpy(rv, val, sz);
+  }
+
+  RELEASE(pool);
+
+  return rv;
+}
+
+
+GSDropInfo GSGetDropInfo() {
+  GSDropInfo i = {NULL, NULL, 0};
   CREATE_AUTORELEASE_POOL(pool);
 
   const char* val = NULL;
@@ -146,10 +210,13 @@ GSAppInfo GSGetDroppedAppInfo() {
   if ([ls count] == 0) return i;
 
   NSString* path = [ls firstObject];
-  if (![path hasSuffix:@".app"]) return i;
+  NSString* name = [path lastPathComponent];
 
-  NSString* name = [[path lastPathComponent] stringByDeletingPathExtension];
-  path = [path stringByAppendingFormat:@"/%@", name];
+  if ([path hasSuffix:@".app"]) {
+    name = [[path lastPathComponent] stringByDeletingPathExtension];
+    path = [path stringByAppendingFormat:@"/%@", name];
+    i.is_app = 1;
+  }
 
   val = [path UTF8String];
   if (val) {

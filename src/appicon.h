@@ -65,6 +65,7 @@ typedef struct WAppIcon {
 	unsigned int drop_launch:1;	 /* launching from drop action */
 	unsigned int paste_launch:1;	 /* launching from paste action */
 	unsigned int destroyed:1;	 /* appicon was destroyed */
+	unsigned int one_shot:1;	 /* this is one shot action, don't track it */
 	unsigned int buggy_app:1;	 /* do not make dock rely on hints
 					  * set by app */
 	unsigned int lock:1;		 /* do not allow to be destroyed */

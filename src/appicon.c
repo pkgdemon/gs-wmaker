@@ -81,6 +81,9 @@ void make_app_image_from_path(const char *path, const char *wm_instance, const c
 	}
 	else {
 		char* tiffpath = GSCacheAppIcon(get_icon_cache_path(), path, wm_instance, wm_class);
+		if (!tiffpath) {
+			tiffpath = GSCachePathIcon(get_icon_cache_path(), path, wm_instance, wm_class);
+		}
 		if (tiffpath) {
 			RImage *image = RLoadImage(NULL, tiffpath, 0);
 			if (image) {
@@ -131,9 +134,9 @@ void wApplicationExtractDirPackIcon(const char *path, const char *wm_instance, c
 			return;
 		}
 
-		/* use GNUstep to generate cache anyway */
-		make_app_image_from_path(path, wm_instance, wm_class);
 	}
+	/* use GNUstep to generate cache anyway */
+	make_app_image_from_path(path, wm_instance, wm_class);
 }
 
 static WAppIcon* __sharedappicon = NULL;
@@ -476,7 +479,7 @@ void wAppIconPaint(WAppIcon *aicon)
 	if (aicon->docked && scr->dock && scr->dock == aicon->dock && aicon->yindex == 0)
 		updateDockNumbers(scr);
 # endif
-	if (aicon->docked && !aicon->running && aicon->command != NULL) {
+	if (!aicon->one_shot && aicon->docked && !aicon->running && aicon->command != NULL) {
 		XSetClipMask(dpy, scr->copy_gc, scr->dock_dots->mask);
 		XSetClipOrigin(dpy, scr->copy_gc, 0, 0);
 		XCopyArea(dpy, scr->dock_dots->image, aicon->icon->core->window,

@@ -1105,14 +1105,25 @@ static void handleConfigureRequest(XEvent * event)
 			}
 			else if (aicon->drag_dock) {
 				if (hasPointerInsideWindow(scr->dock_shadow, root_x_return, root_y_return)) {
-					GSAppInfo info = GSGetDroppedAppInfo();
+					GSDropInfo info = GSGetDropInfo();
 					if (info.cmd) {
 						XUnmapWindow(dpy, event->xconfigurerequest.window);
 						int x = aicon->xindex;
 						int y = aicon->yindex;
 						WDock* dock = aicon->drag_dock;
 
-						aicon = wAppIconCreateForDock(scr, info.cmd, info.name, "GNUstep", TILE_NORMAL);
+						if (info.is_app) {
+							aicon = wAppIconCreateForDock(scr, info.cmd, info.name, "GNUstep", TILE_NORMAL);
+							aicon->one_shot = 0;
+						}
+						else {
+							char* fname = wmalloc(64);
+							sprintf(fname, "file_%lx", time(NULL));
+							aicon = wAppIconCreateForDock(scr, info.cmd, fname, "FilePath", TILE_NORMAL);
+							wfree(fname);
+							aicon->one_shot = 1;
+						}
+
 						wDockAttachIcon(dock, aicon, x, y, True);
 						aicon->running = 0;
 						aicon->docked = 1;
