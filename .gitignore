@@ -40,10 +40,14 @@ README.i18n
 *.o
 *.la
 *.a
+WINGs/GNUstepLib/obj/
 
 # These are compilation results
 src/wmaker
 test/wtest
+
+# hack files
+*.hack_nf.c
 
 util/convertfonts
 util/geticonset
@@ -81,6 +85,7 @@ WINGs/Tests/wtest
 WPrefs.app/WPrefs
 
 # These files are generated from make rules
+wmlib/wmlib.pc
 wrlib/wrlib.pc
 WINGs/WINGs.pc
 WINGs/WUtil.pc

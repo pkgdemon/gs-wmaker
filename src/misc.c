@@ -635,7 +635,7 @@ char *ExpandOptions(WScreen *scr, const char *cmdline)
 					goto error;
 				}
 				out = nout;
-				if (scr->xdest_is_gnustep) strcat(out, "-GSFilePath ");
+				if (scr->xdest_is_gnustep && strstr(out, ".app/")) strcat(out, "-GSFilePath ");
 				strcat(out, scr->xdestring);
 				optr += slen;
 				break;
