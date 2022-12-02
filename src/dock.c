@@ -248,18 +248,27 @@ static void killCallback(WMenu *menu, WMenuEntry *entry)
 	if (wPreferences.dont_confirm_kill
 	    || wMessageDialog(menu->frame->screen_ptr, _("Kill Application"),
 			      buffer, _("Yes"), _("No"), NULL) == WAPRDefault) {
+
 		if (fPtr != NULL) {
 			WWindow *wwin, *twin;
+			int kills = 0;
 
 			wwin = scr->focused_window;
 			while (wwin) {
 				twin = wwin->prev;
-				if (wwin->fake_group == fPtr)
+				if (wwin->fake_group == fPtr) {
 					wClientKill(wwin);
+					kills++;
+				}
 
 				wwin = twin;
 			}
-		} else if (icon->icon && icon->icon->owner) {
+			if (kills == 0 && icon->icon) {
+				XKillClient(dpy, icon->icon->icon_win);
+				XFlush(dpy);
+			}
+		}
+		else if (icon->icon && icon->icon->owner) {
 			wClientKill(icon->icon->owner);
 		}
 	}
