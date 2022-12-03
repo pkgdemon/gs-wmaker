@@ -3102,6 +3102,11 @@ static pid_t execCommand(WAppIcon *btn, const char *command, WSavedState *state)
 			return -999;
 		}
 	}
+	else {
+		if (GSLaunchApp(cmdline) > 0) {
+			return -999;
+		}
+	}
 
 	wtokensplit(cmdline, &argv, &argc);
 

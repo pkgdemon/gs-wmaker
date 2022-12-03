@@ -26,8 +26,7 @@
 #import	<AppKit/AppKit.h>
 #import <GNUstepGUI/GSTheme.h>
 
-/* not useful at this moment as it has tendency to crash GWorkspace
-static __GNUstepLib_exec_queue = NULL;
+//static __GNUstepLib_exec_queue = NULL;
 
 int GSLaunchApp(const char *xcmd) {
   CREATE_AUTORELEASE_POOL(pool);
@@ -53,15 +52,15 @@ int GSLaunchApp(const char *xcmd) {
     ap = cmd;
   }
 
+  if (![ap hasSuffix:@".app"]) ap = [ws fullPathForApplication:ap];
   if (![ap hasSuffix:@".app"]) ap = [ap stringByDeletingLastPathComponent]; //try to remove executable
   if (![ap hasSuffix:@".app"]) return -1;
 
   NSString* aname = [ap lastPathComponent];
-
   NSString* ap2 = [ws fullPathForApplication:aname];
 
-  if (__GNUstepLib_exec_queue == NULL) __GNUstepLib_exec_queue = dispatch_queue_create("GNUstepLib_exec", DISPATCH_QUEUE_SERIAL);
-  dispatch_queue_t xq = __GNUstepLib_exec_queue;
+  //if (__GNUstepLib_exec_queue == NULL) __GNUstepLib_exec_queue = dispatch_queue_create("GNUstepLib_exec", DISPATCH_QUEUE_SERIAL);
+  //dispatch_queue_t xq = __GNUstepLib_exec_queue;
 
   if ([aname isEqualToString:@"GWorkspace.app"] || [aname isEqualToString:@"GWorkspace"]) {
     if (autolaunch) {
@@ -72,25 +71,18 @@ int GSLaunchApp(const char *xcmd) {
 
   if ([ap isEqualToString:ap2]) {
     if (file) {
-      dispatch_async(xq, ^{
-        NSWorkspace* xws = [NSWorkspace sharedWorkspace];
-        [xws openFile:file withApplication:aname];
-      });
+      NSWorkspace* xws = [NSWorkspace sharedWorkspace];
+      [xws openFile:file withApplication:aname];
       return 1;
     }
     else if (autolaunch) {
-      dispatch_async(xq, ^{
-        NSWorkspace* xws = [NSWorkspace sharedWorkspace];
-        [xws launchApplication:aname showIcon:NO autolaunch:YES];
-        sleep(1);
-      });
+      NSWorkspace* xws = [NSWorkspace sharedWorkspace];
+      [xws launchApplication:aname showIcon:NO autolaunch:YES];
       return 1;
     }
     else {
-      dispatch_async(xq, ^{
-        NSWorkspace* xws = [NSWorkspace sharedWorkspace];
-        [xws launchApplication:aname];
-      });
+      NSWorkspace* xws = [NSWorkspace sharedWorkspace];
+      [xws launchApplication:aname];
       return 1;
     }
   }
@@ -101,7 +93,6 @@ int GSLaunchApp(const char *xcmd) {
   RELEASE(pool);
   return -1;
 }
-*/
 
 int GSOpenDocument(const char *cmd) {
   CREATE_AUTORELEASE_POOL(pool);
