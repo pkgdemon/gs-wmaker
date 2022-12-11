@@ -41,6 +41,7 @@ int GSLaunchApp(const char *xcmd) {
   if (i.location != NSNotFound) {
     ap = [cmd substringToIndex:i.location];
     autolaunch = YES;
+    return -1; // we want wmaker to handle the autostarts for now
   }
 
   i = [cmd rangeOfString:@" -GSFilePath "];

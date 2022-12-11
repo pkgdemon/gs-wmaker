@@ -902,6 +902,7 @@ static void miniwindowMouseDown(WObjDescriptor *desc, XEvent *event)
 		return;
 	}
 
+	fprintf(stderr, "11111\n");
 	if (XGrabPointer(dpy, icon->core->window, False, ButtonMotionMask
 			 | ButtonReleaseMask | ButtonPressMask, GrabModeAsync,
 			 GrabModeAsync, None, None, CurrentTime) != GrabSuccess) {

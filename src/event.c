@@ -174,6 +174,24 @@ static void wdelete_death_handler(WMagicNumber id)
 	WMRemoveFromArray(deathHandlers, handler);
 }
 
+void SendEventToChildren(Window win, XEvent *event)
+{
+	Window *children;
+  Window parent;
+  Window root;
+  unsigned int nchildren;
+  unsigned int windowCount = 0;
+
+  int result = XQueryTree(dpy, win, &root, &parent, &children, &nchildren);
+  for (windowCount = 0; result && windowCount < nchildren; windowCount++) {
+    Window child = children[windowCount];
+		fprintf(stderr, "CC %lx\n", child);
+		event->xbutton.window = child;
+		XSendEvent(dpy, child, False, Button1Mask, event);
+	}
+	XFlush(dpy);
+	XFree(children);
+}
 void DispatchEvent(XEvent * event)
 {
 	if (deathHandlers)
@@ -744,6 +762,7 @@ static void handleDestroyNotify(XEvent * event)
 	}
 
 	app = wApplicationOf(window);
+	//fprintf(stderr, "AAAAAA %x %x\n", window, app);
 	if (app) {
 		if (window == app->main_window) {
 			app->refcount = 0;

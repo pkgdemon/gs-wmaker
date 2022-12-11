@@ -31,6 +31,7 @@
 typedef void (WDeathHandler)(pid_t pid, unsigned int status, void *cdata);
 
 noreturn void EventLoop(void);
+void SendEventToChildren(Window win, XEvent *event);
 void DispatchEvent(XEvent *event);
 void ProcessPendingEvents(void);
 WMagicNumber wAddDeathHandler(pid_t pid, WDeathHandler *callback, void *cdata);
