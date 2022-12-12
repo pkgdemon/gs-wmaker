@@ -906,11 +906,10 @@ Bool wHandleAppIconMoveOrDrag(WAppIcon *aicon, XEvent *event, int drag)
 				wLowerFrame(icon->core);
 		}
 
-		int xx = XGrabPointer(dpy, icon->core->window, True, ButtonMotionMask
+		int grv = XGrabPointer(dpy, icon->core->window, True, ButtonMotionMask
 			 | ButtonReleaseMask | ButtonPressMask, GrabModeAsync,
 				 GrabModeAsync, None, None, CurrentTime);
-	 if (xx	!= GrabSuccess) {
-			fprintf(stderr, "XXX:%d\n", xx);
+	 if (grv != GrabSuccess) {
 			wwarning("Pointer grab failed in wHandleAppIconMove");
 		}
 
@@ -1089,7 +1088,6 @@ Bool wHandleAppIconMoveOrDrag(WAppIcon *aicon, XEvent *event, int drag)
 			if (ev.xbutton.button != clickButton)
 				break;
 
-	fprintf(stderr, "RELEASE\n");
 			XUngrabPointer(dpy, CurrentTime);
 
 			Bool docked = False;
@@ -1216,9 +1214,7 @@ Bool wHandleAppIconMoveOrDrag(WAppIcon *aicon, XEvent *event, int drag)
 				wArrangeIcons(scr, True);
 			return hasMoved;
 		}
-		fprintf(stderr, "1 END\n");
 	}
-	fprintf(stderr, "2 END\n");
 }
 
 /* This function save the application icon and store the path in the Dictionary */

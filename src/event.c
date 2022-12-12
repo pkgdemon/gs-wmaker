@@ -185,7 +185,6 @@ void SendEventToChildren(Window win, XEvent *event)
   int result = XQueryTree(dpy, win, &root, &parent, &children, &nchildren);
   for (windowCount = 0; result && windowCount < nchildren; windowCount++) {
     Window child = children[windowCount];
-		fprintf(stderr, "CC %lx\n", child);
 		event->xbutton.window = child;
 		XSendEvent(dpy, child, False, Button1Mask, event);
 	}
@@ -762,7 +761,6 @@ static void handleDestroyNotify(XEvent * event)
 	}
 
 	app = wApplicationOf(window);
-	//fprintf(stderr, "AAAAAA %x %x\n", window, app);
 	if (app) {
 		if (window == app->main_window) {
 			app->refcount = 0;

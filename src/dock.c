@@ -4043,7 +4043,6 @@ static void handleClipChangeWorkspace(WScreen *scr, XEvent *event)
 
 static void iconMouseDown(WObjDescriptor *desc, XEvent *event)
 {
-	fprintf(stderr, "IIII\n");
 	WAppIcon *aicon = desc->parent;
 	WDock *dock = aicon->dock;
 	WScreen *scr = aicon->icon->core->screen_ptr;
@@ -4065,17 +4064,7 @@ static void iconMouseDown(WObjDescriptor *desc, XEvent *event)
 		}
 	}
 
-	fprintf(stderr, "YYYY\n");
 	if (event->xbutton.button == Button1) {
-			fprintf(stderr, "DOWN %d %d %lx %lx\n", event->xbutton.x, event->xbutton.y, event->xbutton.window, event->xbutton.subwindow);
-			/*
-		if (event->xbutton.x > 8 && event->xbutton.x < 56 && 
-				event->xbutton.y > 8 && event->xbutton.y < 56) {
-			SendEventToChildren(event->xbutton.window, event);
-			return;
-		}
-		*/
-
 		if (event->xbutton.state & MOD_MASK)
 			wDockLower(dock);
 		else

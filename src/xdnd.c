@@ -263,7 +263,6 @@ static void wXDNDGetTypeList(Display *dpy, Window window)
 	a = (Atom *) data;
 	for (i = 0; i < count; i++) {
 		typelist[i] = a[i];
-		fprintf(stderr, "xxxxxxxxxxxx\n");
 		if (typelist[i] == supported_typelist) {
 			selected_typelist = typelist[i];
 			break;
