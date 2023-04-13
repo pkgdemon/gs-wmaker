@@ -165,6 +165,20 @@ static int menuIndexForWindow(WMenu * menu, WWindow * wwin, int old_pos)
 	return idx;
 }
 
+int FindEntryInSwitchMenu(WScreen * scr, WWindow * wwin)
+{
+	WMenu *switchmenu = scr->switch_menu;
+	WMenuEntry *entry;
+	int i;
+	for (i = 0; i < switchmenu->entry_no; i++) {
+		entry = switchmenu->entries[i];
+		if (entry->clientdata == wwin) {
+			return i;
+		}
+	}
+	return -1;
+}
+	
 /*
  * Update switch menu
  */
@@ -192,7 +206,10 @@ void UpdateSwitchMenu(WScreen * scr, WWindow * wwin, int action)
 		char *t;
 		int idx;
 
-		if (wwin->flags.internal_window || WFLAGP(wwin, skip_window_list) || IS_GNUSTEP_MENU(wwin)) {
+		if (wwin->flags.internal_window || \
+				wwin->flags.hidden || \
+				WFLAGP(wwin, skip_window_list) || \
+				IS_GNUSTEP_MENU(wwin)) {
 			return;
 		}
 
@@ -384,10 +401,17 @@ static void observer(void *self, WMNotification * notif)
 	else if (strcmp(name, WMNChangedName) == 0)
 		UpdateSwitchMenu(wwin->screen_ptr, wwin, ACTION_CHANGE);
 	else if (strcmp(name, WMNChangedState) == 0) {
+		if (FindEntryInSwitchMenu(wwin->screen_ptr, wwin) == -1) {
+			UpdateSwitchMenu(wwin->screen_ptr, wwin, ACTION_ADD);
+		}
+
 		if (strcmp((char *)data, "omnipresent") == 0) {
 			UpdateSwitchMenu(wwin->screen_ptr, wwin, ACTION_CHANGE_WORKSPACE);
 		} else {
 			UpdateSwitchMenu(wwin->screen_ptr, wwin, ACTION_CHANGE_STATE);
+		}
+		if (wwin->flags.hidden) {
+			UpdateSwitchMenu(wwin->screen_ptr, wwin, ACTION_REMOVE);
 		}
 	}
 }

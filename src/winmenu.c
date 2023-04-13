@@ -66,15 +66,17 @@ enum
 	MC_OTHERMAX,
 	MC_MINIATURIZE,
 	MC_SHADE,
-	MC_HIDE,
 	MC_MOVERESIZE,
 	MC_SELECT,
 	MC_CHANGEWKSPC,
 	MC_PROPERTIES,
 	MC_OPTIONS,
+	MC_HIDE,
+	MC_CLOSE
+	/*
 	MC_RELAUNCH,
-	MC_CLOSE,
 	MC_KILL
+	*/
 };
 
 static const struct {
@@ -82,18 +84,20 @@ static const struct {
 	WMenu *(*generate_submenu)(WScreen *scr);
 } window_menu_entries[] = {
 	[MC_MAXIMIZE]    = { N_("Maximize"), NULL },
-	[MC_OTHERMAX]    = { N_("Other maximization"), makeMaximizeMenu },
+	[MC_OTHERMAX]    = { N_("Maximize..."), makeMaximizeMenu },
 	[MC_MINIATURIZE] = { N_("Miniaturize"), NULL },
 	[MC_SHADE]       = { N_("Shade"), NULL },
-	[MC_HIDE]        = { N_("Hide"), NULL },
 	[MC_MOVERESIZE]  = { N_("Resize/Move"), NULL },
 	[MC_SELECT]      = { N_("Select"), NULL },
 	[MC_CHANGEWKSPC] = { N_("Move To"), makeWorkspaceMenu },
 	[MC_PROPERTIES]  = { N_("Attributes..."), NULL },
 	[MC_OPTIONS]     = { N_("Options"), makeOptionsMenu },
+	[MC_HIDE]        = { N_("Hide"), NULL },
+	[MC_CLOSE]       = { N_("Close"), NULL }
+	/*
 	[MC_RELAUNCH]    = { N_("Launch"), NULL },
-	[MC_CLOSE]       = { N_("Close"), NULL },
 	[MC_KILL]        = { N_("Kill"), NULL }
+	*/
 };
 
 /*
@@ -123,17 +127,17 @@ static const struct {
 	unsigned int shortcut_idx;
 	int maxim_direction;
 } menu_maximize_entries[] = {
-	{ N_("Maximize vertically"), WKBD_VMAXIMIZE, MAX_VERTICAL },
-	{ N_("Maximize horizontally"), WKBD_HMAXIMIZE, MAX_HORIZONTAL },
-	{ N_("Maximize left half"), WKBD_LHMAXIMIZE, MAX_VERTICAL | MAX_LEFTHALF },
-	{ N_("Maximize right half"), WKBD_RHMAXIMIZE, MAX_VERTICAL | MAX_RIGHTHALF },
-	{ N_("Maximize top half"), WKBD_THMAXIMIZE, MAX_HORIZONTAL | MAX_TOPHALF },
-	{ N_("Maximize bottom half"), WKBD_BHMAXIMIZE, MAX_HORIZONTAL | MAX_BOTTOMHALF },
-	{ N_("Maximize left top corner"), WKBD_LTCMAXIMIZE, MAX_LEFTHALF | MAX_TOPHALF },
-	{ N_("Maximize right top corner"), WKBD_RTCMAXIMIZE, MAX_RIGHTHALF | MAX_TOPHALF },
-	{ N_("Maximize left bottom corner"), WKBD_LBCMAXIMIZE, MAX_LEFTHALF | MAX_BOTTOMHALF },
-	{ N_("Maximize right bottom corner"), WKBD_RBCMAXIMIZE, MAX_RIGHTHALF | MAX_BOTTOMHALF },
-	{ N_("Maximus: tiled maximization"), WKBD_MAXIMUS, MAX_MAXIMUS }
+	{ N_("Vertically"), WKBD_VMAXIMIZE, MAX_VERTICAL },
+	{ N_("Horizontally"), WKBD_HMAXIMIZE, MAX_HORIZONTAL },
+	{ N_("Left half"), WKBD_LHMAXIMIZE, MAX_VERTICAL | MAX_LEFTHALF },
+	{ N_("Right half"), WKBD_RHMAXIMIZE, MAX_VERTICAL | MAX_RIGHTHALF },
+	{ N_("Top half"), WKBD_THMAXIMIZE, MAX_HORIZONTAL | MAX_TOPHALF },
+	{ N_("Bottom half"), WKBD_BHMAXIMIZE, MAX_HORIZONTAL | MAX_BOTTOMHALF },
+	{ N_("Left top corner"), WKBD_LTCMAXIMIZE, MAX_LEFTHALF | MAX_TOPHALF },
+	{ N_("Right top corner"), WKBD_RTCMAXIMIZE, MAX_RIGHTHALF | MAX_TOPHALF },
+	{ N_("Left bottom corner"), WKBD_LBCMAXIMIZE, MAX_LEFTHALF | MAX_BOTTOMHALF },
+	{ N_("Right bottom corner"), WKBD_RBCMAXIMIZE, MAX_RIGHTHALF | MAX_BOTTOMHALF },
+	{ N_("Tiled maximization"), WKBD_MAXIMUS, MAX_MAXIMUS }
 };
 
 static void updateOptionsMenu(WMenu * menu, WWindow * wwin);
@@ -247,6 +251,7 @@ static void execMenuCommand(WMenu * menu, WMenuEntry * entry)
 								  w_global.timestamp.last_event);
 		break;
 
+		/*
 	case MC_KILL:
 		wretain(wwin);
 		if (wPreferences.dont_confirm_kill
@@ -259,6 +264,7 @@ static void execMenuCommand(WMenu * menu, WMenuEntry * entry)
 		}
 		wrelease(wwin);
 		break;
+		*/
 
 	case MC_MINIATURIZE:
 		if (wwin->flags.miniaturized) {
@@ -303,9 +309,11 @@ static void execMenuCommand(WMenu * menu, WMenuEntry * entry)
 		wShowInspectorForWindow(wwin);
 		break;
 
+		/*
 	case MC_RELAUNCH:
 		(void) RelaunchWindow(wwin);
 		break;
+		*/
 
 	case MC_HIDE:
 		wapp = wApplicationOf(wwin->main_window);
@@ -718,7 +726,7 @@ static void updateMenuForWindow(WMenu * menu, WWindow * wwin)
 	menu->entries[MC_HIDE]->rtext = GetShortcutKey(wKeyBindings[WKBD_HIDE]);
 	menu->entries[MC_MOVERESIZE]->rtext = GetShortcutKey(wKeyBindings[WKBD_MOVERESIZE]);
 	menu->entries[MC_SELECT]->rtext = GetShortcutKey(wKeyBindings[WKBD_SELECT]);
-	menu->entries[MC_RELAUNCH]->rtext = GetShortcutKey(wKeyBindings[WKBD_RELAUNCH]);
+	//menu->entries[MC_RELAUNCH]->rtext = GetShortcutKey(wKeyBindings[WKBD_RELAUNCH]);
 	menu->entries[MC_CLOSE]->rtext = GetShortcutKey(wKeyBindings[WKBD_CLOSE]);
 
 	/* set the client data of the entries to the window */

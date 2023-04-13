@@ -999,7 +999,7 @@ static WMenu *makeWorkspaceMenu(WScreen *scr)
 {
 	WMenu *menu;
 
-	menu = wMenuCreate(scr, NULL, False);
+	menu = wMenuCreate(scr, "Workspace", False);
 	if (!menu)
 		wwarning(_("could not create workspace submenu for Clip menu"));
 
@@ -1056,7 +1056,7 @@ static WMenu *makeClipOptionsMenu(WScreen *scr)
 	WMenu *menu;
 	WMenuEntry *entry;
 
-	menu = wMenuCreate(scr, NULL, False);
+	menu = wMenuCreate(scr, "Clip Options", False);
 	if (!menu) {
 		wwarning(_("could not create options submenu for Clip menu"));
 		return NULL;
@@ -1195,7 +1195,7 @@ static WMenu *makeDockPositionMenu(WScreen *scr)
 	WMenu *menu;
 	WMenuEntry *entry;
 
-	menu = wMenuCreate(scr, NULL, False);
+	menu = wMenuCreate(scr, "Dock Position", False);
 	if (!menu) {
 		wwarning(_("could not create options submenu for dock position menu"));
 		return NULL;
@@ -1231,7 +1231,7 @@ static WMenu *dockMenuCreate(WScreen *scr, int type)
 	if (type == WM_DRAWER && scr->drawer_menu)
 		return scr->drawer_menu;
 
-	menu = wMenuCreate(scr, NULL, False);
+	menu = wMenuCreate(scr, "Dock Icon", False);
 	if (type == WM_DOCK) {
 		entry = wMenuAddCallback(menu, _("Dock position"), NULL, NULL);
 		if (scr->dock_pos_menu == NULL)
