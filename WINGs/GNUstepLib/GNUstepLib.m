@@ -29,6 +29,9 @@
 //static __GNUstepLib_exec_queue = NULL;
 
 int GSLaunchApp(const char *xcmd) {
+  //if (__GNUstepLib_exec_queue == NULL) __GNUstepLib_exec_queue = dispatch_queue_create("GNUstepLib_exec", DISPATCH_QUEUE_SERIAL);
+  //dispatch_queue_t xq = __GNUstepLib_exec_queue;
+
   CREATE_AUTORELEASE_POOL(pool);
   
   NSWorkspace* ws = [NSWorkspace sharedWorkspace];
@@ -41,6 +44,7 @@ int GSLaunchApp(const char *xcmd) {
   if (i.location != NSNotFound) {
     ap = [cmd substringToIndex:i.location];
     autolaunch = YES;
+    RELEASE(pool);
     return -1; // we want wmaker to handle the autostarts for now
   }
 
@@ -55,17 +59,18 @@ int GSLaunchApp(const char *xcmd) {
 
   if (![ap hasSuffix:@".app"]) ap = [ws fullPathForApplication:ap];
   if (![ap hasSuffix:@".app"]) ap = [ap stringByDeletingLastPathComponent]; //try to remove executable
-  if (![ap hasSuffix:@".app"]) return -1;
+  if (![ap hasSuffix:@".app"]) {
+    RELEASE(pool);
+    return -1;
+  }
 
   NSString* aname = [ap lastPathComponent];
   NSString* ap2 = [ws fullPathForApplication:aname];
 
-  //if (__GNUstepLib_exec_queue == NULL) __GNUstepLib_exec_queue = dispatch_queue_create("GNUstepLib_exec", DISPATCH_QUEUE_SERIAL);
-  //dispatch_queue_t xq = __GNUstepLib_exec_queue;
-
   if ([aname isEqualToString:@"GWorkspace.app"] || [aname isEqualToString:@"GWorkspace"]) {
     if (autolaunch) {
       NSLog(@"GWorkspace");
+      RELEASE(pool);
       return -1; // launch it by regular exec
     }
   }
@@ -74,16 +79,19 @@ int GSLaunchApp(const char *xcmd) {
     if (file) {
       NSWorkspace* xws = [NSWorkspace sharedWorkspace];
       [xws openFile:file withApplication:aname];
+      RELEASE(pool);
       return 1;
     }
     else if (autolaunch) {
       NSWorkspace* xws = [NSWorkspace sharedWorkspace];
       [xws launchApplication:aname showIcon:NO autolaunch:YES];
+      RELEASE(pool);
       return 1;
     }
     else {
       NSWorkspace* xws = [NSWorkspace sharedWorkspace];
       [xws launchApplication:aname];
+      RELEASE(pool);
       return 1;
     }
   }
