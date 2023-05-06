@@ -1053,8 +1053,6 @@ static Bool hasPointerInsideWindow(Window window, int x, int y)
 	int c = nchildren;
 	int z = 0;
   
-	fprintf(stderr, "WIN %x %d,%d (%d)\n", window, x, y, nchildren);
-
   for (; result && c > 0; c--) {
     win = children[c-1];
     
@@ -1069,7 +1067,6 @@ static Bool hasPointerInsideWindow(Window window, int x, int y)
 					break;
 				}
 				z++;
-				fprintf(stderr, "WIN %x %d,%d %dx%d\n", win, wattrs.x, wattrs.y, wattrs.width, wattrs.height);
 			}
 		}
 	}
@@ -2122,6 +2119,20 @@ static void handleKeyPress(XEvent * event)
 
 static void handleMotionNotify(XEvent * event)
 {
+	WObjDescriptor *desc = NULL;
+	if (XFindContext(dpy, event->xbutton.window, w_global.context.client_win, (XPointer *) & desc) != XCNOENT) {
+		if (desc) {
+			/* continue moving the window from mousedown */
+			if (desc->continue_mousemove != NULL) {
+				WFrameWindow *frame = (WFrameWindow*)desc->parent;
+				WWindow *wwin = (WWindow*)frame->core->descriptor.parent;
+				(*desc->continue_mousemove) (wwin, event);
+				desc->continue_mousemove = NULL;
+				return;
+			}
+		}
+	}
+
 	WScreen *scr = wScreenForRootWindow(event->xmotion.root);
 
 	if (wPreferences.scrollable_menus) {

@@ -84,6 +84,8 @@ typedef struct WObjDescriptor {
 	void (*handle_enternotify)(struct WObjDescriptor *sender, XEvent *event);
 	void (*handle_leavenotify)(struct WObjDescriptor *sender, XEvent *event);
 
+	void (*continue_mousemove)(void* data, XEvent *event);
+
 	WClassType parent_type;            /* type code of the parent */
 	void *parent;                      /* parent object (WWindow or WMenu) */
 } WObjDescriptor;

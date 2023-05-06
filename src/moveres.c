@@ -1748,6 +1748,7 @@ int wMouseMoveWindow(WWindow * wwin, XEvent * ev)
 					continue;
 			}
 		}
+
 		switch (event.type) {
 		case KeyPress:
 			if ((event.xkey.keycode == shiftl || event.xkey.keycode == shiftr)

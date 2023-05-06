@@ -96,6 +96,7 @@ static void windowLanguageClick(WCoreWindow *sender, void *data, XEvent *event);
 static void titlebarMouseDown(WCoreWindow *sender, void *data, XEvent *event);
 static void titlebarDblClick(WCoreWindow *sender, void *data, XEvent *event);
 static void resizebarMouseDown(WCoreWindow *sender, void *data, XEvent *event);
+static void continue_titlebarMouseMove(void *data, XEvent *event);
 
 static void release_wwindowstate(WWindowState *wstate);
 
@@ -3005,25 +3006,23 @@ static void titlebarMouseDown(WCoreWindow *sender, void *data, XEvent *event)
 			wSelectWindow(wwin, !wwin->flags.selected);
 			return;
 		}
-		if (event->xbutton.window != wwin->frame->titlebar->window
-		    && XGrabPointer(dpy, wwin->frame->titlebar->window, False,
-				    ButtonMotionMask | ButtonReleaseMask | ButtonPressMask,
-				    GrabModeAsync, GrabModeAsync, None, None, CurrentTime) != GrabSuccess) {
-			return;
+
+		
+		if (event->xbutton.button == Button1 && event->xbutton.state == 0) {
+			//give GNUstep app a chance to take focus and continue in the move handler
+			wwin->frame->titlebar->descriptor.continue_mousemove = continue_titlebarMouseMove;
+		} else {
+			continue_titlebarMouseMove(wwin, event);
 		}
 
-		/* move the window */
-		wMouseMoveWindow(wwin, event);
-
-		XUngrabPointer(dpy, CurrentTime);
 	} else if (event->xbutton.button == Button3 && event->xbutton.state == 0
-		   && !wwin->flags.internal_window && !WCHECK_STATE(WSTATE_MODAL)) {
+			 && !wwin->flags.internal_window && !WCHECK_STATE(WSTATE_MODAL)) {
 		WObjDescriptor *desc;
 
 		if (event->xbutton.window != wwin->frame->titlebar->window
-		    && XGrabPointer(dpy, wwin->frame->titlebar->window, False,
-				    ButtonMotionMask | ButtonReleaseMask | ButtonPressMask,
-				    GrabModeAsync, GrabModeAsync, None, None, CurrentTime) != GrabSuccess) {
+				&& XGrabPointer(dpy, wwin->frame->titlebar->window, False,
+						ButtonMotionMask | ButtonReleaseMask | ButtonPressMask,
+						GrabModeAsync, GrabModeAsync, None, None, CurrentTime) != GrabSuccess) {
 			return;
 		}
 
@@ -3036,6 +3035,27 @@ static void titlebarMouseDown(WCoreWindow *sender, void *data, XEvent *event)
 
 		XUngrabPointer(dpy, CurrentTime);
 	}
+}
+
+static void continue_titlebarMouseMove(void *data, XEvent *event)
+{
+	WWindow *wwin = (WWindow*) data;
+
+	if (event->xbutton.window != wwin->frame->titlebar->window
+			&& XGrabPointer(dpy, wwin->frame->titlebar->window, False,
+					ButtonMotionMask | ButtonReleaseMask | ButtonPressMask,
+					GrabModeAsync, GrabModeAsync, None, None, CurrentTime) != GrabSuccess) {
+		return;
+	}
+
+	/* move the window */
+ 	/* this is continuation of the event on button 1 */
+
+	event->xbutton.button = Button1;
+	event->xbutton.state = 0;
+	wMouseMoveWindow(wwin, event);
+
+	XUngrabPointer(dpy, CurrentTime);
 }
 
 static void windowCloseClick(WCoreWindow *sender, void *data, XEvent *event)
