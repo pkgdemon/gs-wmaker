@@ -2126,9 +2126,26 @@ static void handleMotionNotify(XEvent * event)
 			if (desc->continue_mousemove != NULL) {
 				WFrameWindow *frame = (WFrameWindow*)desc->parent;
 				WWindow *wwin = (WWindow*)frame->core->descriptor.parent;
-				(*desc->continue_mousemove) (wwin, event);
-				desc->continue_mousemove = NULL;
-				return;
+
+				if (wwin->flags.is_gnustep) {
+					/* continue only of the app is active already */
+
+					WWindow *fwin = wwin->screen_ptr->focused_window;
+					if (fwin == wwin) {
+						/* we were activated already */
+						(*desc->continue_mousemove) (wwin, event);
+						desc->continue_mousemove = NULL;
+					} else if (fwin && !strcmp(wwin->wm_instance, fwin->wm_instance) && IS_GNUSTEP_MENU(fwin) && fwin->flags.focused) {
+						/* we have just been activated */
+						(*desc->continue_mousemove) (wwin, event);
+						desc->continue_mousemove = NULL;
+					}
+					return;
+				} else {
+					(*desc->continue_mousemove) (wwin, event);
+					desc->continue_mousemove = NULL;
+					return;
+				}
 			}
 		}
 	}

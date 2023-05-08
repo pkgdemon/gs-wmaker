@@ -72,6 +72,7 @@
 
 #define MOD_MASK wPreferences.modifier_mask
 
+void ProcessPendingEvents(void);
 
 /***** Local Stuff *****/
 static WWindowState *windowState = NULL;
@@ -2976,6 +2977,8 @@ static void frameMouseDown(WObjDescriptor *desc, XEvent *event)
 static void titlebarMouseDown(WCoreWindow *sender, void *data, XEvent *event)
 {
 	WWindow *wwin = (WWindow *) data;
+	WWindow *fwin = wwin->screen_ptr->focused_window;
+	wwin->frame->titlebar->descriptor.continue_mousemove = NULL;
 
 	/* Parameter not used, but tell the compiler that it is ok */
 	(void) sender;
@@ -3006,10 +3009,13 @@ static void titlebarMouseDown(WCoreWindow *sender, void *data, XEvent *event)
 			wSelectWindow(wwin, !wwin->flags.selected);
 			return;
 		}
-
 		
-		if (event->xbutton.button == Button1 && event->xbutton.state == 0) {
+		if (fwin == wwin) {
+			continue_titlebarMouseMove(wwin, event);
+		}
+		else if (event->xbutton.button == Button1 && event->xbutton.state == 0) {
 			//give GNUstep app a chance to take focus and continue in the move handler
+			ProcessPendingEvents();
 			wwin->frame->titlebar->descriptor.continue_mousemove = continue_titlebarMouseMove;
 		} else {
 			continue_titlebarMouseMove(wwin, event);

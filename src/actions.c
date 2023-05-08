@@ -252,11 +252,16 @@ void wShadeWindow(WWindow *wwin)
 
 	wwin->flags.skip_next_animation = 0;
 	wwin->flags.shaded = 1;
-	wwin->flags.mapped = 0;
-	/* prevent window withdrawal when getting UnmapNotify */
-	XSelectInput(dpy, wwin->client_win, wwin->event_mask & ~StructureNotifyMask);
-	XUnmapWindow(dpy, wwin->client_win);
-	XSelectInput(dpy, wwin->client_win, wwin->event_mask);
+
+	if (wwin->flags.is_gnustep) {
+		/* if we unmap the window, we will not be able to receive events */
+	} else {
+		wwin->flags.mapped = 0;
+		/* prevent window withdrawal when getting UnmapNotify */
+		XSelectInput(dpy, wwin->client_win, wwin->event_mask & ~StructureNotifyMask);
+		XUnmapWindow(dpy, wwin->client_win);
+		XSelectInput(dpy, wwin->client_win, wwin->event_mask);
+	}
 
 	/* for the client it's just like iconification */
 	wFrameWindowResize(wwin->frame, wwin->frame->core->width, wwin->frame->top_width - 1);
@@ -285,8 +290,11 @@ void wUnshadeWindow(WWindow *wwin)
 		return;
 
 	wwin->flags.shaded = 0;
-	wwin->flags.mapped = 1;
-	XMapWindow(dpy, wwin->client_win);
+
+	if (!wwin->flags.mapped) {
+		wwin->flags.mapped = 1;
+		XMapWindow(dpy, wwin->client_win);
+	}
 
 	shade_animate(wwin, UNSHADE);
 
