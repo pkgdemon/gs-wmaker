@@ -3012,8 +3012,9 @@ static void titlebarMouseDown(WCoreWindow *sender, void *data, XEvent *event)
 		
 		if (fwin == wwin) {
 			continue_titlebarMouseMove(wwin, event);
-		}
-		else if (event->xbutton.button == Button1 && event->xbutton.state == 0) {
+		} else if (wwin->flags.net_skip_pager) {
+			continue_titlebarMouseMove(wwin, event);
+		} else if (event->xbutton.button == Button1 && event->xbutton.state == 0) {
 			//give GNUstep app a chance to take focus and continue in the move handler
 			ProcessPendingEvents();
 			wwin->frame->titlebar->descriptor.continue_mousemove = continue_titlebarMouseMove;
