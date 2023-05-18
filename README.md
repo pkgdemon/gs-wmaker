@@ -33,12 +33,4 @@ It is now possible to drag an app from GWorkspace and add it to your dock withou
 
 ## Building Window Maker
 
-This fork is inteded to be build wihin GNU
-
-Make certain you have GNUstep installed and have sourced the GNUstep.sh file.  Once this is done you can install the enhanced features using build.sh.  This should install GNUstepLib (the library that integrates WINGs with GS) and then builds WINGs and wmaker.
-
-The simplest way to get started is to do:
-
-`./build.sh`
-
-Happy Hacking...
+This fork is inteded to be built and installed wihin [GNUstep Desktop](https://github.com/onflapp/gs-desktop).
