@@ -4,6 +4,10 @@ This is fork of the legendary [WindowMaker](https://github.com/window-maker/wmak
 
 It contains many enhancements and tweaks to create consistent user experience for GNUstep applications. Although it could be possible to run it on its own, that's not its purpose.  
 
+## Building Window Maker
+
+This fork is inteded to be built and installed wihin [GNUstep Desktop](https://github.com/onflapp/gs-desktop).
+
 ## Notable changes:
 
 #### fix GNUstep menus
@@ -30,7 +34,3 @@ The drag & drop works as expected. For example, you can drag a file from GWorksp
 #### add apps, files and folders to your dock using drag & drop 
 
 It is now possible to drag an app from GWorkspace and add it to your dock without need to launch it first. The same will works with any file or folder.  
-
-## Building Window Maker
-
-This fork is inteded to be built and installed wihin [GNUstep Desktop](https://github.com/onflapp/gs-desktop).
