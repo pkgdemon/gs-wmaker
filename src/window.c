@@ -652,9 +652,16 @@ WWindow *wManageWindow(WScreen *scr, Window window)
 		return NULL;
 	}
 
+	title = wNETWMGetWindowName(window);
+
+	if (((wattribs.width + wattribs.x) < 0) && ((wattribs.height + wattribs.y) < 0)) {
+		fprintf(stderr, "ignore window:%s %d %d %d %d\n", title, wattribs.x, wattribs.y, wattribs.width, wattribs.height);
+		XUngrabServer(dpy);
+		return NULL;
+	}
+
 	wwin = wWindowCreate();
 
-	title = wNETWMGetWindowName(window);
 	if (title)
 		wwin->flags.net_has_title = 1;
 	else if (!wFetchName(dpy, window, &title))
