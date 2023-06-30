@@ -111,7 +111,6 @@ static void handle_selection_request(XSelectionRequestEvent *event);
 static void handle_selection_clear(XSelectionClearEvent *event);
 static void wdelete_death_handler(WMagicNumber id);
 
-
 #ifdef USE_XSHAPE
 static void handleShapeNotify(XEvent *event);
 #endif

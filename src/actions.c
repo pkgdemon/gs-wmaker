@@ -164,6 +164,16 @@ void wSetFocusTo(WScreen *scr, WWindow *wwin)
 	wasfocused = wwin->flags.focused;
 	napp = wApplicationOf(wwin->main_window);
 
+
+	/* this is gnustep menu, keep focus on the existing window */
+	if (oapp == napp && wwin->flags.is_gnustep && IS_GNUSTEP_MENU(wwin)) {
+		return;
+	}
+
+	if (wwin->flags.is_gnustep) {
+		wHideGNUstepMenuExcept(scr, wwin);
+	}
+
 	/* remember last workspace where the app has been */
 	if (napp)
 		napp->last_workspace = wwin->frame->workspace;
@@ -1741,6 +1751,29 @@ void wHideGNUstepMenu(WScreen *scr)
 			wlist->flags.is_temp_hidden = 1;
 		}
 		else {
+			wlist->flags.is_temp_hidden = 0;
+		}
+
+		wlist = wlist->prev;
+	}
+
+	return;
+}
+
+void wHideGNUstepMenuExcept(WScreen *scr, WWindow* wwin)
+{
+	WWindow *wlist = scr->focused_window;
+
+	if (!wlist)
+		return;
+
+	while (wlist) {
+		if (wlist->main_window == wwin->main_window) {
+		}
+		else if (wlist->flags.is_gnustep && 
+				wlist->client_flags.no_titlebar && 
+				IS_GNUSTEP_MENU(wlist)) {
+			wWindowUnmap(wlist);
 			wlist->flags.is_temp_hidden = 0;
 		}
 

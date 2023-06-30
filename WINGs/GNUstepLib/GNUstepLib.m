@@ -34,7 +34,6 @@ int GSLaunchApp(const char *xcmd) {
 
   CREATE_AUTORELEASE_POOL(pool);
   
-  NSWorkspace* ws = [NSWorkspace sharedWorkspace];
   BOOL autolaunch = NO;
   NSString* cmd = [NSString stringWithUTF8String:xcmd];
   NSString* ap = nil;
@@ -56,6 +55,8 @@ int GSLaunchApp(const char *xcmd) {
   else {
     ap = cmd;
   }
+
+  NSWorkspace* ws = [NSWorkspace sharedWorkspace];
 
   if (![ap hasSuffix:@".app"]) ap = [ws fullPathForApplication:ap];
   if (![ap hasSuffix:@".app"]) ap = [ap stringByDeletingLastPathComponent]; //try to remove executable
