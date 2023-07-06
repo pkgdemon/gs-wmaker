@@ -107,6 +107,8 @@ static inline void shade_animate(WWindow *wwin, Bool what)
 }
 #endif
 
+static time_t last_gnustep_focus;
+
 /*
  *----------------------------------------------------------------------
  * wSetFocusTo--
@@ -165,9 +167,29 @@ void wSetFocusTo(WScreen *scr, WWindow *wwin)
 	napp = wApplicationOf(wwin->main_window);
 
 
-	/* this is gnustep menu, keep focus on the existing window */
-	if (oapp == napp && wwin->flags.is_gnustep && IS_GNUSTEP_MENU(wwin)) {
-		return;
+	/* this is gnustep menu, we might need to keep focus on the existing window */
+	if (wwin->flags.is_gnustep) {
+		time_t tt = time(NULL);
+		time_t tdiff = tt - last_gnustep_focus;
+
+		if (oapp == napp) {
+			if (IS_GNUSTEP_MENU(wwin)) {
+				//fprintf(stderr, "=M %lx (%d)\n", wwin, tdiff);
+				if (tdiff == 0) return;
+			}
+			else {
+				//fprintf(stderr, "=W %lx -> %lx (%d)\n", old_focused, wwin, tdiff);
+			}
+		}
+		else {
+			if (IS_GNUSTEP_MENU(wwin)) {
+				//fprintf(stderr, ">M %lx (%d)\n", wwin, tdiff);
+			}
+			else {
+				//fprintf(stderr, ">W %lx -> %lx (%d)\n", old_focused, wwin, tdiff);
+			}
+		}
+		last_gnustep_focus = tt;
 	}
 
 	if (wwin->flags.is_gnustep) {
@@ -1772,6 +1794,7 @@ void wHideGNUstepMenuExcept(WScreen *scr, WWindow* wwin)
 		}
 		else if (wlist->flags.is_gnustep && 
 				wlist->client_flags.no_titlebar && 
+				wlist->flags.is_suppressed == 0 && 
 				IS_GNUSTEP_MENU(wlist)) {
 			wWindowUnmap(wlist);
 			wlist->flags.is_temp_hidden = 0;
@@ -1783,6 +1806,29 @@ void wHideGNUstepMenuExcept(WScreen *scr, WWindow* wwin)
 	return;
 }
 
+WWindow *wNextGNUstepWindow(WScreen *scr, WWindow* wwin)
+{
+	WWindow *wlist = scr->focused_window;
+
+	if (!wlist)
+		return NULL;
+
+	while (wlist) {
+		if (wlist == wwin) {
+		}
+		else if (wlist->flags.is_gnustep &&
+				wlist->flags.mapped &&
+				!IS_GNUSTEP_MENU(wlist) &&
+				strcmp(wwin->wm_instance, wlist->wm_instance) == 0) {
+			return wlist;
+		}
+
+		wlist = wlist->prev;
+	}
+
+	return NULL;
+}
+
 void wRestoreGNUstepMenu(WScreen *scr)
 {
 	WWindow *wlist;
@@ -1791,7 +1837,8 @@ void wRestoreGNUstepMenu(WScreen *scr)
 		return;
 
 	while (wlist) {
-		if (wlist->flags.is_temp_hidden) {
+		if (wlist->flags.is_temp_hidden &&
+				wlist->flags.is_suppressed == 0) {
 			wWindowMap(wlist);
 			wlist->flags.is_temp_hidden = 0;
 		}

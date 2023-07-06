@@ -42,6 +42,7 @@ typedef struct _Panel {
 	WMFrame *optF;
 	WMButton *autoB;
 	WMButton *autoC;
+	WMButton *hideB;
 	WMButton *wrapB;
 
 } _Panel;
@@ -67,6 +68,8 @@ static void showData(_Panel * panel)
 	WMSetButtonSelected(panel->autoB, GetBoolForKey("ScrollableMenus"));
 
 	WMSetButtonSelected(panel->autoC, GetBoolForKey("ViKeyMenus"));
+
+	WMSetButtonSelected(panel->hideB, GetBoolForKey("HideGNUstepMenus"));
 }
 
 static void storeData(_Panel * panel)
@@ -84,6 +87,7 @@ static void storeData(_Panel * panel)
 	SetBoolForKey(WMGetButtonSelected(panel->wrapB), "WrapMenus");
 	SetBoolForKey(WMGetButtonSelected(panel->autoB), "ScrollableMenus");
 	SetBoolForKey(WMGetButtonSelected(panel->autoC), "ViKeyMenus");
+	SetBoolForKey(WMGetButtonSelected(panel->hideB), "HideGNUstepMenus");
 }
 
 static void createPanel(Panel * p)
@@ -188,22 +192,28 @@ static void createPanel(Panel * p)
 
     /***************** Options ****************/
 	panel->optF = WMCreateFrame(panel->box);
-	WMResizeWidget(panel->optF, 475, 96);
+	WMResizeWidget(panel->optF, 475, 100);
 	WMMoveWidget(panel->optF, 25, 120);
 
 	panel->wrapB = WMCreateSwitchButton(panel->optF);
-	WMResizeWidget(panel->wrapB, 440, 32);
-	WMMoveWidget(panel->wrapB, 25, 8);
+	WMResizeWidget(panel->wrapB, 440, 26);
+	WMMoveWidget(panel->wrapB, 25, 2);
 	WMSetButtonText(panel->wrapB, _("Always open submenus inside the screen, instead of scrolling."));
 
 	panel->autoB = WMCreateSwitchButton(panel->optF);
-	WMResizeWidget(panel->autoB, 440, 32);
-	WMMoveWidget(panel->autoB, 25, 34);
+	WMResizeWidget(panel->autoB, 440, 26);
+	WMMoveWidget(panel->autoB, 25, 24);
 	WMSetButtonText(panel->autoB, _("Scroll off-screen menus when pointer is moved over them."));
+
 	panel->autoC = WMCreateSwitchButton(panel->optF);
-	WMResizeWidget(panel->autoC, 440, 32);
-	WMMoveWidget(panel->autoC, 25, 58);
+	WMResizeWidget(panel->autoC, 440, 26);
+	WMMoveWidget(panel->autoC, 25, 46);
 	WMSetButtonText(panel->autoC, _("Use h/j/k/l keys to select menu options."));
+
+	panel->hideB = WMCreateSwitchButton(panel->optF);
+	WMResizeWidget(panel->hideB, 440, 26);
+	WMMoveWidget(panel->hideB, 25, 68);
+	WMSetButtonText(panel->hideB, _("Hide GNUstep app menu by default"));
 
 	WMMapSubwidgets(panel->optF);
 

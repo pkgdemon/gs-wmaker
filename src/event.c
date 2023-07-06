@@ -639,6 +639,7 @@ static void handleMapRequest(XEvent * ev)
 	GNUstepWMAttributes* wm_gnustep_attr = wmalloc(sizeof(GNUstepWMAttributes));
 
 	int hide_new_menu = 0;
+	int hide_main_menu = 0;
 
 	if (PropGetGNUstepWMAttr(window, &wm_gnustep_attr)) {
 		Window transient_for = 0;
@@ -665,6 +666,10 @@ static void handleMapRequest(XEvent * ev)
 		if (wm_gnustep_attr->flags & GSWindowLevelAttr && \
 			  (wm_gnustep_attr->window_level == WMSubmenuWindowLevel || \
 				 wm_gnustep_attr->window_level == WMMainMenuWindowLevel)) {
+
+			if (wPreferences.hide_gnustep_menus) {
+				hide_main_menu = 1;
+			}
 
 			/* this is main menu for active application
 			 * but the pop menu is still showing
@@ -698,6 +703,15 @@ static void handleMapRequest(XEvent * ev)
 	}
 
 	if (wwin) {
+		if (hide_main_menu) {
+			wwin->flags.is_suppressed = 1;
+			wWindowUnmap(wwin);
+			return;
+		}
+		else {
+			wwin->flags.is_suppressed = 0;
+		}
+
 		wClientSetState(wwin, NormalState, None);
 		if (wwin->flags.maximized) {
 			wMaximizeWindow(wwin, wwin->flags.maximized,

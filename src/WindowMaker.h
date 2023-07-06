@@ -336,6 +336,7 @@ extern struct WPreferences {
 	char wrap_menus;                   /* wrap menus at edge of screen */
 	char scrollable_menus;             /* let them be scrolled */
 	char vi_key_menus;                 /* use h/j/k/l to select */
+	char hide_gnustep_menus;           /* hide GNUstep app menus */
 	char align_menus;                  /* align menu with their parents */
 	char use_saveunders;               /* turn on SaveUnders for menus, icons etc. */
 	char no_window_over_dock;
