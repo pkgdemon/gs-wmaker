@@ -618,6 +618,7 @@ static void handleMapRequest(XEvent * ev)
 	wwin = wWindowFor(window);
 
 	if (wwin != NULL) {
+		WApplication *wapp = wApplicationOf(wwin->main_window);
 		if (wwin->flags.shaded) {
 			wUnshadeWindow(wwin);
 		}
@@ -625,12 +626,16 @@ static void handleMapRequest(XEvent * ev)
 		if (wwin->flags.miniaturized) {
 			wDeiconifyWindow(wwin);
 		} else if (wwin->flags.hidden) {
-			WApplication *wapp = wApplicationOf(wwin->main_window);
 			/* go to the last workspace that the user worked on the app */
 			if (wapp) {
 				wWorkspaceChange(wwin->screen_ptr, wapp->last_workspace);
 			}
 			wUnhideApplication(wapp, False, False);
+		}
+		
+		if (wwin->flags.is_gnustep) {
+			/* change the workspace to wherever the window is */
+			wWorkspaceChange(wwin->screen_ptr, wwin->frame->workspace);
 		}
 		return;
 	}
