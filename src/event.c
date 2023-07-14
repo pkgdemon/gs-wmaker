@@ -633,10 +633,6 @@ static void handleMapRequest(XEvent * ev)
 			wUnhideApplication(wapp, False, False);
 		}
 		
-		if (wwin->flags.is_gnustep) {
-			/* change the workspace to wherever the window is */
-			wWorkspaceChange(wwin->screen_ptr, wwin->frame->workspace);
-		}
 		return;
 	}
 
@@ -1307,6 +1303,9 @@ static void handleClientMessage(XEvent * event)
 			wFrameWindowChangeState(wwin->frame, WS_PFOCUSED);
 			break;
 		case WMTitleBarKey:
+			if (wwin->flags.is_gnustep) {
+				wWorkspaceChange(wwin->screen_ptr, wwin->frame->workspace);
+			}
 			wFrameWindowChangeState(wwin->frame, WS_FOCUSED);
 			break;
 		}
