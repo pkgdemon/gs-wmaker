@@ -264,6 +264,8 @@ typedef struct _WScreen {
     Window last_click_window;
     int last_click_button;
 
+    double last_workspace_change;
+
     /* balloon help data */
     struct _WBalloon *balloon;
 

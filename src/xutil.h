@@ -28,5 +28,6 @@ void RequestSelection(Display *dpy, Window requestor, Time timestamp);
 
 char *GetSelection(Display *dpy, Window requestor);
 
+double GetTimestamp(void);
 
 #endif

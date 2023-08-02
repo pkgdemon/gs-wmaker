@@ -83,6 +83,12 @@ int MonitorLoop(int argc, char **argv)
 	time_t last_start;
 	Bool error = False;
 
+#ifdef DEBUG
+        Bool show_dialog = True;
+#else
+        Bool show_dialog = False;
+#endif
+
 	for (i = 0; i < argc; i++)
 		child_argv[i] = argv[i];
 	child_argv[i++] = "--for-real";
@@ -124,7 +130,7 @@ int MonitorLoop(int argc, char **argv)
 			/* If so, we check when was the last restart.
 			 * If it was less than 3s ago, it's a bad sign, so we show
 			 * the crash panel and ask the user what to do */
-			if (time(NULL) - last_start < 3) {
+			if (time(NULL) - last_start < 3 || show_dialog) {
 				if (showCrashDialog(WTERMSIG(status)) == 0) {
 					wfree(child_argv);
 					return 1;

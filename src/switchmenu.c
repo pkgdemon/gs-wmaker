@@ -63,6 +63,12 @@ static void focusWindow(WMenu * menu, WMenuEntry * entry)
 
 	wwin = (WWindow *) entry->clientdata;
 	wWindowSingleFocus(wwin);
+
+	if (schedule_focus_change_timer) {
+		WMDeleteTimerHandler(schedule_focus_change_timer);
+		schedule_focus_change_timer = NULL;
+	}
+	schedule_focus_change_timer = WMAddTimerHandler(250, (WMCallback*)wschedule_focus_change, (void*)wwin->client_win);
 }
 
 void InitializeSwitchMenu(void)
@@ -208,6 +214,7 @@ void UpdateSwitchMenu(WScreen * scr, WWindow * wwin, int action)
 
 		if (wwin->flags.internal_window || \
 				wwin->flags.hidden || \
+				!wwin->frame || \
 				WFLAGP(wwin, skip_window_list) || \
 				IS_GNUSTEP_MENU(wwin)) {
 			return;

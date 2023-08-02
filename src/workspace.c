@@ -47,6 +47,7 @@
 #include "workspace.h"
 #include "appicon.h"
 #include "wmspec.h"
+#include "xutil.h"
 #include "xinerama.h"
 #include "event.h"
 #include "wsmap.h"
@@ -218,6 +219,7 @@ typedef struct WorkspaceNameData {
 
 static void hideWorkspaceName(void *data)
 {
+	fprintf(stderr, "HIDE\n");
 	WScreen *scr = (WScreen *) data;
 
 	if (!scr->workspace_name_data || scr->workspace_name_data->count == 0
@@ -278,6 +280,7 @@ static void showWorkspaceName(WScreen * scr, int workspace)
 		XUnmapWindow(dpy, scr->workspace_name);
 		XFlush(dpy);
 	}
+	fprintf(stderr, "SHOW\n");
 	scr->workspace_name_timer = WMAddTimerHandler(WORKSPACE_NAME_DELAY, hideWorkspaceName, scr);
 
 	if (scr->workspace_name_data) {
@@ -666,6 +669,7 @@ void wWorkspaceForceChange(WScreen * scr, int workspace)
 	showWorkspaceName(scr, workspace);
 
 	WMPostNotificationName(WMNWorkspaceChanged, scr, (void *)(uintptr_t) workspace);
+	scr->last_workspace_change = GetTimestamp();
 
 	/*   XSync(dpy, False); */
 }

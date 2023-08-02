@@ -223,6 +223,8 @@ typedef struct WWindow {
 
 	int state;				/* state as in ICCCM */
 
+        double last_focus_change;
+
 	Window transient_for;			/* WM_TRANSIENT_FOR */
 
 	WFakeGroupLeader *fake_group;		/* Fake group leader for grouping into

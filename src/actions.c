@@ -47,6 +47,7 @@
 #include "winspector.h"
 #include "workspace.h"
 #include "xinerama.h"
+#include "xutil.h"
 #include "usermenu.h"
 #include "placement.h"
 #include "misc.h"
@@ -63,6 +64,12 @@
 static void find_Maximus_geometry(WWindow *wwin, WArea usableArea, int *new_x, int *new_y,
 				  unsigned int *new_width, unsigned int *new_height);
 static void save_old_geometry(WWindow *wwin, int directions);
+
+/* focus timer */
+WMHandlerID validate_focus_timer = NULL;		       
+WMHandlerID schedule_focus_change_timer = NULL;		       
+WMHandlerID change_workspace_timer = NULL;		       
+WMHandlerID change_focus_timer = NULL;		       
 
 /******* Local Variables *******/
 #ifdef USE_ANIMATIONS
@@ -2398,4 +2405,108 @@ static void shade_animate(WWindow *wwin, Bool what)
 		break;
 	}
 }
+
 #endif
+
+static void wchange_focus(Window win)
+{
+	fprintf(stderr, "SET FOCUS %lx\n", win);
+	WWindow *wwin = wWindowFor(win);
+	if (wwin) {
+		wSetFocusTo(wwin->screen_ptr, wwin);
+	}
+}
+
+static void wchange_workspace(Window win)
+{
+	fprintf(stderr, "CHANGE WS\n");
+	WWindow *wwin = wWindowFor(win);
+	if (wwin) {
+		wWorkspaceChange(wwin->screen_ptr, wwin->frame->workspace);
+		XSync(dpy, False);
+		
+		if (schedule_focus_change_timer) {
+			WMDeleteTimerHandler(schedule_focus_change_timer);
+			schedule_focus_change_timer = NULL;
+		}
+		schedule_focus_change_timer = WMAddTimerHandler(500, (WMCallback*)wschedule_focus_change, (void*)wwin->client_win);
+	}
+}
+
+void wschedule_focus_change(Window win)
+{
+	fprintf(stderr, "SCHEDULE FOCUS %lx\n", win);
+	WWindow *wwin = wWindowFor(win);
+
+	if (change_focus_timer) {
+		WMDeleteIdleHandler(change_focus_timer);
+		change_focus_timer = NULL;
+	}
+
+	if (wwin) {
+		change_focus_timer = WMAddIdleHandler((WMCallback*)wchange_focus, (void*)wwin->client_win);
+	}
+}
+
+void wvalidate_focus(void)
+{
+	double tm = GetTimestamp();
+
+	for (int i = 0; i < w_global.screen_count; i++) {
+		WScreen *scr = wScreenWithNumber(i);
+		WWindow *wwin = scr->focused_window;
+		char *wm_instance = NULL;
+		int win_change = 0;
+		double wd = tm - scr->last_workspace_change;
+	
+		if (!wwin)
+			continue;
+
+		if (!wwin->flags.is_gnustep)
+			continue;
+
+		if (wd < 400)
+			continue;
+		
+		wm_instance = wwin->wm_instance;
+
+		fprintf(stderr, "ENSURE FOCUS\n");
+		while (wwin) {
+			double dd = tm - wwin->last_focus_change;
+
+			//look for recent changes within the same app
+			if (dd < 300) {
+				if (strcmp(wwin->wm_instance, wm_instance) == 0) {
+					win_change++;
+				}
+				else {
+					win_change = 0;
+					break;
+				}
+			}
+
+			wwin = wwin->prev;
+		}
+
+		wwin = scr->focused_window;
+		while (wwin) {
+			if (wwin->flags.is_gnustep && \
+					wwin->frame && \
+					wwin->frame->flags.state == WS_FOCUSED) {
+
+				//make the change only if we change windows are within the same app
+				if (win_change > 0 && \
+						wwin->frame->workspace != wwin->screen_ptr->current_workspace) {
+					
+					if (change_workspace_timer) {
+						WMDeleteIdleHandler(change_workspace_timer);
+						change_workspace_timer = NULL;
+					}
+					change_workspace_timer = WMAddIdleHandler((WMCallback*)wchange_workspace, wwin->client_win);
+				}
+				return;
+			}
+			wwin = wwin->prev;
+		}
+	}
+}

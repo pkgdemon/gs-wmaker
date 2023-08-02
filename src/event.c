@@ -71,6 +71,7 @@
 #include "xinerama.h"
 #include "wmspec.h"
 #include "xdnd.h"
+#include "xutil.h"
 #include "rootmenu.h"
 #include "colormap.h"
 #include "screen.h"
@@ -1295,18 +1296,27 @@ static void handleClientMessage(XEvent * event)
 		wwin = wWindowFor(event->xclient.window);
 		if (!wwin)
 			return;
+
+		if (validate_focus_timer) {
+			WMDeleteTimerHandler(validate_focus_timer);
+			validate_focus_timer = NULL;
+		}
+		validate_focus_timer = WMAddTimerHandler(150, (WMCallback*)wvalidate_focus, NULL);
+
+		fprintf(stderr, "C: %lx %s\n", event->xclient.window, wwin->wm_instance);
+
 		switch (event->xclient.data.l[0]) {
 		case WMTitleBarNormal:
 			wFrameWindowChangeState(wwin->frame, WS_UNFOCUSED);
+			wwin->last_focus_change = GetTimestamp();
 			break;
 		case WMTitleBarMain:
 			wFrameWindowChangeState(wwin->frame, WS_PFOCUSED);
+			wwin->last_focus_change = GetTimestamp();
 			break;
 		case WMTitleBarKey:
-			if (wwin->flags.is_gnustep) {
-				wWorkspaceChange(wwin->screen_ptr, wwin->frame->workspace);
-			}
 			wFrameWindowChangeState(wwin->frame, WS_FOCUSED);
+			wwin->last_focus_change = GetTimestamp();
 			break;
 		}
 	} else if (event->xclient.message_type == w_global.atom.wm.ignore_focus_events) {

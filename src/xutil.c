@@ -25,6 +25,7 @@
 #include <X11/Xatom.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/time.h>
 
 #include "wconfig.h"
 
@@ -158,6 +159,16 @@ static const char *requestCodes[] = {
 	"X_GetModifierMapping",
 	"X_NoOperation"
 };
+
+double GetTimestamp(void)
+{
+	double t1 = 0;
+	struct timeval timev;
+
+	gettimeofday(&timev, NULL);
+	t1 = (((double)timev.tv_sec) * 1000) + (((double)timev.tv_usec) / 1000);
+	return t1;
+}
 
 void FormatXError(Display * dpy, XErrorEvent * error, char *buffer, int size)
 {
