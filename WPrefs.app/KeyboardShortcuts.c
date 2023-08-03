@@ -157,7 +157,8 @@ static const struct {
 	{ "ScreenSwitchKey",   N_("Switch to Next Screen/Monitor") },
 	{ "RunKey",            N_("Run application") },
 	{ "DockRaiseLowerKey", N_("Raise/Lower Dock") },
-	{ "ClipRaiseLowerKey", N_("Raise/Lower Clip") }
+	{ "ClipRaiseLowerKey", N_("Raise/Lower Clip") },
+	{ "MiniRaiseLowerKey", N_("Raise/Lower Mini-window") }
 #ifdef XKB_MODELOCK
 	,{ "ToggleKbdModeKey", N_("Toggle keyboard language") }
 #endif				/* XKB_MODELOCK */

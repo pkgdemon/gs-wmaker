@@ -55,6 +55,7 @@
 
 #include "WindowMaker.h"
 #include "window.h"
+#include "dbus_server.h"
 #include "actions.h"
 #include "client.h"
 #include "main.h"
@@ -1301,9 +1302,9 @@ static void handleClientMessage(XEvent * event)
 			WMDeleteTimerHandler(validate_focus_timer);
 			validate_focus_timer = NULL;
 		}
-		validate_focus_timer = WMAddTimerHandler(150, (WMCallback*)wvalidate_focus, NULL);
+		validate_focus_timer = WMAddTimerHandler(250, (WMCallback*)wvalidate_focus, NULL);
 
-		fprintf(stderr, "C: %lx %s\n", event->xclient.window, wwin->wm_instance);
+		fprintf(stderr, "C: %lx %s %d\n", event->xclient.window, wwin->wm_instance, wwin->flags.miniaturized);
 
 		switch (event->xclient.data.l[0]) {
 		case WMTitleBarNormal:
@@ -2117,6 +2118,9 @@ static void handleKeyPress(XEvent * event)
 	case WKBD_CLIPRAISELOWER:
 		if (!wPreferences.flags.noclip)
 			wDockRaiseLower(scr->workspaces[scr->current_workspace]->clip);
+		break;
+	case WKBD_MINIRAISELOWER:
+		wRaiseAllIcons(scr);
 		break;
 	case WKBD_DOCKRAISELOWER:
 		if (!wPreferences.flags.nodock)

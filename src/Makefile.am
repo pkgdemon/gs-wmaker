@@ -107,6 +107,10 @@ wmaker_SOURCES = 	\
 	wsmap.c \
 	wsmap.h
 
+if USE_DBUS
+wmaker_SOURCES += dbus_server.c
+endif
+
 if USE_DOCK_XDND
 wmaker_SOURCES += xdnd.c
 endif
@@ -164,6 +168,8 @@ wmaker_LDADD = \
 	@LIBXRANDR@ \
 	@LIBXINERAMA@ \
 	@XLIBS@ \
+	@DBUSLIBS@ \
+	@GLIBLIBS@ \
 	@LIBM@ \
 	@INTLIBS@
 

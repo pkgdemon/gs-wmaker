@@ -174,6 +174,9 @@ static int menuIndexForWindow(WMenu * menu, WWindow * wwin, int old_pos)
 int FindEntryInSwitchMenu(WScreen * scr, WWindow * wwin)
 {
 	WMenu *switchmenu = scr->switch_menu;
+	if (!switchmenu)
+		return -1;
+
 	WMenuEntry *entry;
 	int i;
 	for (i = 0; i < switchmenu->entry_no; i++) {

@@ -2109,6 +2109,20 @@ void wRefreshDesktop(WScreen *scr)
 	XFlush(dpy);
 }
 
+void wRaiseAllIcons(WScreen *scr)
+{
+	WWindow *wwin;
+
+	wwin = scr->focused_window;
+
+	while (wwin) {
+		if (wwin->flags.miniaturized && wwin->frame->workspace == scr->current_workspace) {
+			wRaiseFrame(wwin->icon->core);
+		}
+		wwin = wwin->prev;
+	}
+}
+
 void wArrangeIcons(WScreen *scr, Bool arrangeAll)
 {
 	WWindow *wwin;
@@ -2465,7 +2479,7 @@ void wvalidate_focus(void)
 		if (!wwin->flags.is_gnustep)
 			continue;
 
-		if (wd < 400)
+		if (wd < 500)
 			continue;
 		
 		wm_instance = wwin->wm_instance;
@@ -2475,8 +2489,12 @@ void wvalidate_focus(void)
 			double dd = tm - wwin->last_focus_change;
 
 			//look for recent changes within the same app
-			if (dd < 300) {
+			if (dd < 1000) {
 				if (strcmp(wwin->wm_instance, wm_instance) == 0) {
+					if (wwin->flags.miniaturized) {
+						win_change = 0;
+						break;
+					}
 					win_change++;
 				}
 				else {

@@ -660,6 +660,35 @@ fi
 AC_SUBST(XFTFLAGS)
 AC_SUBST(XFTLIBS)
 
+dnl dbus support
+dnl =============
+dbus=no
+AC_ARG_ENABLE(dbus, AS_HELP_STRING([--enable-dbus], [enable dbus support]),
+                dbus=$enableval, dbus=no)
+
+DBUSFLAGS=
+DBUSLIBS=
+GLIBFLAGS=
+GLIBLIBS=
+if test "$dbus" = yes; then
+	DBUSLIBS=`$PKG_CONFIG dbus-1 --libs`
+	DBUSFLAGS=`$PKG_CONFIG dbus-1 --cflags`
+        
+        GLIBLIBS=`$PKG_CONFIG --libs dbus-glib-1`
+	GLIBFLAGS=`$PKG_CONFIG glib-2.0 --cflags`
+
+	if test "x$DBUSLIBS" = "x" ; then
+	        AC_MSG_RESULT([not found])
+	else
+		AC_DEFINE(USE_DBUS, 1, [Define if dbus is to be used])
+		AC_MSG_RESULT([found])
+	fi
+fi
+inc_search_path="$inc_search_path $DBUSFLAGS $GLIBFLAGS"
+AC_SUBST(DBUSLIBS)
+AC_SUBST(GLIBLIBS)
+AM_CONDITIONAL([USE_DBUS], [test "x$dbus" != "xno"])
+
 dnl PANGO support
 dnl =============
 pango=no
@@ -952,6 +981,7 @@ echo "Supported X extensions:             :$supported_xext"
 echo "Supported graphic format libraries  :$supported_gfx"
 echo "Unsupported features                :$unsupported"
 echo "Antialiased text support in WINGs   : $xft"
+echo "DBUS support                        : $dbus"
 echo "Pango text layout support in WINGs  : $pango"
 echo "Translated languages to support     :$supported_locales"
 AS_IF([test "x$debug" = "xyes"],

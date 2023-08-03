@@ -1222,7 +1222,19 @@ WWindow *wManageWindow(WScreen *scr, Window window)
 					raise = True;
 				}
 			}
-			wAppBounce(app);
+
+			Bool should_bounce = True;
+			if (wwin->flags.internal_window || \
+				wwin->flags.hidden || \
+				!wwin->frame || \
+				!HAS_TITLEBAR(wwin) || \
+				WFLAGP(wwin, skip_window_list) || \
+				IS_GNUSTEP_MENU(wwin)) {
+					should_bounce = False;
+			}
+
+			if (should_bounce)
+				wAppBounce(app);
 		}
 	}
 

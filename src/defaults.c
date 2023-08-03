@@ -634,6 +634,8 @@ WDefaultEntry optionList[] = {
 	    NULL, getKeybind, setKeyGrab, NULL, NULL},
 	{"ClipRaiseLowerKey", "None", (void *)WKBD_CLIPRAISELOWER,
 	    NULL, getKeybind, setKeyGrab, NULL, NULL},
+	{"MiniRaiseLowerKey", "None", (void *)WKBD_MINIRAISELOWER,
+	    NULL, getKeybind, setKeyGrab, NULL, NULL},
 	{"MiniaturizeKey", "Mod1+M", (void *)WKBD_MINIATURIZE,
 	    NULL, getKeybind, setKeyGrab, NULL, NULL},
 	{"MinimizeAllKey", "None", (void *)WKBD_MINIMIZEALL,

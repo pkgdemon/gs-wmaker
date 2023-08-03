@@ -86,6 +86,9 @@ enum {
 	/* Clip */
 	WKBD_CLIPRAISELOWER,
 
+	/* Mini */
+	WKBD_MINIRAISELOWER,
+
 	/* workspace */
 	WKBD_WORKSPACE1,
 	WKBD_WORKSPACE2,

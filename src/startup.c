@@ -68,6 +68,7 @@
 #include "wmspec.h"
 #include "event.h"
 #include "switchmenu.h"
+#include "dbus_server.h"
 #ifdef USE_DOCK_XDND
 #include "xdnd.h"
 #endif
@@ -709,6 +710,10 @@ void StartUp(Bool defaultScreenOnly)
 		wfatal(_("could not manage any screen"));
 		Exit(1);
 	}
+
+#ifdef USE_DBUS
+	dbus_init();
+#endif
 
 #ifndef HAVE_INOTIFY
 	/* setup defaults file polling */

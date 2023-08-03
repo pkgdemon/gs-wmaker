@@ -87,6 +87,7 @@ void wUnhideApplication(WApplication *wapp, Bool miniwindows,
 
 void wRefreshDesktop(WScreen *scr);
 
+void wRaiseAllIcons(WScreen *scr);
 void wArrangeIcons(WScreen *scr, Bool arrangeAll);
 
 void wMakeWindowVisible(WWindow *wwin);
