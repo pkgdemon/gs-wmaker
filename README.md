@@ -6,7 +6,7 @@ It contains many enhancements and tweaks to create consistent user experience fo
 
 ## Building Window Maker
 
-This fork is inteded to be built and installed wihin [GNUstep Desktop](https://github.com/onflapp/gs-desktop).
+This fork is inteded to be built and installed as part of [GNUstep Desktop](https://github.com/onflapp/gs-desktop).
 
 ## Notable changes:
 
@@ -34,3 +34,7 @@ The drag & drop works as expected. For example, you can drag a file from GWorksp
 #### add apps, files and folders to your dock using drag & drop 
 
 It is now possible to drag an app from GWorkspace and add it to your dock without need to launch it first. The same will works with any file or folder.  
+
+#### D-BUS support (experimental!)
+
+You can control the window manager externally using [D-BUS API](https://github.com/onflapp/gs-wmaker/wiki/DBUS%E2%80%90support) now. This functionality is very basic at the moment but is foundation for making WindowMaker fully scriptable using StepTalk and for closer integration with GNUstep in general.
