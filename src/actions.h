@@ -101,8 +101,8 @@ void update_saved_geometry(WWindow *wwin);
 void movePionterToWindowCenter(WWindow *wwin);
 void moveBetweenHeads(WWindow *wwin, int direction);
 
+void wenforce_focus(Window win);
 void wvalidate_focus(void);
-void wschedule_focus_change(Window win);
 
 /* focus timer */
 extern WMHandlerID validate_focus_timer;

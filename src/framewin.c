@@ -28,6 +28,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #include <wraster.h>
 
@@ -1433,6 +1434,7 @@ static void resizebarMouseDown(WObjDescriptor * desc, XEvent * event)
 
 static void buttonMouseDown(WObjDescriptor * desc, XEvent * event)
 {
+	w_global.processing_critical_events = True;
 	WFrameWindow *fwin = desc->parent;
 	WCoreWindow *button = desc->self;
 	WPixmap *image;
@@ -1446,6 +1448,7 @@ static void buttonMouseDown(WObjDescriptor * desc, XEvent * event)
 		if (button == fwin->right_button && fwin->on_dblclick_right)
 			(*fwin->on_dblclick_right) (button, fwin->child, event);
 
+		w_global.processing_critical_events = False;
 		return;
 	}
 
@@ -1457,6 +1460,7 @@ static void buttonMouseDown(WObjDescriptor * desc, XEvent * event)
 #ifdef XKB_BUTTON_HINT
 	if (button == fwin->language_button) {
 		if (!wPreferences.modelock)
+			w_global.processing_critical_events = False;
 			return;
 		image = fwin->languagebutton_image;
 	}
@@ -1510,4 +1514,6 @@ static void buttonMouseDown(WObjDescriptor * desc, XEvent * event)
 #endif
 
 	}
+
+	w_global.processing_critical_events = False;
 }

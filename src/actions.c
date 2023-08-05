@@ -65,12 +65,6 @@ static void find_Maximus_geometry(WWindow *wwin, WArea usableArea, int *new_x, i
 				  unsigned int *new_width, unsigned int *new_height);
 static void save_old_geometry(WWindow *wwin, int directions);
 
-/* focus timer */
-WMHandlerID validate_focus_timer = NULL;		       
-WMHandlerID schedule_focus_change_timer = NULL;		       
-WMHandlerID change_workspace_timer = NULL;		       
-WMHandlerID change_focus_timer = NULL;		       
-
 /******* Local Variables *******/
 #ifdef USE_ANIMATIONS
 static struct {
@@ -2422,9 +2416,9 @@ static void shade_animate(WWindow *wwin, Bool what)
 
 #endif
 
-static void wchange_focus(Window win)
+void wenforce_focus(Window win)
 {
-	fprintf(stderr, "SET FOCUS %lx\n", win);
+	fprintf(stderr, "FORCE FOCUS %lx\n", win);
 	WWindow *wwin = wWindowFor(win);
 	if (wwin) {
 		wSetFocusTo(wwin->screen_ptr, wwin);
@@ -2439,26 +2433,7 @@ static void wchange_workspace(Window win)
 		wWorkspaceChange(wwin->screen_ptr, wwin->frame->workspace);
 		XSync(dpy, False);
 		
-		if (schedule_focus_change_timer) {
-			WMDeleteTimerHandler(schedule_focus_change_timer);
-			schedule_focus_change_timer = NULL;
-		}
-		schedule_focus_change_timer = WMAddTimerHandler(500, (WMCallback*)wschedule_focus_change, (void*)wwin->client_win);
-	}
-}
-
-void wschedule_focus_change(Window win)
-{
-	fprintf(stderr, "SCHEDULE FOCUS %lx\n", win);
-	WWindow *wwin = wWindowFor(win);
-
-	if (change_focus_timer) {
-		WMDeleteIdleHandler(change_focus_timer);
-		change_focus_timer = NULL;
-	}
-
-	if (wwin) {
-		change_focus_timer = WMAddIdleHandler((WMCallback*)wchange_focus, (void*)wwin->client_win);
+		w_global.promise.enforce_focus = wwin->client_win;
 	}
 }
 
@@ -2479,17 +2454,17 @@ void wvalidate_focus(void)
 		if (!wwin->flags.is_gnustep)
 			continue;
 
-		if (wd < 500)
+		if (wd < GLOBAL_TIMER_INTERVAL)
 			continue;
 		
 		wm_instance = wwin->wm_instance;
 
-		fprintf(stderr, "ENSURE FOCUS\n");
+		fprintf(stderr, "CHECK FOCUS\n");
 		while (wwin) {
 			double dd = tm - wwin->last_focus_change;
 
 			//look for recent changes within the same app
-			if (dd < 1000) {
+			if (dd < (GLOBAL_TIMER_INTERVAL * 2)) {
 				if (strcmp(wwin->wm_instance, wm_instance) == 0) {
 					if (wwin->flags.miniaturized) {
 						win_change = 0;
@@ -2516,11 +2491,7 @@ void wvalidate_focus(void)
 				if (win_change > 0 && \
 						wwin->frame->workspace != wwin->screen_ptr->current_workspace) {
 					
-					if (change_workspace_timer) {
-						WMDeleteIdleHandler(change_workspace_timer);
-						change_workspace_timer = NULL;
-					}
-					change_workspace_timer = WMAddIdleHandler((WMCallback*)wchange_workspace, wwin->client_win);
+					wchange_workspace(wwin->client_win);
 				}
 				return;
 			}

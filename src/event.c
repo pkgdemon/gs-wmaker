@@ -257,6 +257,10 @@ void DispatchEvent(XEvent * event)
 		handleButtonPress(event);
 		break;
 
+	case ButtonRelease:
+		w_global.processing_critical_events = False;
+		break;
+
 	case Expose:
 		handleExpose(event);
 		break;
@@ -313,6 +317,37 @@ void DispatchEvent(XEvent * event)
 		handleExtensions(event);
 		break;
 	}
+}
+
+static void handle_global_timer(void)
+{
+	if (w_global.processing_pending_events) return;
+	if (w_global.processing_critical_events) {
+		fprintf(stderr, "processing other events?\n");
+		return;
+	}
+
+	double dd = GetTimestamp() - w_global.processing_timestamp;
+	//fprintf(stderr, "d:%f\n", dd);
+
+	if (w_global.promise.validate_focus) {
+		if (dd > 250) {
+			wvalidate_focus();
+			w_global.promise.validate_focus = 0;
+			w_global.promise.enforce_focus = 0;
+		}
+	}
+	else if (w_global.promise.enforce_focus > 0) {
+		if (dd > 250) {
+			wenforce_focus(w_global.promise.enforce_focus);
+			w_global.promise.validate_focus = 0;
+			w_global.promise.enforce_focus = 0;
+		}
+	}
+
+#ifdef USE_DBUS
+	dbus_run_loop();
+#endif
 }
 
 #ifdef HAVE_INOTIFY
@@ -418,6 +453,7 @@ noreturn void EventLoop(void)
 		retVal = -1;
 #endif
 
+	w_global.global_timer = WMAddPersistentTimerHandler(GLOBAL_TIMER_INTERVAL, (WMCallback*)handle_global_timer, NULL);
 	for (;;) {
 
 		WMNextEvent(dpy, &event);	/* Blocks here */
@@ -464,6 +500,8 @@ noreturn void EventLoop(void)
  */
 void ProcessPendingEvents(void)
 {
+	if (w_global.processing_pending_events) return;
+
 	XEvent event;
 	int count;
 
@@ -472,11 +510,13 @@ void ProcessPendingEvents(void)
 	/* Take a snapshot of the event count in the queue */
 	count = XPending(dpy);
 
+	w_global.processing_pending_events = True;
 	while (count > 0 && XPending(dpy)) {
 		WMNextEvent(dpy, &event);
 		WMHandleEvent(&event);
 		count--;
 	}
+	w_global.processing_pending_events = False;
 }
 
 Bool IsDoubleClick(WScreen * scr, XEvent * event)
@@ -546,6 +586,8 @@ static void saveTimestamp(XEvent * event)
 	 * Never save CurrentTime as LastTimestamp because CurrentTime
 	 * it's not a real timestamp (it's the 0L constant)
 	 */
+
+	w_global.processing_timestamp = GetTimestamp();
 
 	switch (event->type) {
 	case ButtonRelease:
@@ -1298,13 +1340,8 @@ static void handleClientMessage(XEvent * event)
 		if (!wwin)
 			return;
 
-		if (validate_focus_timer) {
-			WMDeleteTimerHandler(validate_focus_timer);
-			validate_focus_timer = NULL;
-		}
-		validate_focus_timer = WMAddTimerHandler(250, (WMCallback*)wvalidate_focus, NULL);
-
 		fprintf(stderr, "C: %lx %s %d\n", event->xclient.window, wwin->wm_instance, wwin->flags.miniaturized);
+		w_global.promise.validate_focus = 1;
 
 		switch (event->xclient.data.l[0]) {
 		case WMTitleBarNormal:

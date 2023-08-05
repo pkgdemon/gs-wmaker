@@ -3035,6 +3035,7 @@ static void titlebarMouseDown(WCoreWindow *sender, void *data, XEvent *event)
 			continue_titlebarMouseMove(wwin, event);
 		} else if (event->xbutton.button == Button1 && event->xbutton.state == 0) {
 			//give GNUstep app a chance to take focus and continue in the move handler
+			w_global.processing_critical_events = True;
 			ProcessPendingEvents();
 			wwin->frame->titlebar->descriptor.continue_mousemove = continue_titlebarMouseMove;
 		} else {
@@ -3052,6 +3053,7 @@ static void titlebarMouseDown(WCoreWindow *sender, void *data, XEvent *event)
 			return;
 		}
 
+		w_global.processing_critical_events = True;
 		OpenWindowMenu(wwin, event->xbutton.x_root, wwin->frame_y + wwin->frame->top_width, False);
 
 		/* allow drag select */
@@ -3060,6 +3062,7 @@ static void titlebarMouseDown(WCoreWindow *sender, void *data, XEvent *event)
 		(*desc->handle_mousedown) (desc, event);
 
 		XUngrabPointer(dpy, CurrentTime);
+		w_global.processing_critical_events = False;
 	}
 }
 
@@ -3071,6 +3074,7 @@ static void continue_titlebarMouseMove(void *data, XEvent *event)
 			&& XGrabPointer(dpy, wwin->frame->titlebar->window, False,
 					ButtonMotionMask | ButtonReleaseMask | ButtonPressMask,
 					GrabModeAsync, GrabModeAsync, None, None, CurrentTime) != GrabSuccess) {
+		w_global.processing_critical_events = False;
 		return;
 	}
 
@@ -3082,6 +3086,7 @@ static void continue_titlebarMouseMove(void *data, XEvent *event)
 	wMouseMoveWindow(wwin, event);
 
 	XUngrabPointer(dpy, CurrentTime);
+	w_global.processing_critical_events = False;
 }
 
 static void windowCloseClick(WCoreWindow *sender, void *data, XEvent *event)

@@ -39,11 +39,8 @@ char* xGetActiveWorkspace(char* buff)
 	return buff;
 }
 
-#define LOOP_INTERVAL 150
-
 const char *version = "1.0";
 GMainContext *maincontext = NULL;
-WMHandlerID dbus_loop_timer = NULL;		       
 DBusConnection *mainconn = NULL;
 static char last_active_windowid[300];
 static int  last_active_windowid_c = 0;
@@ -404,11 +401,6 @@ DBusHandlerResult server_message_handler(DBusConnection *conn, DBusMessage *mess
 		WWindow *wwin = wWindowFor(winid);
 		if (wwin) {
 			wWindowSingleFocus(wwin);
-			if (schedule_focus_change_timer) {
-				WMDeleteTimerHandler(schedule_focus_change_timer);
-				schedule_focus_change_timer = NULL;
-			}
-			schedule_focus_change_timer = WMAddTimerHandler(250, (WMCallback*)wschedule_focus_change, (void*)wwin->client_win);
 		}
 
 		dbus_message_append_args(reply,
@@ -534,7 +526,6 @@ int dbus_init(void)
 
 	fprintf(stderr, "WM started dbus server v%s\n", version);
 
-	dbus_loop_timer = WMAddPersistentTimerHandler(LOOP_INTERVAL, (WMCallback*)dbus_run_loop, NULL);
 	return EXIT_SUCCESS;
 fail:
 	maincontext = NULL;

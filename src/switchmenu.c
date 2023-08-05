@@ -64,11 +64,7 @@ static void focusWindow(WMenu * menu, WMenuEntry * entry)
 	wwin = (WWindow *) entry->clientdata;
 	wWindowSingleFocus(wwin);
 
-	if (schedule_focus_change_timer) {
-		WMDeleteTimerHandler(schedule_focus_change_timer);
-		schedule_focus_change_timer = NULL;
-	}
-	schedule_focus_change_timer = WMAddTimerHandler(250, (WMCallback*)wschedule_focus_change, (void*)wwin->client_win);
+	w_global.promise.enforce_focus = wwin->client_win;
 }
 
 void InitializeSwitchMenu(void)

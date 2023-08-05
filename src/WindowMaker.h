@@ -90,6 +90,8 @@ typedef struct WObjDescriptor {
 	void *parent;                      /* parent object (WWindow or WMenu) */
 } WObjDescriptor;
 
+#define GLOBAL_TIMER_INTERVAL 250
+
 /* internal buttons */
 #define WBUT_CLOSE              0
 #define WBUT_BROKENCLOSE        1
@@ -544,6 +546,18 @@ extern struct wmaker_global_variables {
 	 * it is mainly used to avoid re-opening another one at the same time
 	 */
 	Bool process_workspacemap_event;
+
+	Bool processing_pending_events;
+	Bool processing_critical_events;
+
+	double processing_timestamp;
+
+	WMHandlerID global_timer;
+
+	struct {
+		int validate_focus;
+		Window enforce_focus;
+	}	promise;
 
 #ifdef HAVE_INOTIFY
 	struct {
