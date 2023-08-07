@@ -401,6 +401,7 @@ DBusHandlerResult server_message_handler(DBusConnection *conn, DBusMessage *mess
 		WWindow *wwin = wWindowFor(winid);
 		if (wwin) {
 			wWindowSingleFocus(wwin);
+			w_global.promise.enforce_focus = wwin->client_win;
 		}
 
 		dbus_message_append_args(reply,

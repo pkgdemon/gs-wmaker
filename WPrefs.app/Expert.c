@@ -50,6 +50,9 @@ static const struct {
 	{ N_("Enable workspace pager."),
 	  /* default: */ False, OPTION_WMAKER, "EnableWorkspacePager" },
 
+	{ N_("Display clip icon in the dock"),
+	  /* default: */ False, OPTION_WMAKER, "ClipMergedInDock" },
+
 	{ N_("Do not set non-WindowMaker specific parameters (do not use xset)."),
 	  /* default: */ False, OPTION_USERDEF, "NoXSetStuff" },
 

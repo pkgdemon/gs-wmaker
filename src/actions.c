@@ -2454,7 +2454,7 @@ void wvalidate_focus(void)
 		if (!wwin->flags.is_gnustep)
 			continue;
 
-		if (wd < GLOBAL_TIMER_INTERVAL)
+		if (wd < 750)
 			continue;
 		
 		wm_instance = wwin->wm_instance;
@@ -2464,7 +2464,7 @@ void wvalidate_focus(void)
 			double dd = tm - wwin->last_focus_change;
 
 			//look for recent changes within the same app
-			if (dd < (GLOBAL_TIMER_INTERVAL * 2)) {
+			if (dd < 500) {
 				if (strcmp(wwin->wm_instance, wm_instance) == 0) {
 					if (wwin->flags.miniaturized) {
 						win_change = 0;

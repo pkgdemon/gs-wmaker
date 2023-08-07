@@ -331,17 +331,22 @@ static void handle_global_timer(void)
 	//fprintf(stderr, "d:%f\n", dd);
 
 	if (w_global.promise.validate_focus) {
-		if (dd > 250) {
+		if (dd > 200) {
 			wvalidate_focus();
 			w_global.promise.validate_focus = 0;
-			w_global.promise.enforce_focus = 0;
+		}
+		else {
+			fprintf(stderr, "1not yet\n");
 		}
 	}
 	else if (w_global.promise.enforce_focus > 0) {
-		if (dd > 250) {
+		if (dd > 500) {
 			wenforce_focus(w_global.promise.enforce_focus);
 			w_global.promise.validate_focus = 0;
 			w_global.promise.enforce_focus = 0;
+		}
+		else {
+			fprintf(stderr, "2not yet\n");
 		}
 	}
 
@@ -587,7 +592,9 @@ static void saveTimestamp(XEvent * event)
 	 * it's not a real timestamp (it's the 0L constant)
 	 */
 
-	w_global.processing_timestamp = GetTimestamp();
+	if (event->type != MotionNotify) {
+		w_global.processing_timestamp = GetTimestamp();
+	}
 
 	switch (event->type) {
 	case ButtonRelease:

@@ -1796,6 +1796,7 @@ WAppIcon *wClipRestoreState(WScreen *scr, WMPropList *clip_state)
 				wScreenKeepInside(scr, &icon->x_pos, &icon->y_pos, ICON_SIZE, ICON_SIZE);
 		}
 	}
+
 #ifdef USE_DOCK_XDND
 	value = WMGetFromPLDictionary(clip_state, dDropCommand);
 	if (value && WMIsPLString(value))

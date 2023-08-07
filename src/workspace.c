@@ -44,6 +44,7 @@
 #include "application.h"
 #include "dock.h"
 #include "actions.h"
+#include "stacking.h"
 #include "workspace.h"
 #include "appicon.h"
 #include "wmspec.h"
@@ -664,6 +665,15 @@ void wWorkspaceForceChange(WScreen * scr, int workspace)
 	else if (scr->clip_icon != NULL) {
 		wClipIconPaint(scr->clip_icon);
 	}
+
+	if (!wPreferences.flags.noclip) {
+		WDock* clip = scr->workspaces[workspace]->clip;
+		if (clip->lowered)
+			ChangeStackingLevel(scr->clip_icon->icon->core, WMNormalLevel);
+		else
+			ChangeStackingLevel(scr->clip_icon->icon->core, WMDockLevel);
+	}
+
 	wScreenUpdateUsableArea(scr);
 	wNETWMUpdateDesktop(scr);
 	showWorkspaceName(scr, workspace);
