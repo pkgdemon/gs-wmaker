@@ -129,7 +129,6 @@ void W_ReadConfigurations(void)
 	if (WINGsConfiguration.mouseWheelDown == 0) {
 		WINGsConfiguration.mouseWheelDown = Button5;
 	}
-
 }
 
 unsigned W_getconf_mouseWheelUp(void)

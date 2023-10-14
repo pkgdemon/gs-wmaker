@@ -269,17 +269,34 @@ const char* GSGetFontForName(char* name) {
 
   const char* val = NULL;
   char* rv = NULL;
+  int sz = 0;
+  NSString* str = nil;
+  NSMutableString* buff = [NSMutableString string];
   NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
   NSMutableDictionary* domain = [[defaults persistentDomainForName:NSGlobalDomain] mutableCopy];
 
+  sz = [[domain valueForKey:@"NSFontSize"] integerValue];
+
   if (strcmp(name, "SYSTEM_FONT") == 0) {
-    val = [[domain valueForKey:@"NSFont"] UTF8String];
+    str = [domain valueForKey:@"NSFont"];
   }
   else if (strcmp(name, "SYSTEM_BOLDFONT") == 0) {
-    val = [[domain valueForKey:@"NSBoldFont"] UTF8String];
+    str = [domain valueForKey:@"NSBoldFont"];
   }
 
-  if (val) {
+  if (str) {
+    NSInteger i = [str rangeOfString:@"-"].location;
+    
+    if (i != NSNotFound) [buff appendString:[str substringToIndex:i]];
+    else [buff appendString:str];
+
+    if ([str hasSuffix:@"Bold"]) [buff appendString:@":weight=200"];
+    else [buff appendString:@":weight=80"];
+
+    if (sz > 0) [buff appendFormat:@":pixelsize=%d", sz];
+    //:antialias=False
+
+    val = [buff UTF8String];
     int sz = strlen(val)+1;
     rv = malloc(sz);
     strncpy(rv, val, sz);
@@ -287,7 +304,7 @@ const char* GSGetFontForName(char* name) {
 
   RELEASE(pool);
 
-  return val;
+  return rv;
 }
 
 int GSGetAntialiasText() {
