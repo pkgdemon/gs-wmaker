@@ -151,7 +151,7 @@ void wFrameWindowUpdateBorders(WFrameWindow * fwin, int flags)
 	if (wPreferences.new_style == TS_NEW) {
 		bsize = theight;
 	} else if (wPreferences.new_style == TS_OLD) {
-		bsize = theight - 7;
+		bsize = theight - 6;
 	} else {
 		bsize = theight - 8;
 	}
