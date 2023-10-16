@@ -300,6 +300,10 @@ static BackgroundTexture *parseTexture(RContext * rc, char *text)
 	if (strcasecmp(type, "solid") == 0) {
 		XColor color;
 		Pixmap pixmap;
+		int cwidth, cheight;
+
+		cwidth = scrWidth;
+		cheight = scrHeight;
 
 		texture->solid = 1;
 
@@ -311,14 +315,14 @@ static BackgroundTexture *parseTexture(RContext * rc, char *text)
 		}
 		XAllocColor(dpy, DefaultColormap(dpy, scr), &color);
 
-		pixmap = XCreatePixmap(dpy, root, 8, 8, DefaultDepth(dpy, scr));
+		pixmap = XCreatePixmap(dpy, root, cwidth, cheight, DefaultDepth(dpy, scr));
 		XSetForeground(dpy, DefaultGC(dpy, scr), color.pixel);
-		XFillRectangle(dpy, pixmap, DefaultGC(dpy, scr), 0, 0, 8, 8);
+		XFillRectangle(dpy, pixmap, DefaultGC(dpy, scr), 0, 0, cwidth, cheight);
 
 		texture->pixmap = pixmap;
 		texture->color = color;
-		texture->width = 8;
-		texture->height = 8;
+		texture->width = cwidth; 
+		texture->height = cheight;
 	} else if (strcasecmp(type, "vgradient") == 0
 		   || strcasecmp(type, "dgradient") == 0 || strcasecmp(type, "hgradient") == 0) {
 		XColor color;
@@ -355,12 +359,12 @@ static BackgroundTexture *parseTexture(RContext * rc, char *text)
 		case 'H':
 			gtype = RHorizontalGradient;
 			iwidth = scrWidth;
-			iheight = 32;
+			iheight = scrHeight;
 			break;
 		case 'V':
 		case 'v':
 			gtype = RVerticalGradient;
-			iwidth = 32;
+			iwidth = scrWidth;
 			iheight = scrHeight;
 			break;
 		default:
