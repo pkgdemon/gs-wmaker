@@ -1029,6 +1029,7 @@ void wReadStaticDefaults(WMPropList * dict)
 
 void wDefaultsCheckDomains(void* arg)
 {
+	w_global.postpone_defaults_check = False;
 	WScreen *scr;
 	struct stat stbuf;
 	WMPropList *shared_dict = NULL;

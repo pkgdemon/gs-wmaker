@@ -721,6 +721,7 @@ void StartUp(Bool defaultScreenOnly)
 		WMAddTimerHandler(3000, wDefaultsCheckDomains, NULL);
 #endif
 
+	w_global.postpone_defaults_check = False;
 }
 
 static Bool windowInList(Window window, Window * list, int count)

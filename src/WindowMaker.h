@@ -566,6 +566,8 @@ extern struct wmaker_global_variables {
 	} inotify;
 #endif
 
+	Bool postpone_defaults_check;
+
 	/* definition for X Atoms */
 	struct {
 

@@ -226,6 +226,7 @@ void DispatchEvent(XEvent * event)
 	saveTimestamp(event);
 	switch (event->type) {
 	case MapRequest:
+		if (w_global.postpone_defaults_check) wDefaultsCheckDomains(NULL);
 		handleMapRequest(event);
 		break;
 
@@ -238,6 +239,7 @@ void DispatchEvent(XEvent * event)
 		break;
 
 	case ConfigureRequest:
+		if (w_global.postpone_defaults_check) wDefaultsCheckDomains(NULL);
 		handleConfigureRequest(event);
 		break;
 
@@ -246,6 +248,7 @@ void DispatchEvent(XEvent * event)
 		break;
 
 	case MapNotify:
+		if (w_global.postpone_defaults_check) wDefaultsCheckDomains(NULL);
 		handleMapNotify(event);
 		break;
 
@@ -266,6 +269,7 @@ void DispatchEvent(XEvent * event)
 		break;
 
 	case PropertyNotify:
+		if (w_global.postpone_defaults_check) wDefaultsCheckDomains(NULL);
 		handlePropertyNotify(event);
 		break;
 
@@ -423,7 +427,8 @@ static void handle_inotify_events(void)
 		}
 		if ((pevent->mask & IN_MODIFY) && oneShotFlag == 0) {
 			wwarning(_("Inotify: Reading config files in defaults database."));
-			wDefaultsCheckDomains(NULL);
+			//wDefaultsCheckDomains(NULL);
+			w_global.postpone_defaults_check = True;
 			oneShotFlag = 1;
 		}
 
