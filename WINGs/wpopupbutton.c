@@ -35,7 +35,7 @@ typedef struct W_PopUpButton {
 } PopUpButton;
 
 #define MENU_BLINK_DELAY	60000
-#define MENU_BLINK_COUNT	2
+#define MENU_BLINK_COUNT	0
 
 #define SCROLL_DELAY		10
 
