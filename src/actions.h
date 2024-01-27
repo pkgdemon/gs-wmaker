@@ -33,6 +33,10 @@
 #define MAX_IGNORE_XINERAMA    (1 << 7)
 #define MAX_KEYBOARD           (1 << 8)
 
+#define FOCUS_INTERACTIVE 1
+#define FOCUS_NEWWINDOW 2
+#define FOCUS_OTHER 3
+
 #define SAVE_GEOMETRY_X        (1 << 0)
 #define SAVE_GEOMETRY_Y        (1 << 1)
 #define SAVE_GEOMETRY_WIDTH    (1 << 2)
@@ -50,7 +54,7 @@
 	 (w)->flags.focused == 1 && \
 	 (w)->wm_gnustep_attr->window_level == WMPopUpMenuWindowLevel)
 
-void wSetFocusTo(WScreen *scr, WWindow *wwin);
+void wSetFocusTo(WScreen *scr, WWindow *wwin, int reason);
 
 int wMouseMoveWindow(WWindow *wwin, XEvent *ev);
 int wKeyboardMoveResizeWindow(WWindow *wwin);

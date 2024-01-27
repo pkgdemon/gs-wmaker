@@ -1194,7 +1194,7 @@ void wShowInfoPanel(WScreen *scr)
 	if (infoPanel) {
 		if (infoPanel->scr == scr) {
 			wRaiseFrame(infoPanel->wwin->frame->core);
-			wSetFocusTo(scr, infoPanel->wwin);
+			wSetFocusTo(scr, infoPanel->wwin, FOCUS_INTERACTIVE);
 		}
 		return;
 	}
@@ -1457,7 +1457,7 @@ void wShowLegalPanel(WScreen *scr)
 	if (legalPanel) {
 		if (legalPanel->scr == scr) {
 			wRaiseFrame(legalPanel->wwin->frame->core);
-			wSetFocusTo(scr, legalPanel->wwin);
+			wSetFocusTo(scr, legalPanel->wwin, FOCUS_INTERACTIVE);
 		}
 		return;
 	}

@@ -607,8 +607,8 @@ void wClientCheckProperty(WWindow * wwin, XPropertyEvent * event)
 					wapp->menu = wAppMenuGet(wwin->screen_ptr, wwin->main_window);
 				}
 				/* make the appmenu be mapped */
-				wSetFocusTo(wwin->screen_ptr, NULL);
-				wSetFocusTo(wwin->screen_ptr, wwin->screen_ptr->focused_window);
+				wSetFocusTo(wwin->screen_ptr, NULL, FOCUS_OTHER);
+				wSetFocusTo(wwin->screen_ptr, wwin->screen_ptr->focused_window, FOCUS_OTHER);
 			}
 		} else if (event->atom == w_global.atom.gnustep.wm_attr) {
 			GNUstepWMAttributes *attr;

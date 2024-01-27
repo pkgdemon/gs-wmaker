@@ -1655,7 +1655,7 @@ int wKeyboardMoveResizeWindow(WWindow * wwin)
 					wWindowSynthConfigureNotify(wwin);
 				}
 				wWindowChangeWorkspace(wwin, scr->current_workspace);
-				wSetFocusTo(scr, wwin);
+				wSetFocusTo(scr, wwin, FOCUS_INTERACTIVE);
 			}
 
 			if (wPreferences.auto_arrange_icons && wXineramaHeads(scr) > 1 &&
@@ -1921,7 +1921,7 @@ int wMouseMoveWindow(WWindow * wwin, XEvent * ev)
 				XUngrabServer(dpy);
 				if (!opaqueMove) {
 					wWindowChangeWorkspace(wwin, scr->current_workspace);
-					wSetFocusTo(scr, wwin);
+					wSetFocusTo(scr, wwin, FOCUS_INTERACTIVE);
 				}
 				if (wPreferences.move_display == WDIS_NEW)
 					showPosition(wwin, moveData.realX, moveData.realY);

@@ -1343,7 +1343,7 @@ WWindow *wManageWindow(WScreen *scr, Window window)
 				same_screen = 1;
 
 			if (same_screen == 1 && same_head == 1)
-				wSetFocusTo(scr, wwin);
+				wSetFocusTo(scr, wwin, FOCUS_NEWWINDOW);
 		}
 	}
 	wWindowResetMouseGrabs(wwin);
@@ -1487,7 +1487,7 @@ WWindow *wManageInternalWindow(WScreen *scr, Window window, Window owner,
 		wFrameWindowChangeState(wwin->frame, WS_UNFOCUSED);
 
 	/*    if (wPreferences.auto_focus) */
-	wSetFocusTo(scr, wwin);
+	wSetFocusTo(scr, wwin, FOCUS_OTHER);
 	wWindowResetMouseGrabs(wwin);
 	wWindowSetKeyGrabs(wwin);
 
@@ -1649,10 +1649,11 @@ void wUnmanageWindow(WWindow *wwin, Bool restore, Bool destroyed)
 		WMPostNotificationName(WMNUnmanaged, wwin, NULL);
 	if (wasFocused) {
 		if (newFocusedWindow != owner && owner) {
-			if (wwin->flags.is_gnustep == 0)
+			if (wwin->flags.is_gnustep == 0) {
 				wFrameWindowChangeState(owner->frame, WS_UNFOCUSED);
+			}
 		}
-		wSetFocusTo(scr, newFocusedWindow);
+		wSetFocusTo(scr, newFocusedWindow, FOCUS_OTHER);
 	}
 
 	/* Close menu and unhighlight */
@@ -2007,7 +2008,7 @@ void wWindowChangeWorkspace(WWindow *wwin, int workspace)
 				}
 			} else {
 				unmap = 1;
-				wSetFocusTo(scr, NULL);
+				wSetFocusTo(scr, NULL, FOCUS_INTERACTIVE);
 			}
 		}
 	} else {
@@ -2837,7 +2838,7 @@ static void resizebarMouseDown(WCoreWindow *sender, void *data, XEvent *event)
 
 	if (wPreferences.focus_mode == WKF_CLICK && !(event->xbutton.state & ControlMask)
 	    && !WFLAGP(wwin, no_focusable)) {
-		wSetFocusTo(wwin->screen_ptr, wwin);
+		wSetFocusTo(wwin->screen_ptr, wwin, FOCUS_INTERACTIVE);
 	}
 
 	if (event->xbutton.button == Button1)
@@ -2951,7 +2952,7 @@ static void frameMouseDown(WObjDescriptor *desc, XEvent *event)
 	CloseWindowMenu(wwin->screen_ptr);
 
 	if (!(event->xbutton.state & ControlMask) && !WFLAGP(wwin, no_focusable))
-		wSetFocusTo(wwin->screen_ptr, wwin);
+		wSetFocusTo(wwin->screen_ptr, wwin, FOCUS_INTERACTIVE);
 
 	if (event->xbutton.button == Button1)
 		wRaiseFrame(wwin->frame->core);
@@ -3013,7 +3014,7 @@ static void titlebarMouseDown(WCoreWindow *sender, void *data, XEvent *event)
 
 	if (wPreferences.focus_mode == WKF_CLICK && !(event->xbutton.state & ControlMask)
 	    && !WFLAGP(wwin, no_focusable))
-		wSetFocusTo(wwin->screen_ptr, wwin);
+		wSetFocusTo(wwin->screen_ptr, wwin, FOCUS_INTERACTIVE);
 
 	if (event->xbutton.button == Button1 || event->xbutton.button == Button2) {
 
@@ -3151,7 +3152,7 @@ static void windowLanguageClick(WCoreWindow *sender, void *data, XEvent *event)
 	tl = wwin->frame->languagemode;
 	wwin->frame->languagemode = wwin->frame->last_languagemode;
 	wwin->frame->last_languagemode = tl;
-	wSetFocusTo(scr, wwin);
+	wSetFocusTo(scr, wwin, FOCUS_INTERACTIVE);
 	wwin->frame->languagebutton_image =
 	    wwin->frame->screen_ptr->b_pixmaps[WBUT_XKBGROUP1 + wwin->frame->languagemode];
 	wFrameWindowUpdateLanguageButton(wwin->frame);

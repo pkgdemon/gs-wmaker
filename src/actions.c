@@ -123,7 +123,7 @@ static time_t last_gnustep_focus;
  *
  *----------------------------------------------------------------------
  */
-void wSetFocusTo(WScreen *scr, WWindow *wwin)
+void wSetFocusTo(WScreen *scr, WWindow *wwin, int reason)
 {
 	static WScreen *old_scr = NULL;
 
@@ -220,10 +220,25 @@ void wSetFocusTo(WScreen *scr, WWindow *wwin)
 		}
 
 		XFlush(dpy);
-		if (wwin->protocols.TAKE_FOCUS)
-			wClientSendProtocol(wwin, w_global.atom.wm.take_focus, timestamp);
+
+		if (wwin->flags.is_gnustep) {
+			if (oapp == napp && reason == FOCUS_NEWWINDOW) {
+				fprintf(stderr, "IGNORE TAKE_FOCUS %lx\n", wwin->client_win);
+			}
+			else {
+				fprintf(stderr, "TAKE_FOCUS %lx %d\n", wwin->client_win, wwin->flags.focused);
+				wClientSendProtocol(wwin, w_global.atom.wm.take_focus, timestamp);
+			}
+		}
+		else {
+			if (wwin->protocols.TAKE_FOCUS) {
+				fprintf(stderr, "TAKE_FOCUS %lx %d\n", wwin->client_win, wwin->flags.focused);
+				wClientSendProtocol(wwin, w_global.atom.wm.take_focus, timestamp);
+			}
+		}
 
 		XSync(dpy, False);
+
 	} else {
 		XSetInputFocus(dpy, scr->no_focus_win, RevertToParent, CurrentTime);
 	}
@@ -341,7 +356,7 @@ void wUnshadeWindow(WWindow *wwin)
 	/* if the window is focused, set the focus again as it was disabled during
 	 * shading */
 	if (wwin->flags.focused)
-		wSetFocusTo(wwin->screen_ptr, wwin);
+		wSetFocusTo(wwin->screen_ptr, wwin, FOCUS_INTERACTIVE);
 
 	WMPostNotificationName(WMNChangedState, wwin, "shade");
 }
@@ -978,7 +993,7 @@ void wFullscreenWindow(WWindow *wwin)
 	wWindowConfigure(wwin, rect.pos.x, rect.pos.y, rect.size.width, rect.size.height);
 
 	wwin->screen_ptr->bfs_focused_window = wwin->screen_ptr->focused_window;
-	wSetFocusTo(wwin->screen_ptr, wwin);
+	wSetFocusTo(wwin->screen_ptr, wwin, FOCUS_INTERACTIVE);
 
 	WMPostNotificationName(WMNChangedState, wwin, "fullscreen");
 }
@@ -1012,7 +1027,7 @@ void wUnfullscreenWindow(WWindow *wwin)
 	WMPostNotificationName(WMNChangedState, wwin, "fullscreen");
 
 	if (wwin->screen_ptr->bfs_focused_window) {
-		wSetFocusTo(wwin->screen_ptr, wwin->screen_ptr->bfs_focused_window);
+		wSetFocusTo(wwin->screen_ptr, wwin->screen_ptr->bfs_focused_window, FOCUS_INTERACTIVE);
 		wwin->screen_ptr->bfs_focused_window = NULL;
 	}
 }
@@ -1483,9 +1498,9 @@ void wIconifyWindow(WWindow *wwin)
 					break;
 				tmp = tmp->prev;
 			}
-			wSetFocusTo(wwin->screen_ptr, tmp);
+			wSetFocusTo(wwin->screen_ptr, tmp, FOCUS_INTERACTIVE);
 		} else if (wPreferences.focus_mode != WKF_CLICK) {
-			wSetFocusTo(wwin->screen_ptr, NULL);
+			wSetFocusTo(wwin->screen_ptr, NULL, FOCUS_INTERACTIVE);
 		}
 #ifdef USE_ANIMATIONS
 		if (!wwin->screen_ptr->flags.startup) {
@@ -1536,7 +1551,7 @@ void wDeiconifyWindow(WWindow *wwin)
 
 		if (owner && owner->flags.miniaturized) {
 			wDeiconifyWindow(owner);
-			wSetFocusTo(wwin->screen_ptr, wwin);
+			wSetFocusTo(wwin->screen_ptr, wwin, FOCUS_INTERACTIVE);
 			wRaiseFrame(wwin->frame->core);
 			w_global.ignore_workspace_change = False;
 			return;
@@ -1586,7 +1601,7 @@ void wDeiconifyWindow(WWindow *wwin)
 	if (!wPreferences.disable_miniwindows && wwin->icon != NULL
 	    && !wwin->flags.net_handle_icon) {
 		RemoveFromStackList(wwin->icon->core);
-		wSetFocusTo(wwin->screen_ptr, wwin);
+		wSetFocusTo(wwin->screen_ptr, wwin, FOCUS_INTERACTIVE);
 		wIconDestroy(wwin->icon);
 		wwin->icon = NULL;
 	}
@@ -1594,7 +1609,7 @@ void wDeiconifyWindow(WWindow *wwin)
 	if (!netwm_hidden) {
 		XUngrabServer(dpy);
 
-		wSetFocusTo(wwin->screen_ptr, wwin);
+		wSetFocusTo(wwin->screen_ptr, wwin, FOCUS_INTERACTIVE);
 
 #ifdef USE_ANIMATIONS
 		if (!wwin->screen_ptr->flags.startup) {
@@ -1913,9 +1928,9 @@ void wHideApplication(WApplication *wapp)
 					break;
 				wlist = wlist->prev;
 			}
-			wSetFocusTo(scr, wlist);
+			wSetFocusTo(scr, wlist, FOCUS_INTERACTIVE);
 		} else {
-			wSetFocusTo(scr, NULL);
+			wSetFocusTo(scr, NULL, FOCUS_INTERACTIVE);
 		}
 	}
 
@@ -2047,9 +2062,9 @@ void wUnhideApplication(WApplication *wapp, Bool miniwindows, Bool bringToCurren
 
 	if (wapp->last_focused && wapp->last_focused->flags.mapped) {
 		wRaiseFrame(wapp->last_focused->frame->core);
-		wSetFocusTo(scr, wapp->last_focused);
+		wSetFocusTo(scr, wapp->last_focused, FOCUS_INTERACTIVE);
 	} else if (focused) {
-		wSetFocusTo(scr, focused);
+		wSetFocusTo(scr, focused, FOCUS_INTERACTIVE);
 	}
 	wapp->last_focused = NULL;
 	if (wPreferences.auto_arrange_icons)
@@ -2084,7 +2099,7 @@ void wShowAllWindows(WScreen *scr)
 		}
 		wwin = wwin->prev;
 	}
-	wSetFocusTo(scr, old_foc);
+	wSetFocusTo(scr, old_foc, FOCUS_INTERACTIVE);
 	/*wRaiseFrame(old_foc->frame->core); */
 }
 
@@ -2326,7 +2341,7 @@ void wMakeWindowVisible(WWindow *wwin)
 		wDeiconifyWindow(wwin);
 	} else {
 		if (!WFLAGP(wwin, no_focusable))
-			wSetFocusTo(wwin->screen_ptr, wwin);
+			wSetFocusTo(wwin->screen_ptr, wwin, FOCUS_INTERACTIVE);
 		wRaiseFrame(wwin->frame->core);
 	}
 }
@@ -2421,7 +2436,7 @@ void wenforce_focus(Window win)
 	fprintf(stderr, "FORCE FOCUS %lx\n", win);
 	WWindow *wwin = wWindowFor(win);
 	if (wwin) {
-		wSetFocusTo(wwin->screen_ptr, wwin);
+		wSetFocusTo(wwin->screen_ptr, wwin, FOCUS_OTHER);
 	}
 }
 

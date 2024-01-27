@@ -251,7 +251,7 @@ void StartWindozeCycle(WWindow *wwin, XEvent *event, Bool next, Bool class_only)
 		CommitStacking(scr);
 		if (!newFocused->flags.mapped)
 			wMakeWindowVisible(newFocused);
-		wSetFocusTo(scr, newFocused);
+		wSetFocusTo(scr, newFocused, FOCUS_INTERACTIVE);
 	}
 
 	scr->flags.doing_alt_tab = 0;

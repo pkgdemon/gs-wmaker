@@ -672,6 +672,8 @@ static void killCallback(WMenu * menu, WMenuEntry * entry)
 	wrelease(wapp->main_window_desc);
 	wfree(buffer);
 	WCHANGE_STATE(WSTATE_NORMAL);
+
+	wApplicationDestroy(wapp);
 }
 
 static WMenu *createApplicationMenu(WScreen *scr)

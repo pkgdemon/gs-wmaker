@@ -620,7 +620,7 @@ void wWorkspaceForceChange(WScreen * scr, int workspace)
 			foc = scr->focused_window;
 		}
 		if (wPreferences.focus_mode == WKF_CLICK) {
-			wSetFocusTo(scr, foc);
+			wSetFocusTo(scr, foc, FOCUS_INTERACTIVE);
 		} else {
 			unsigned int mask;
 			int foo;
@@ -638,9 +638,9 @@ void wWorkspaceForceChange(WScreen * scr, int workspace)
 			 * focused, or the root (depending on sloppiness)
 			 */
 			if (!tmp && wPreferences.focus_mode == WKF_SLOPPY) {
-				wSetFocusTo(scr, foc);
+				wSetFocusTo(scr, foc, FOCUS_INTERACTIVE);
 			} else {
-				wSetFocusTo(scr, tmp);
+				wSetFocusTo(scr, tmp, FOCUS_INTERACTIVE);
 			}
 		}
 	}

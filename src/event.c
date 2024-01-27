@@ -1352,10 +1352,11 @@ static void handleClientMessage(XEvent * event)
 		if (!wwin)
 			return;
 
-		fprintf(stderr, "C: %lx %s %d\n", event->xclient.window, wwin->wm_instance, wwin->flags.miniaturized);
+		long tw = event->xclient.data.l[0];
+		fprintf(stderr, "C: %lx %s %d %d\n", event->xclient.window, wwin->wm_instance, tw, wwin->flags.miniaturized);
 		w_global.promise.validate_focus = 1;
 
-		switch (event->xclient.data.l[0]) {
+		switch (tw) {
 		case WMTitleBarNormal:
 			wFrameWindowChangeState(wwin->frame, WS_UNFOCUSED);
 			wwin->last_focus_change = GetTimestamp();
@@ -1463,7 +1464,7 @@ static void handleEnterNotify(XEvent * event)
 		    && wwin->frame->core->window == event->xcrossing.window && !scr->flags.doing_alt_tab) {
 
 			if (!wwin->flags.focused && !WFLAGP(wwin, no_focusable))
-				wSetFocusTo(scr, wwin);
+				wSetFocusTo(scr, wwin, FOCUS_OTHER);
 
 			if (scr->autoRaiseTimer)
 				WMDeleteTimerHandler(scr->autoRaiseTimer);
@@ -1489,7 +1490,7 @@ static void handleEnterNotify(XEvent * event)
 	    && event->xcrossing.detail == NotifyNormal
 	    && event->xcrossing.detail != NotifyInferior && wPreferences.focus_mode != WKF_CLICK) {
 
-		wSetFocusTo(scr, scr->focused_window);
+		wSetFocusTo(scr, scr->focused_window, FOCUS_OTHER);
 	}
 #ifdef BALLOON_TEXT
 	wBalloonEnteredObject(scr, desc);
@@ -1636,13 +1637,13 @@ static void handleFocusIn(XEvent * event)
 	wwin = wWindowFor(event->xfocus.window);
 	if (wwin && !wwin->flags.focused) {
 		if (wwin->flags.mapped)
-			wSetFocusTo(wwin->screen_ptr, wwin);
+			wSetFocusTo(wwin->screen_ptr, wwin, FOCUS_OTHER);
 		else
-			wSetFocusTo(wwin->screen_ptr, NULL);
+			wSetFocusTo(wwin->screen_ptr, NULL, FOCUS_OTHER);
 	} else if (!wwin) {
 		WScreen *scr = wScreenForWindow(event->xfocus.window);
 		if (scr)
-			wSetFocusTo(scr, NULL);
+			wSetFocusTo(scr, NULL, FOCUS_OTHER);
 	}
 }
 
