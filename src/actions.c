@@ -222,17 +222,13 @@ void wSetFocusTo(WScreen *scr, WWindow *wwin, int reason)
 		XFlush(dpy);
 
 		if (wwin->flags.is_gnustep) {
-			if (oapp == napp && reason == FOCUS_NEWWINDOW) {
-				fprintf(stderr, "IGNORE TAKE_FOCUS %lx\n", wwin->client_win);
-			}
-			else {
-				fprintf(stderr, "TAKE_FOCUS %lx %d\n", wwin->client_win, wwin->flags.focused);
+			if (reason == FOCUS_INTERACTIVE) {
 				wClientSendProtocol(wwin, w_global.atom.wm.take_focus, timestamp);
 			}
 		}
 		else {
 			if (wwin->protocols.TAKE_FOCUS) {
-				fprintf(stderr, "TAKE_FOCUS %lx %d\n", wwin->client_win, wwin->flags.focused);
+				fprintf(stderr, "2 TAKE_FOCUS %lx %d\n", wwin->client_win, reason);
 				wClientSendProtocol(wwin, w_global.atom.wm.take_focus, timestamp);
 			}
 		}
@@ -2436,7 +2432,7 @@ void wenforce_focus(Window win)
 	fprintf(stderr, "FORCE FOCUS %lx\n", win);
 	WWindow *wwin = wWindowFor(win);
 	if (wwin) {
-		wSetFocusTo(wwin->screen_ptr, wwin, FOCUS_OTHER);
+		//wSetFocusTo(wwin->screen_ptr, wwin, FOCUS_INTERACTIVE);
 	}
 }
 
@@ -2474,7 +2470,6 @@ void wvalidate_focus(void)
 		
 		wm_instance = wwin->wm_instance;
 
-		fprintf(stderr, "CHECK FOCUS\n");
 		while (wwin) {
 			double dd = tm - wwin->last_focus_change;
 
@@ -2496,6 +2491,7 @@ void wvalidate_focus(void)
 			wwin = wwin->prev;
 		}
 
+		//make sure we activate workspace with active window
 		wwin = scr->focused_window;
 		while (wwin) {
 			if (wwin->flags.is_gnustep && \
@@ -2508,9 +2504,21 @@ void wvalidate_focus(void)
 					
 					wchange_workspace(wwin->client_win);
 				}
-				return;
+				break;
 			}
 			wwin = wwin->prev;
+		}
+
+		//make sure window marked active is actually focused
+		wwin = scr->focused_window;
+		if (wwin && \
+				wwin->flags.is_gnustep && \
+				wwin->frame && \
+				wwin->frame->flags.state == WS_FOCUSED) {
+			if (wwin->frame->core->stacking->above != NULL) {
+				fprintf(stderr, "NEEDS TO RAISE\n");
+				wRaiseFrame(wwin->frame->core);
+			}
 		}
 	}
 }
