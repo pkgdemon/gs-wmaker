@@ -196,6 +196,9 @@ void wSetFocusTo(WScreen *scr, WWindow *wwin, int reason)
 	if (wwin->flags.is_gnustep) {
 		wHideGNUstepMenuExcept(scr, wwin);
 	}
+	else {
+		wRestoreAllGNUstepMenus(scr);
+	}
 
 	/* remember last workspace where the app has been */
 	if (napp)
@@ -1861,6 +1864,30 @@ void wRestoreGNUstepMenu(WScreen *scr)
 	return;
 }
 
+void wRestoreAllGNUstepMenus(WScreen *scr)
+{
+	WWindow *wlist = scr->focused_window;
+
+	if (!wlist)
+		return;
+
+	while (wlist) {
+		if (wlist->flags.is_gnustep && 
+				wlist->client_flags.no_titlebar && 
+				wlist->flags.is_suppressed == 0 && 
+				wlist->flags.mapped == 0 &&
+				IS_GNUSTEP_MENU(wlist)) {
+			wWindowMap(wlist);
+			wlist->flags.is_temp_hidden = 0;
+		}
+
+		wlist = wlist->prev;
+	}
+
+	return;
+}
+
+
 void wHideApplication(WApplication *wapp)
 {
 	WScreen *scr;
@@ -2516,8 +2543,8 @@ void wvalidate_focus(void)
 				wwin->frame && \
 				wwin->frame->flags.state == WS_FOCUSED) {
 			if (wwin->frame->core->stacking->above != NULL) {
-				fprintf(stderr, "NEEDS TO RAISE\n");
-				wRaiseFrame(wwin->frame->core);
+				//fprintf(stderr, "NEEDS TO RAISE\n");
+				//wRaiseFrame(wwin->frame->core);
 			}
 		}
 	}

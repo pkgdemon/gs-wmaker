@@ -80,6 +80,7 @@ WWindow *wNextGNUstepWindow(WScreen *scr, WWindow* wwin);
 void wHideGNUstepMenuExcept(WScreen *scr, WWindow* wwin);
 void wHideGNUstepMenu(WScreen *scr);
 void wRestoreGNUstepMenu(WScreen *scr);
+void wRestoreAllGNUstepMenus(WScreen *scr);
 
 void wHideAll(WScreen *src);
 void wHideOtherApplications(WWindow *wwin);
