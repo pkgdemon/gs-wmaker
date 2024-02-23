@@ -2541,11 +2541,21 @@ void wvalidate_focus(void)
 		if (wwin && \
 				wwin->flags.is_gnustep && \
 				wwin->frame && \
+				wwin->flags.focused && \
 				wwin->frame->flags.state == WS_FOCUSED) {
 			if (wwin->frame->core->stacking->above != NULL) {
-				//fprintf(stderr, "NEEDS TO RAISE\n");
-				//wRaiseFrame(wwin->frame->core);
+				fprintf(stderr, "NEEDS TO RAISE\n");
+				wRaiseFrame(wwin->frame->core);
+				return;
 			}
+		}
+
+		wwin = scr->focused_window;
+		while (wwin) {
+			if (wwin->flags.focused) {
+				fprintf(stderr, "should be in focus %x\n", wwin->client_win);
+			}
+			wwin = wwin->prev;
 		}
 	}
 }

@@ -1653,7 +1653,7 @@ void wUnmanageWindow(WWindow *wwin, Bool restore, Bool destroyed)
 				wFrameWindowChangeState(owner->frame, WS_UNFOCUSED);
 			}
 		}
-		wSetFocusTo(scr, newFocusedWindow, FOCUS_OTHER);
+		wSetFocusTo(scr, newFocusedWindow, FOCUS_INTERACTIVE);
 	}
 
 	/* Close menu and unhighlight */
