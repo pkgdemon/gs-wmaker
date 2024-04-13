@@ -18,7 +18,7 @@ AM_CPPFLAGS = \
 
 liblist= @LIBRARY_SEARCH_PATH@ @INTLIBS@
 
-wdwrite_LDADD = $(top_builddir)/WINGs/libWUtil.la $(liblist)
+wdwrite_LDADD = $(top_builddir)/WINGs/libWUtil.la $(liblist) @XLIBS@
 
 wdread_LDADD = $(top_builddir)/WINGs/libWUtil.la $(liblist)
 

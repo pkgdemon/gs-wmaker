@@ -28,6 +28,8 @@
  */
 #include "config.h"
 
+#include <X11/Xproto.h>
+
 #include <getopt.h>
 #include <limits.h>
 #include <stdio.h>
@@ -45,14 +47,33 @@
 
 static const char *prog_name;
 
+static send_reconfigure()
+{
+  Display *dpy;
+	XEvent ev;
+	memset(&ev, 0, sizeof(XEvent));
+
+  dpy = XOpenDisplay(NULL);
+
+	ev.xclient.type = ClientMessage;
+	ev.xclient.message_type = XInternAtom(dpy, "_WINDOWMAKER_COMMAND", False);
+	ev.xclient.window = DefaultRootWindow(dpy);
+	ev.xclient.format = 8;
+	strncpy(ev.xclient.data.b, "Reconfigure", sizeof(ev.xclient.data.b));
+
+	XSendEvent(dpy, DefaultRootWindow(dpy), False, SubstructureRedirectMask, &ev);
+	XFlush(dpy);
+}
+
 static noreturn void print_help(int print_usage, int exitval)
 {
-	printf("Usage: %s [OPTIONS] <domain> <key> <value>\n", prog_name);
+	printf("Usage: %s [OPTIONS] <domain> <key> <value> [-r]\n", prog_name);
 	if (print_usage) {
 		puts("Write <value> for <key> in <domain>'s database");
 		puts("");
 		puts("  -h, --help        display this help message");
 		puts("  -v, --version     output version information and exit");
+		puts("  -r, --reconfigure notify WindowMaker to re-read the config");
 	}
 	exit(exitval);
 }
@@ -62,15 +83,18 @@ int main(int argc, char **argv)
 	char path[PATH_MAX];
 	WMPropList *key, *value, *dict;
 	int ch;
+  int rc;
 
 	struct option longopts[] = {
 		{ "version",	no_argument,		NULL,			'v' },
 		{ "help",	no_argument,		NULL,			'h' },
+		{ "reconfigure",	no_argument,		NULL,			'r' },
 		{ NULL,		0,			NULL,			0 }
 	};
 
+  rc = 0;
 	prog_name = argv[0];
-	while ((ch = getopt_long(argc, argv, "hv", longopts, NULL)) != -1)
+	while ((ch = getopt_long(argc, argv, "hvr", longopts, NULL)) != -1)
 		switch(ch) {
 			case 'v':
 				printf("%s (Window Maker %s)\n", prog_name, VERSION);
@@ -79,6 +103,9 @@ int main(int argc, char **argv)
 			case 'h':
 				print_help(1, 0);
 				/* NOTREACHED */
+			case 'r':
+        rc = 1;
+        break;
 			case 0:
 				break;
 			default:
@@ -89,7 +116,7 @@ int main(int argc, char **argv)
 	argc -= optind;
 	argv += optind;
 
-	if (argc != 3)
+	if (argc < 3)
 		print_help(0, 1);
 
 	key = WMCreatePLString(argv[1]);
@@ -109,6 +136,9 @@ int main(int argc, char **argv)
 	}
 
 	WMWritePropListToFile(dict, path);
+
+  if (rc)
+   send_reconfigure();
 
 	return 0;
 }

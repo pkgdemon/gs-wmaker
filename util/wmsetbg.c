@@ -1012,7 +1012,7 @@ static void updateDomain(const char *domain, const char *key, const char *textur
 	if (result == -1)
 		werror("error executing system(\"%s\")", cmd_smooth);
 
-	execlp(program, program, domain, key, texture, NULL);
+	execlp(program, program, domain, key, texture, "--reconfigure", NULL);
 	wwarning("warning could not run \"%s\"", program);
 }
 

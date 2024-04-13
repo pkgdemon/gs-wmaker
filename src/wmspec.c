@@ -543,10 +543,6 @@ RImage *get_window_image_from_x11(Window window)
 
 static void updateIconImage(WWindow *wwin)
 {
-	/* gnustep will manage its own icon */
-	if (wwin->flags.is_gnustep)
-		return;
-
 	/* Remove the icon image from X11 */
 	if (wwin->net_icon_image)
 		RReleaseImage(wwin->net_icon_image);
@@ -557,6 +553,10 @@ static void updateIconImage(WWindow *wwin)
 	/* Refresh the Window Icon */
 	if (wwin->icon)
 		wIconUpdate(wwin->icon);
+
+	/* gnustep will manage its own icon */
+	if (wwin->flags.is_gnustep)
+		return;
 
 	/* Refresh the application icon */
 	WApplication *app = wApplicationOf(wwin->main_window);
