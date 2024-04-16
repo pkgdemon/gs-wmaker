@@ -41,6 +41,8 @@
 #define BORDER_RIGHT	8
 #define BORDER_ALL	(1|2|4|8)
 
+#define CONSTRAIN_NONE 0 
+#define CONSTRAIN_SCREEN 1
 
 #define CLIENT_EVENTS (StructureNotifyMask | PropertyChangeMask\
     | EnterWindowMask | LeaveWindowMask | ColormapChangeMask \
@@ -353,7 +355,7 @@ void wWindowFocus(WWindow *wwin, WWindow *owin);
 void wWindowUnfocus(WWindow *wwin);
 
 void wWindowUpdateName(WWindow *wwin, const char *newTitle);
-void wWindowConstrainSize(WWindow *wwin, unsigned int *nwidth, unsigned int *nheight);
+void wWindowConstrainSize(WWindow *wwin, unsigned int *nwidth, unsigned int *nheight, unsigned int mode);
 void wWindowCropSize(WWindow *wwin, unsigned int maxw, unsigned int maxh,
                      unsigned int *nwidth, unsigned int *nheight);
 void wWindowConfigure(WWindow *wwin, int req_x, int req_y,

@@ -477,6 +477,29 @@ Bool wWindowObscuresWindow(WWindow *wwin, WWindow *obscured)
 	return True;
 }
 
+static void fixWindowProperties(WWindow *wwin)
+{
+	XClassHint *classHint;
+
+	classHint = XAllocClassHint();
+	PropGetWMClass(wwin->client_win, &wwin->wm_class, &wwin->wm_instance);
+
+	if (wwin->main_window) {
+  	WApplication *app = wApplicationOf(wwin->main_window);
+		if (app && app->app_icon && strcmp(app->app_icon->wm_class, "default") == 0) {
+
+	fprintf(stderr, "HINT %s %s\n", wwin->wm_class, wwin->wm_instance);
+			free(app->app_icon->wm_class);
+			free(app->app_icon->wm_instance);
+
+			app->app_icon->wm_class = strdup(wwin->wm_class);
+			app->app_icon->wm_instance = strdup(wwin->wm_instance);
+		}
+	}
+
+	XFree(classHint);
+}
+
 static void fixLeaderProperties(WWindow *wwin)
 {
 	XClassHint *classHint;
@@ -578,6 +601,7 @@ static Window createFakeWindowGroupLeader(WScreen *scr, Window win, char *instan
 		XFreeStringList(argv);
 	}
 
+	fprintf(stderr, "CREATE FAKE %s %s\n", class, instance);
 	return leader;
 }
 
@@ -984,7 +1008,7 @@ WWindow *wManageWindow(WScreen *scr, Window window)
 		height = win_state->state->h;
 	}
 
-	wWindowConstrainSize(wwin, &width, &height);
+	wWindowConstrainSize(wwin, &width, &height, CONSTRAIN_SCREEN);
 
 	/* do not ask for window placement if the window is
 	 * transient, during startup, or if the window wants
@@ -1848,6 +1872,9 @@ void wWindowUpdateName(WWindow *wwin, const char *newTitle)
 	else
 		title = newTitle;
 
+	if (wwin->flags.is_gnustep == 0)
+		fixWindowProperties(wwin);
+	
 	if (wFrameWindowChangeTitle(wwin->frame, title))
 		WMPostNotificationName(WMNChangedName, wwin, NULL);
 }
@@ -1865,7 +1892,7 @@ void wWindowUpdateName(WWindow *wwin, const char *newTitle)
  *
  *----------------------------------------------------------------------
  */
-void wWindowConstrainSize(WWindow *wwin, unsigned int *nwidth, unsigned int *nheight)
+void wWindowConstrainSize(WWindow *wwin, unsigned int *nwidth, unsigned int *nheight, unsigned int mode)
 {
 	int width = (int)*nwidth;
 	int height = (int)*nheight;
@@ -1878,6 +1905,17 @@ void wWindowConstrainSize(WWindow *wwin, unsigned int *nwidth, unsigned int *nhe
 	int maxAX = -1, maxAY = -1;
 	int baseW = 0;
 	int baseH = 0;
+	int marginH = 0;
+	
+	if (wwin->frame) {
+		marginH = wwin->frame->top_width + wwin->frame->bottom_width;
+	}
+	else {
+		if (HAS_TITLEBAR(wwin))
+			marginH += TITLEBAR_HEIGHT;
+		if (HAS_RESIZEBAR(wwin))
+			marginH += RESIZEBAR_HEIGHT;
+	}
 
 	if (wwin->normal_hints) {
 		winc = wwin->normal_hints->width_inc;
@@ -1895,6 +1933,14 @@ void wWindowConstrainSize(WWindow *wwin, unsigned int *nwidth, unsigned int *nhe
 
 		baseW = wwin->normal_hints->base_width;
 		baseH = wwin->normal_hints->base_height;
+	}
+
+	if (mode == CONSTRAIN_SCREEN) {
+		if (maxH > (wwin->screen_ptr->scr_height - marginH)) {
+			int h = wwin->screen_ptr->scr_height - marginH;
+			fprintf(stderr, "maxH %d => %d\n", maxH, h);
+			maxH = h;
+		}
 	}
 
 	if (width < minW)
@@ -2960,12 +3006,12 @@ static void frameMouseDown(WObjDescriptor *desc, XEvent *event)
 	if (event->xbutton.state & ControlMask) {
 		if (event->xbutton.button == Button4) {
 			new_width = wwin->client.width - resize_width_increment;
-			wWindowConstrainSize(wwin, &new_width, &wwin->client.height);
+			wWindowConstrainSize(wwin, &new_width, &wwin->client.height, CONSTRAIN_NONE);
 			wWindowConfigure(wwin, wwin->frame_x, wwin->frame_y, new_width, wwin->client.height);
 		}
 		if (event->xbutton.button == Button5) {
 			new_width = wwin->client.width + resize_width_increment;
-			wWindowConstrainSize(wwin, &new_width, &wwin->client.height);
+			wWindowConstrainSize(wwin, &new_width, &wwin->client.height, CONSTRAIN_NONE);
 			wWindowConfigure(wwin, wwin->frame_x, wwin->frame_y, new_width, wwin->client.height);
 		}
 	}
@@ -2981,11 +3027,11 @@ static void frameMouseDown(WObjDescriptor *desc, XEvent *event)
 			wMouseResizeWindow(wwin, event);
 		} else if (event->xbutton.button == Button4) {
 			new_height = wwin->client.height - resize_height_increment;
-			wWindowConstrainSize(wwin, &wwin->client.width, &new_height);
+			wWindowConstrainSize(wwin, &wwin->client.width, &new_height, CONSTRAIN_NONE);
 			wWindowConfigure(wwin, wwin->frame_x, wwin->frame_y, wwin->client.width, new_height);
 		} else if (event->xbutton.button == Button5) {
 			new_height = wwin->client.height + resize_height_increment;
-			wWindowConstrainSize(wwin, &wwin->client.width, &new_height);
+			wWindowConstrainSize(wwin, &wwin->client.width, &new_height, CONSTRAIN_NONE);
 			wWindowConfigure(wwin, wwin->frame_x, wwin->frame_y, wwin->client.width, new_height);
 		} else if (event->xbutton.button == Button1 || event->xbutton.button == Button2) {
 			wMouseMoveWindow(wwin, event);
@@ -3034,7 +3080,9 @@ static void titlebarMouseDown(WCoreWindow *sender, void *data, XEvent *event)
 			continue_titlebarMouseMove(wwin, event);
 		} else if (wwin->flags.net_skip_pager) {
 			continue_titlebarMouseMove(wwin, event);
-		} else if (event->xbutton.button == Button1 && event->xbutton.state == 0) {
+		} else if ((event->xbutton.button == Button1 ||
+				        event->xbutton.button == Button2) &&
+				        event->xbutton.state == 0) {
 			//give GNUstep app a chance to take focus and continue in the move handler
 			w_global.processing_critical_events = True;
 			ProcessPendingEvents();

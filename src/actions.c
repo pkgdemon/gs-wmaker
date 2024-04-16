@@ -535,7 +535,7 @@ void wMaximizeWindow(WWindow *wwin, int directions, int head)
 	if ((wwin->flags.old_maximized & MAX_MAXIMUS) && !wwin->flags.maximized)
 		wwin->flags.maximized = MAX_MAXIMUS;
 
-	wWindowConstrainSize(wwin, &new_width, &new_height);
+	wWindowConstrainSize(wwin, &new_width, &new_height, CONSTRAIN_SCREEN);
 
 	wWindowCropSize(wwin, usableArea.x2 - usableArea.x1,
 			usableArea.y2 - usableArea.y1, &new_width, &new_height);

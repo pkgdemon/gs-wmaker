@@ -296,6 +296,7 @@ void wClientCheckProperty(WWindow * wwin, XPropertyEvent * event)
 	int i, g1, g2;
 	char *tmp = NULL;
 
+
 	switch (event->atom) {
 	case XA_WM_NAME:
 		if (!wwin->flags.net_has_title) {
@@ -706,12 +707,19 @@ wClientGetNormalHints(WWindow * wwin, XWindowAttributes * wattribs, Bool geometr
 			wwin->normal_hints->max_aspect.y = 1;
 	}
 
+	if (wwin->flags.is_gnustep) {
+		if (wwin->normal_hints->max_height > (wwin->screen_ptr->scr_height - 30)) {
+			wwin->normal_hints->max_height = (wwin->screen_ptr->scr_height - 30);
+		}
+	}
+
 	if (wwin->normal_hints->min_height > wwin->normal_hints->max_height) {
 		wwin->normal_hints->min_height = wwin->normal_hints->max_height;
 	}
 	if (wwin->normal_hints->min_width > wwin->normal_hints->max_width) {
 		wwin->normal_hints->min_width = wwin->normal_hints->max_width;
 	}
+
 #ifdef IGNORE_PPOSITION
 	wwin->normal_hints->flags &= ~PPosition;
 #endif
