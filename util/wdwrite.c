@@ -47,7 +47,7 @@
 
 static const char *prog_name;
 
-static send_reconfigure()
+static void send_reconfigure()
 {
   Display *dpy;
 	XEvent ev;
