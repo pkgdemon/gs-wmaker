@@ -2020,6 +2020,22 @@ static void handleKeyPress(XEvent * event)
 		}
 		break;
 
+	case WKBD_SETWINDOW1:
+	case WKBD_SETWINDOW2:
+	case WKBD_SETWINDOW3:
+	case WKBD_SETWINDOW4:
+	case WKBD_SETWINDOW5:
+	case WKBD_SETWINDOW6:
+	case WKBD_SETWINDOW7:
+	case WKBD_SETWINDOW8:
+	case WKBD_SETWINDOW9:
+	case WKBD_SETWINDOW10:
+
+		widx = command - WKBD_WINDOW1 - 10;
+
+		AddShortcutForWindow(scr, widx, wwin);
+		break;
+
 	case WKBD_WINDOW1:
 	case WKBD_WINDOW2:
 	case WKBD_WINDOW3:

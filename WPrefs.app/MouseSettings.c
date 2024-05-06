@@ -361,6 +361,7 @@ static void fillModifierPopUp(WMPopUpButton * pop)
 		WMAddPopUpButtonItem(pop, "Mod3");
 		WMAddPopUpButtonItem(pop, "Mod4");
 		WMAddPopUpButtonItem(pop, "Mod5");
+		WMAddPopUpButtonItem(pop, "Mod6");
 		wwarning(_("could not retrieve keyboard modifier mapping"));
 		return;
 	}
@@ -403,12 +404,14 @@ static void fillModifierPopUp(WMPopUpButton * pop)
 			if (array[k] == NULL)
 				continue;
 			tmp = wstrdup(array[k]);
+			/*
 			ptr = strstr(tmp, "_L");
 			if (ptr)
 				*ptr = 0;
 			ptr = strstr(tmp, "_R");
 			if (ptr)
 				*ptr = 0;
+			*/
 			sprintf(buffer, "%s (%s)", modifierNames[j], tmp);
 			/*sprintf(buffer, "%s", tmp); */
 			WMAddPopUpButtonItem(pop, buffer);

@@ -148,6 +148,18 @@ static const struct {
 	{ "WindowShortcut9Key",  N_("Shortcut for window 9") },
 	{ "WindowShortcut10Key", N_("Shortcut for window 10") },
 
+	/* Set Shortcuts */
+	{ "SetWindowShortcut1Key",  N_("Set Shortcut for window 1") },
+	{ "SetWindowShortcut2Key",  N_("Set Shortcut for window 2") },
+	{ "SetWindowShortcut3Key",  N_("Set Shortcut for window 3") },
+	{ "SetWindowShortcut4Key",  N_("Set Shortcut for window 4") },
+	{ "SetWindowShortcut5Key",  N_("Set Shortcut for window 5") },
+	{ "SetWindowShortcut6Key",  N_("Set Shortcut for window 6") },
+	{ "SetWindowShortcut7Key",  N_("Set Shortcut for window 7") },
+	{ "SetWindowShortcut8Key",  N_("Set Shortcut for window 8") },
+	{ "SetWindowShortcut9Key",  N_("Set Shortcut for window 9") },
+	{ "SetWindowShortcut10Key", N_("Set Shortcut for window 10") },
+
 	/* Head Selection */
 	{ "MoveTo12to6Head",     N_("Move to right/bottom/left/top head") },
 	{ "MoveTo6to12Head",    N_("Move to left/top/right/bottom head") },

@@ -363,6 +363,22 @@ static void makeShortcutCommand(WMenu * menu, WMenuEntry * entry)
 	XFlush(dpy);
 }
 
+void AddShortcutForWindow(WScreen * scr, int index, WWindow * wwin) {
+	if (scr->shortcutWindows[index]) {
+		WMFreeArray(scr->shortcutWindows[index]);
+		scr->shortcutWindows[index] = NULL;
+	}
+
+	if (wwin->flags.selected && scr->selected_windows) {
+		scr->shortcutWindows[index] = WMDuplicateArray(scr->selected_windows);
+		/*WMRemoveFromArray(scr->shortcutWindows[index], wwin);
+		   WMInsertInArray(scr->shortcutWindows[index], 0, wwin); */
+	} else {
+		scr->shortcutWindows[index] = WMCreateArray(4);
+		WMAddToArray(scr->shortcutWindows[index], wwin);
+	}
+}
+
 static void updateWorkspaceMenu(WMenu * menu)
 {
 	WScreen *scr = menu->frame->screen_ptr;
