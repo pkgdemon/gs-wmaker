@@ -289,6 +289,7 @@ void UpdateSwitchMenu2(WMenu * switchmenu, WScreen * scr, WWindow * wwin, int ac
 				wwin->flags.hidden || \
 				!wwin->frame || \
 				WFLAGP(wwin, skip_window_list) || \
+				!IS_NORMAL_WINDOW(wwin) || \
 				IS_GNUSTEP_MENU(wwin)) {
 			return;
 		}

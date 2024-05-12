@@ -399,6 +399,9 @@ int IS_NORMAL_WINDOW(WWindow *wwin)
 	if (!wwin)
 		return 0;
 
+	if (!wwin->frame)
+		return 0;
+
 	if (IS_GNUSTEP_MENU(wwin))
 		return 0;
 
@@ -406,6 +409,10 @@ int IS_NORMAL_WINDOW(WWindow *wwin)
 		return 0;
 
 	if (wwin->transient_for != 0)
+		return 0;
+
+	if (wwin->flags.internal_window || \
+			wwin->flags.hidden)
 		return 0;
 
 	if (wwin->client_flags.no_border || \

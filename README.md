@@ -19,7 +19,7 @@ Only one menu or popup is visible at a time.
 The Hide command did not work consistently across all applications because WindowMaker got confused about what windows belong to which application. 
 New implementation uses `wm_class` and `wm_instance` to gather all relevant windows for an app.
 
-#### launch on startup
+#### launch apps on startup
 
 It uses the same approach as the NextSpace, it appends `-autolaunch YES` to the command line.
 
@@ -38,3 +38,9 @@ It is now possible to drag an app from GWorkspace and add it to your dock withou
 #### D-BUS support (experimental!)
 
 You can control the window manager externally using [D-BUS API](https://github.com/onflapp/gs-wmaker/wiki/DBUS%E2%80%90support) now. This functionality is very basic at the moment but is foundation for making WindowMaker fully scriptable using StepTalk and for closer integration with GNUstep in general.
+
+## UI enhancements:
+
+- middle-click active window will lower the window
+- right-click middle of the title bar will show window switcher for that app (useful alternative to tabs)
+- shortcuts can now be set using a key combination, no need to go through the window menu
