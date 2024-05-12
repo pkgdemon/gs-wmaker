@@ -52,7 +52,6 @@ typedef enum {
     WFM_PASSIVE, WFM_NO_INPUT, WFM_LOCALLY_ACTIVE, WFM_GLOBALLY_ACTIVE
 } FocusMode;
 
-
 /*
  * window attribute flags.
  *
@@ -193,6 +192,8 @@ typedef struct WWindow {
 
 	struct WFrameWindow *frame;		/* the frame window */
 	int frame_x, frame_y;			/* position of the frame in root*/
+
+        WMenu *switch_menu;
 
 	struct {
 		int x, y;

@@ -600,6 +600,7 @@ void wMenuDestroy(WMenu * menu, int recurse)
 
 	wCoreDestroy(menu->menu);
 	wFrameWindowDestroy(menu->frame);
+	menu->frame = NULL;
 
 	/* destroy copy of this menu */
 	if (!menu->flags.brother && menu->brother)
@@ -712,7 +713,7 @@ static void paintEntry(WMenu * menu, int index, int selected)
 		x += MENU_INDICATOR_SPACE + 2;
 
 	WMDrawString(scr->wmscreen, win, color, scr->menu_entry_font,
-		     x, 3 + y + wPreferences.menu_text_clearance, entry->text, strlen(entry->text));
+		     x, 2 + y + wPreferences.menu_text_clearance, entry->text, strlen(entry->text));
 
 	if (entry->cascade >= 0) {
 		/* draw the cascade indicator */
@@ -776,7 +777,7 @@ static void paintEntry(WMenu * menu, int index, int selected)
 		tw = WMWidthOfString(scr->menu_entry_font, entry->rtext, strlen(entry->rtext));
 
 		WMDrawString(scr->wmscreen, win, color, scr->menu_entry_font, w - 6 - tw,
-			     y + 3 + wPreferences.menu_text_clearance, entry->rtext, strlen(entry->rtext));
+			     y + 2 + wPreferences.menu_text_clearance, entry->rtext, strlen(entry->rtext));
 	}
 }
 
@@ -1106,6 +1107,8 @@ void wMenuMap(WMenu * menu)
 void wMenuUnmap(WMenu * menu)
 {
 	int i;
+	if (!menu->flags.mapped)
+		return;
 
 	XUnmapWindow(dpy, menu->frame->core->window);
 	if (menu->flags.titled && menu->flags.buttoned) {
@@ -1289,6 +1292,9 @@ static WMenu *findMenu(WScreen * scr, int *x_ret, int *y_ret)
 
 static void closeCascade(WMenu * menu)
 {
+	if (!menu->frame)
+		return;
+
 	WMenu *parent = menu->parent;
 
 	if (menu->flags.brother || (!menu->flags.buttoned && (!menu->flags.app_menu || menu->parent != NULL))) {

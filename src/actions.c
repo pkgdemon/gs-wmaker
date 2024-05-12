@@ -394,6 +394,30 @@ static void remember_geometry(WWindow *wwin, int *x, int *y, int *w, int *h)
 	*h = wwin->old_geometry.height ? wwin->old_geometry.height : wwin->client.height;
 }
 
+int IS_NORMAL_WINDOW(WWindow *wwin)
+{
+	if (!wwin)
+		return 0;
+
+	if (IS_GNUSTEP_MENU(wwin))
+		return 0;
+
+	if (IS_GNUSTEP_POPUP_MENU(wwin))
+		return 0;
+
+	if (wwin->transient_for != 0)
+		return 0;
+
+	if (wwin->client_flags.no_border || \
+			wwin->client_flags.no_closable || \
+			wwin->client_flags.no_focusable || \
+			wwin->client_flags.no_resizable || \
+			wwin->client_flags.no_miniaturizable || \
+			wwin->client_flags.no_titlebar)
+		return 0;
+
+	return 1;
+}
 /* Remember geometry for unmaximizing */
 void update_saved_geometry(WWindow *wwin)
 {

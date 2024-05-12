@@ -23,8 +23,11 @@
 #define WMSWITCHMENU_H
 
 int FindEntryInSwitchMenu(WScreen * scr, WWindow * wwin);
+void UpdateSwitchMenu2(WMenu * switchmenu, WScreen * scr, WWindow * wwin, int action);
 void UpdateSwitchMenu(WScreen *scr, WWindow *wwin, int action);
-void OpenSwitchMenu(WScreen *scr, int x, int y, int keyboard);
+void OpenSwitchMenu(WScreen * scr, int x, int y, int keyboard);
+void OpenSwitchMenuForWin(WWindow *wwin, int x, int y, int keyboard);
+void CloseSwitchMenuForWin(WWindow *wwin);
 void InitializeSwitchMenu(void);
 
 #endif /* WMSWITCHMENU_H */

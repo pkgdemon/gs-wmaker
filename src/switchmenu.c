@@ -90,6 +90,7 @@ void InitializeSwitchMenu(void)
  * Open switch menu
  *
  */
+
 void OpenSwitchMenu(WScreen * scr, int x, int y, int keyboard)
 {
 	WMenu *switchmenu = scr->switch_menu;
@@ -144,6 +145,71 @@ void OpenSwitchMenu(WScreen * scr, int x, int y, int keyboard)
 	}
 }
 
+int addwi4win(WMenu* switchmenu, WWindow* wwin)
+{
+	WScreen *scr = wwin->screen_ptr;
+	WWindow *w = scr->focused_window;
+	int c = 0;
+
+	while (w) {
+		if (w != wwin && \
+			IS_NORMAL_WINDOW(wwin) && \
+			strcmp (wwin->wm_instance, w->wm_instance) == 0 && \
+			strcmp (wwin->wm_class, w->wm_class) == 0) {
+			if (switchmenu) {
+				UpdateSwitchMenu2(switchmenu, scr, w, ACTION_ADD);
+			}
+			c++;
+		}
+
+		w = w->prev;
+	}
+	return c;
+}
+
+void OpenSwitchMenuForWin(WWindow *wwin, int x, int y, int keyboard)
+{
+	WScreen *scr = wwin->screen_ptr;
+	if (addwi4win(NULL, wwin) == 0) 
+		return; //count entries first, return if none found
+	
+	WMenu *switchmenu = wMenuCreate(scr, NULL, False);
+	addwi4win(switchmenu, wwin);
+
+	wwin->switch_menu = switchmenu;
+
+	if (switchmenu) {
+		int newx, newy;
+
+		if (!switchmenu->flags.realized)
+			wMenuRealize(switchmenu);
+
+		if (keyboard && x == 0 && y == 0) {
+			newx = newy = 0;
+		} else if (keyboard && x == scr->scr_width / 2 && y == scr->scr_height / 2) {
+			newx = x - switchmenu->frame->core->width / 2;
+			newy = y - switchmenu->frame->core->height / 2;
+		} else {
+			newx = x - switchmenu->frame->core->width / 2;
+			newy = y;
+		}
+		wMenuMapAt(switchmenu, newx, newy, keyboard);
+	}
+}
+
+void CloseSwitchMenuForWin(WWindow *wwin)
+{
+	if (wwin->switch_menu) {
+		if (wwin->switch_menu->flags.mapped)
+			wMenuUnmap(wwin->switch_menu);
+
+		if (wwin->switch_menu->frame)
+			wMenuDestroy(wwin->switch_menu, True);
+
+		wwin->switch_menu = NULL;
+	}
+}
+
 static int menuIndexForWindow(WMenu * menu, WWindow * wwin, int old_pos)
 {
 	int idx, move_down;
@@ -190,13 +256,21 @@ int FindEntryInSwitchMenu(WScreen * scr, WWindow * wwin)
 void UpdateSwitchMenu(WScreen * scr, WWindow * wwin, int action)
 {
 	WMenu *switchmenu = scr->switch_menu;
+	if (!switchmenu)
+		return;
+
+	UpdateSwitchMenu2(switchmenu, scr, wwin, action);
+}
+
+void UpdateSwitchMenu2(WMenu * switchmenu, WScreen * scr, WWindow * wwin, int action)
+{
 	WMenuEntry *entry;
 	char title[MAX_MENU_TEXT_LENGTH + 6];
 	int len = sizeof(title);
 	int i;
 	int checkVisibility = 0;
 
-	if (!wwin->screen_ptr->switch_menu)
+	if (!switchmenu)
 		return;
 	/*
 	 *  This menu is updated under the following conditions:

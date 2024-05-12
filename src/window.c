@@ -56,6 +56,7 @@
 #include "workspace.h"
 #include "xinerama.h"
 #include "appmenu.h"
+#include "switchmenu.h"
 #include "appicon.h"
 #include "superfluous.h"
 #include "rootmenu.h"
@@ -1840,6 +1841,7 @@ void wWindowFocus(WWindow *wwin, WWindow *owin)
 void wWindowUnfocus(WWindow *wwin)
 {
 	CloseWindowMenu(wwin->screen_ptr);
+	CloseSwitchMenuForWin(wwin);
 
 	if (wwin->flags.is_gnustep == 0)
 		wFrameWindowChangeState(wwin->frame, wwin->flags.semi_focused ? WS_PFOCUSED : WS_UNFOCUSED);
@@ -3062,7 +3064,7 @@ static void titlebarMouseDown(WCoreWindow *sender, void *data, XEvent *event)
 	    && !WFLAGP(wwin, no_focusable))
 		wSetFocusTo(wwin->screen_ptr, wwin, FOCUS_INTERACTIVE);
 
-	if (event->xbutton.button == Button1 || event->xbutton.button == Button2) {
+	if (event->xbutton.button == Button1) {
 
 		if (event->xbutton.button == Button1) {
 			if (event->xbutton.state & MOD_MASK)
@@ -3080,9 +3082,7 @@ static void titlebarMouseDown(WCoreWindow *sender, void *data, XEvent *event)
 			continue_titlebarMouseMove(wwin, event);
 		} else if (wwin->flags.net_skip_pager) {
 			continue_titlebarMouseMove(wwin, event);
-		} else if ((event->xbutton.button == Button1 ||
-				        event->xbutton.button == Button2) &&
-				        event->xbutton.state == 0) {
+		} else if (event->xbutton.button == Button1 && event->xbutton.state == 0) {
 			//give GNUstep app a chance to take focus and continue in the move handler
 			w_global.processing_critical_events = True;
 			ProcessPendingEvents();
@@ -3090,6 +3090,10 @@ static void titlebarMouseDown(WCoreWindow *sender, void *data, XEvent *event)
 		} else {
 			continue_titlebarMouseMove(wwin, event);
 		}
+
+	} else if (event->xbutton.button == Button2 && event->xbutton.state == 0) {
+		if (fwin == wwin)
+			wLowerFrame(wwin->frame->core);
 
 	} else if (event->xbutton.button == Button3 && event->xbutton.state == 0
 			 && !wwin->flags.internal_window && !WCHECK_STATE(WSTATE_MODAL)) {
@@ -3103,15 +3107,36 @@ static void titlebarMouseDown(WCoreWindow *sender, void *data, XEvent *event)
 		}
 
 		w_global.processing_critical_events = True;
-		OpenWindowMenu(wwin, event->xbutton.x_root, wwin->frame_y + wwin->frame->top_width, False);
+		int wp = wwin->frame->titlebar->width / 4;
+		if (IS_NORMAL_WINDOW(wwin) && \
+				fwin == wwin && \
+				event->xbutton.x > wp && event->xbutton.x < wp*3) { //right-click, middle of the titlebar
 
-		/* allow drag select */
-		desc = &wwin->screen_ptr->window_menu->menu->descriptor;
-		event->xany.send_event = True;
-		(*desc->handle_mousedown) (desc, event);
+			OpenSwitchMenuForWin(wwin, event->xbutton.x_root, wwin->frame_y + wwin->frame->top_width, False);
+			/* allow drag select */
 
-		XUngrabPointer(dpy, CurrentTime);
-		w_global.processing_critical_events = False;
+			if (wwin->switch_menu) {
+				desc = &wwin->switch_menu->menu->descriptor;
+				event->xany.send_event = True;
+				(*desc->handle_mousedown) (desc, event);
+
+				XUngrabPointer(dpy, CurrentTime);
+				w_global.processing_critical_events = False;
+
+				CloseSwitchMenuForWin(wwin);
+			}
+
+		} else {
+			OpenWindowMenu(wwin, event->xbutton.x_root, wwin->frame_y + wwin->frame->top_width, False);
+
+			/* allow drag select */
+			desc = &wwin->screen_ptr->window_menu->menu->descriptor;
+			event->xany.send_event = True;
+			(*desc->handle_mousedown) (desc, event);
+
+			XUngrabPointer(dpy, CurrentTime);
+			w_global.processing_critical_events = False;
+		}
 	}
 }
 
@@ -3148,6 +3173,7 @@ static void windowCloseClick(WCoreWindow *sender, void *data, XEvent *event)
 	event->xbutton.state &= w_global.shortcut.modifiers_mask;
 
 	CloseWindowMenu(wwin->screen_ptr);
+	CloseSwitchMenuForWin(wwin);
 
 	if (event->xbutton.button < Button1 || event->xbutton.button > Button3)
 		return;
@@ -3172,6 +3198,7 @@ static void windowCloseDblClick(WCoreWindow *sender, void *data, XEvent *event)
 	(void) sender;
 
 	CloseWindowMenu(wwin->screen_ptr);
+	CloseSwitchMenuForWin(wwin);
 
 	if (event->xbutton.button < Button1 || event->xbutton.button > Button3)
 		return;
@@ -3220,6 +3247,7 @@ static void windowIconifyClick(WCoreWindow *sender, void *data, XEvent *event)
 	event->xbutton.state &= w_global.shortcut.modifiers_mask;
 
 	CloseWindowMenu(wwin->screen_ptr);
+	CloseSwitchMenuForWin(wwin);
 
 	if (event->xbutton.button < Button1 || event->xbutton.button > Button3)
 		return;

@@ -54,6 +54,9 @@
 	 (w)->flags.focused == 1 && \
 	 (w)->wm_gnustep_attr->window_level == WMPopUpMenuWindowLevel)
 
+
+int IS_NORMAL_WINDOW(WWindow *wwin);
+
 void wSetFocusTo(WScreen *scr, WWindow *wwin, int reason);
 
 int wMouseMoveWindow(WWindow *wwin, XEvent *ev);
