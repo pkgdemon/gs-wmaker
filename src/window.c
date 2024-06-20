@@ -1935,6 +1935,11 @@ void wWindowConstrainSize(WWindow *wwin, unsigned int *nwidth, unsigned int *nhe
 
 		baseW = wwin->normal_hints->base_width;
 		baseH = wwin->normal_hints->base_height;
+
+		if (!HAS_TITLEBAR(wwin) && !HAS_RESIZEBAR(wwin) && !HAS_BORDER(wwin)) {
+			//assume this is full screen or other special window
+			return;
+		}
 	}
 
 	if (mode == CONSTRAIN_SCREEN) {
