@@ -146,7 +146,10 @@ const char* GSCacheAppIcon(const char* cache_path, const char* path, const char 
 
   NSWorkspace* ws = [NSWorkspace sharedWorkspace];
   NSImage* img = [ws iconForFile:ap];
-  if (!img) return NULL;
+  if (!img) {
+    RELEASE(pool);
+    return NULL;
+  }
 
   NSString* ip = [[NSString stringWithUTF8String:cache_path]
                  stringByAppendingPathComponent:[NSString stringWithFormat:@"%s.%s.tiff", wm_instance, wm_class]];
@@ -162,7 +165,6 @@ const char* GSCacheAppIcon(const char* cache_path, const char* path, const char 
   }
 
   RELEASE(pool);
-
   return rv;
 }
 
@@ -179,7 +181,10 @@ const char* GSCachePathIcon(const char* cache_path, const char* path, const char
 
 NSLog(@"ICON for %@ -> %@", p, img);
 
-  if (!img) return NULL;
+  if (!img) {
+    RELEASE(pool);
+    return NULL;
+  }
 
   NSString* ip = [[NSString stringWithUTF8String:cache_path]
                  stringByAppendingPathComponent:[NSString stringWithFormat:@"%s.%s.tiff", wm_instance, wm_class]];
@@ -195,7 +200,6 @@ NSLog(@"ICON for %@ -> %@", p, img);
   }
 
   RELEASE(pool);
-
   return rv;
 }
 
@@ -208,7 +212,10 @@ GSDropInfo GSGetDropInfo() {
   char* rv = NULL;
   NSPasteboard* pb = [NSPasteboard pasteboardWithName:NSDragPboard];
   NSArray *ls = [pb propertyListForType:NSFilenamesPboardType];
-  if ([ls count] == 0) return i;
+  if ([ls count] == 0) {
+    RELEASE(pool);
+    return i;
+  }
 
   NSString* path = [ls firstObject];
   NSString* name = [path lastPathComponent];
@@ -236,7 +243,6 @@ GSDropInfo GSGetDropInfo() {
   }
 
   RELEASE(pool);
-
   return i;
 }
 
@@ -248,7 +254,10 @@ const char* GSGetDroppedFilePath() {
   char* rv = NULL;
   NSPasteboard* pb = [NSPasteboard pasteboardWithName:NSDragPboard];
   NSArray *ls = [pb propertyListForType:NSFilenamesPboardType];
-  if ([ls count] == 0) return NULL;
+  if ([ls count] == 0) {
+    RELEASE(pool);
+    return NULL;
+  }
 
   NSString* path = [ls firstObject];
   val = [path UTF8String];
@@ -260,7 +269,6 @@ const char* GSGetDroppedFilePath() {
   }
 
   RELEASE(pool);
-
   return rv;
 }
 
@@ -303,7 +311,6 @@ const char* GSGetFontForName(char* name) {
   }
 
   RELEASE(pool);
-
   return rv;
 }
 
@@ -319,7 +326,6 @@ int GSGetAntialiasText() {
   }
 
   RELEASE(pool);
-
   return v;
 }
 
@@ -363,6 +369,5 @@ GSColorInfo GSGetColorForName(char* name) {
   }
 
   RELEASE(pool);
-
   return i;
 }
