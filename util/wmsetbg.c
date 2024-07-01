@@ -810,6 +810,7 @@ static int dummyErrorHandler(Display * dpy, XErrorEvent * err)
 static void setPixmapProperty(Pixmap pixmap)
 {
 	static Atom prop = 0;
+	static Atom prop2 = 0;
 	Atom type;
 	int format;
 	unsigned long length, after;
@@ -818,6 +819,9 @@ static void setPixmapProperty(Pixmap pixmap)
 
 	if (!prop) {
 		prop = XInternAtom(dpy, "_XROOTPMAP_ID", False);
+	}
+	if (!prop2) {
+		prop2 = XInternAtom(dpy, "ESETROOT_PMAP_ID", False);
 	}
 
 	XGrabServer(dpy);
@@ -831,14 +835,18 @@ static void setPixmapProperty(Pixmap pixmap)
 		XKillClient(dpy, *((Pixmap *) data));
 		XSync(dpy, False);
 		XSetErrorHandler(NULL);
-		mode = PropModeReplace;
-	} else {
-		mode = PropModeAppend;
+		//mode = PropModeReplace;
 	}
-	if (pixmap)
+
+	XDeleteProperty(dpy, root, prop);
+	XDeleteProperty(dpy, root, prop2);
+	XSync(dpy, False);
+
+	if (pixmap) {
+		mode = PropModeAppend;
 		XChangeProperty(dpy, root, prop, XA_PIXMAP, 32, mode, (unsigned char *)&pixmap, 1);
-	else
-		XDeleteProperty(dpy, root, prop);
+		XChangeProperty(dpy, root, prop2, XA_PIXMAP, 32, mode, (unsigned char *)&pixmap, 1);
+	}
 
 	XUngrabServer(dpy);
 	XFlush(dpy);

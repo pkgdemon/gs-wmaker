@@ -343,11 +343,10 @@ int GSGetFontDefaultFontSize() {
 }
 
 GSColorInfo GSGetColorForName(char* name) {
+  CREATE_AUTORELEASE_POOL(pool);
   GSTheme* theme = [GSTheme theme];
   GSColorInfo i = {0, 0, 0, 0};
   CGFloat r, g, b, a;
-
-  CREATE_AUTORELEASE_POOL(pool);
 
   NSColor* color = nil;
   if (strcmp(name, "SYSTEM_GRAY_COLOR") == 0) {
