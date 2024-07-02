@@ -659,7 +659,14 @@ static void handleExtensions(XEvent * event)
 		 * events are generated */
 		XRRUpdateConfiguration(event);
 		WCHANGE_STATE(WSTATE_RESTARTING);
+
+		XSync(dpy, 0);
+		wusleep(3000);
+
 		Shutdown(WSRestartPreparationMode);
+		XSync(dpy, 0);
+		wusleep(3000);
+
 		Restart(NULL,True);
 	}
 #endif
