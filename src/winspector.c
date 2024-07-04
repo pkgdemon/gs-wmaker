@@ -573,8 +573,17 @@ static void saveSettings(WMWidget *button, void *client_data)
 	WDDomain *db = w_global.domain.window_attr;
 	WMPropList *dict = NULL;
 	WMPropList *winDic, *appDic, *value, *value1, *key = NULL, *key2;
-	char *icon_file, *buf1, *buf2;
+	char *icon_file, *buf1, *buf2, *wm_class;
 	int flags = 0, i = 0, different = 0, different2 = 0;
+	int saveapp = 1;
+
+	if (wwin->flags.is_gnustep && wwin->wm_window_class)
+		wm_class = wwin->wm_window_class;
+	else
+		wm_class = wwin->wm_class;
+
+	if (wwin->flags.is_gnustep)
+		saveapp = 0;
 
 	/* Save will apply the changes and save them */
 	applySettings(panel->applyBtn, panel);
@@ -582,9 +591,9 @@ static void saveSettings(WMWidget *button, void *client_data)
 	if (WMGetButtonSelected(panel->instRb) != 0) {
 		key = WMCreatePLString(wwin->wm_instance);
 	} else if (WMGetButtonSelected(panel->clsRb) != 0) {
-		key = WMCreatePLString(wwin->wm_class);
+		key = WMCreatePLString(wm_class);
 	} else if (WMGetButtonSelected(panel->bothRb) != 0) {
-		buf1 = StrConcatDot(wwin->wm_instance, wwin->wm_class);
+		buf1 = StrConcatDot(wwin->wm_instance, wm_class);
 		key = WMCreatePLString(buf1);
 		wfree(buf1);
 	} else if (WMGetButtonSelected(panel->defaultRb) != 0) {
@@ -625,7 +634,7 @@ static void saveSettings(WMWidget *button, void *client_data)
 
 	/* The icon filename (if exists) */
 	icon_file = WMGetTextFieldText(panel->fileText);
-	if (icon_file != NULL) {
+	if (icon_file != NULL && saveapp) {
 		if (icon_file[0] != '\0') {
 			value = WMCreatePLString(icon_file);
 			different |= insertAttribute(dict, winDic, AIcon, value, flags);
@@ -657,14 +666,14 @@ static void saveSettings(WMWidget *button, void *client_data)
 	}
 
 	/* Attributes... --> Application Specific */
-	if (wwin->main_window != None && wApplicationOf(wwin->main_window) != NULL) {
+	if (wwin->main_window != None && wApplicationOf(wwin->main_window) != NULL && saveapp) {
 		for (i = 0; i < wlengthof(application_attr); i++) {
 			value = (WMGetButtonSelected(panel->appChk[i]) != 0) ? Yes : No;
 			different2 |= insertAttribute(dict, appDic, pl_appattrib[i], value, flags);
 		}
 	}
 
-	if (wwin->fake_group) {
+	if (wwin->fake_group && saveapp) {
 		key2 = WMCreatePLString(wwin->fake_group->identifier);
 		if (WMIsPropListEqualTo(key, key2)) {
 			WMMergePLDictionaries(winDic, appDic, True);
@@ -678,7 +687,7 @@ static void saveSettings(WMWidget *button, void *client_data)
 	} else if (wwin->main_window != wwin->client_win) {
 		WApplication *wapp = wApplicationOf(wwin->main_window);
 
-		if (wapp) {
+		if (wapp && saveapp) {
 			buf2 = StrConcatDot(wapp->main_window_desc->wm_instance,
 					      wapp->main_window_desc->wm_class);
 			key2 = WMCreatePLString(buf2);
@@ -694,7 +703,7 @@ static void saveSettings(WMWidget *button, void *client_data)
 			}
 			WMReleasePropList(key2);
 		}
-	} else {
+	} else if (saveapp) {
 		WMMergePLDictionaries(winDic, appDic, True);
 		different |= different2;
 	}
@@ -887,11 +896,17 @@ static void revertSettings(WMWidget *button, void *client_data)
 
 	if (panel->instRb && WMGetButtonSelected(panel->instRb) != 0)
 		wm_instance = wwin->wm_instance;
-	else if (panel->clsRb && WMGetButtonSelected(panel->clsRb) != 0)
-		wm_class = wwin->wm_class;
-	else if (panel->bothRb && WMGetButtonSelected(panel->bothRb) != 0) {
+	else if (panel->clsRb && WMGetButtonSelected(panel->clsRb) != 0) {
+		if (wwin->flags.is_gnustep && wwin->wm_window_class)
+			wm_class = wwin->wm_window_class;
+		else
+			wm_class = wwin->wm_class;
+	} else if (panel->bothRb && WMGetButtonSelected(panel->bothRb) != 0) {
 		wm_instance = wwin->wm_instance;
-		wm_class = wwin->wm_class;
+		if (wwin->flags.is_gnustep && wwin->wm_window_class)
+			wm_class = wwin->wm_window_class;
+		else
+			wm_class = wwin->wm_class;
 	}
 
 	memset(&wwin->defined_user_flags, 0, sizeof(WWindowAttributes));
@@ -1103,8 +1118,11 @@ static InspectorPanel *createInspectorForWindow(WWindow *wwin, int xpos, int ypo
 	WMAddPopUpButtonItem(panel->pagePopUp, _("Window Specification"));
 	WMAddPopUpButtonItem(panel->pagePopUp, _("Window Attributes"));
 	WMAddPopUpButtonItem(panel->pagePopUp, _("Advanced Options"));
-	WMAddPopUpButtonItem(panel->pagePopUp, _("Icon and Initial Workspace"));
-	WMAddPopUpButtonItem(panel->pagePopUp, _("Application Specific"));
+
+	if (!wwin->flags.is_gnustep) {
+		WMAddPopUpButtonItem(panel->pagePopUp, _("Icon and Initial Workspace"));
+		WMAddPopUpButtonItem(panel->pagePopUp, _("Application Specific"));
+	}
 
 	/**** window spec ****/
 	frame_width = PWIDTH - (2 * 15);
@@ -1123,7 +1141,10 @@ static InspectorPanel *createInspectorForWindow(WWindow *wwin, int xpos, int ypo
 
 	if (wwin->wm_class && wwin->wm_instance) {
 		tmp = wstrconcat(wwin->wm_instance, ".");
-		str = wstrconcat(tmp, wwin->wm_class);
+		if (wwin->flags.is_gnustep && wwin->wm_window_class)
+			str = wstrconcat(tmp, wwin->wm_window_class);
+		else
+			str = wstrconcat(tmp, wwin->wm_class);
 
 		panel->bothRb = WMCreateRadioButton(panel->specFrm);
 		WMMoveWidget(panel->bothRb, 10, 18);
@@ -1156,7 +1177,10 @@ static InspectorPanel *createInspectorForWindow(WWindow *wwin, int xpos, int ypo
 		panel->clsRb = WMCreateRadioButton(panel->specFrm);
 		WMMoveWidget(panel->clsRb, 10, 58);
 		WMResizeWidget(panel->clsRb, frame_width - (2 * 10), 20);
-		WMSetButtonText(panel->clsRb, wwin->wm_class);
+		if (wwin->flags.is_gnustep && wwin->wm_window_class)
+			WMSetButtonText(panel->clsRb, wwin->wm_window_class);
+		else
+			WMSetButtonText(panel->clsRb, wwin->wm_class);
 		WMGroupButtons(panel->defaultRb, panel->clsRb);
 
 		if (!selectedBtn)

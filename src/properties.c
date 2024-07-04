@@ -126,6 +126,7 @@ unsigned char *PropGetCheckProperty(Window window, Atom hint, Atom type, int for
 	return data;
 }
 
+
 int PropGetGNUstepWMAttr(Window window, GNUstepWMAttributes ** attr)
 {
 	unsigned long *data;

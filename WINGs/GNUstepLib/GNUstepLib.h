@@ -42,7 +42,6 @@ extern int GSLaunchApp(const char *cmd);
 extern int GSOpenDocument(const char *cmd);
 extern int GSGetAntialiasText(void);
 extern int GSGetFontDefaultFontSize(void);
-extern int GSGetAntialiasText(void);
 extern GSDropInfo GSGetDropInfo(void);
 extern const char* GSCachePathIcon(const char* cache_path, const char* path, const char *wm_instance, const char *wm_class);
 extern const char* GSCacheAppIcon(const char* cache_path, const char* path, const char *wm_instance, const char *wm_class);

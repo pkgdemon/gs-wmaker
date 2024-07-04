@@ -145,6 +145,7 @@ typedef struct {
     unsigned int emulate_appicon:1;
     /* Ignore any changes to the decoration elements (titlebar, etc) */
     unsigned int ignore_decoration_changes:1;
+    unsigned int ignore_instance_settings:1;
 
 } WWindowAttributes;
 
@@ -222,6 +223,8 @@ typedef struct WWindow {
 	XWMHints *wm_hints;			/* WM_HINTS (optional) */
 	char *wm_instance;			/* instance of WM_CLASS */
 	char *wm_class;				/* class of WM_CLASS */
+        char *wm_window_class;                  /* _GNUSTEP_WINDOW_CLASS */
+        int wm_window_number;                   /* _GNUSTEP_WINDOW_NUMBER */
 	GNUstepWMAttributes *wm_gnustep_attr;	/* GNUstep window attributes */
 
 	int state;				/* state as in ICCCM */

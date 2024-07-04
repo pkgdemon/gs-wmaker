@@ -570,6 +570,7 @@ extern struct wmaker_global_variables {
 
 	/* definition for X Atoms */
 	struct {
+		Atom utf8_string;
 
 		/* Window-Manager related */
 		struct {
@@ -592,6 +593,8 @@ extern struct wmaker_global_variables {
       Atom wm_hide_app;
 			Atom wm_resizebar;
 			Atom titlebar_state;
+			Atom window_class;
+			Atom window_number;
 		} gnustep;
 
 		/* Destkop-environment related */

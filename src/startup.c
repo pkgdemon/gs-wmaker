@@ -398,7 +398,11 @@ static char *atomNames[] = {
 
 	"_GTK_APPLICATION_OBJECT_PATH",
 
-	"WM_IGNORE_FOCUS_EVENTS"
+	"WM_IGNORE_FOCUS_EVENTS",
+	
+	"_GNUSTEP_WINDOW_CLASS",
+	"_GNUSTEP_WINDOW_NUMBER",
+	"UTF8_STRING"
 };
 
 /*
@@ -475,6 +479,10 @@ void StartUp(Bool defaultScreenOnly)
 	w_global.atom.desktop.gtk_object_path = atom[21];
 
 	w_global.atom.wm.ignore_focus_events = atom[22];
+
+	w_global.atom.gnustep.window_class = atom[23];
+	w_global.atom.gnustep.window_number = atom[24];
+	w_global.atom.utf8_string = atom[25];
 
 #ifdef USE_DOCK_XDND
 	wXDNDInitializeAtoms();

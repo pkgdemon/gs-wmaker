@@ -216,8 +216,10 @@ void wDefaultFillAttributes(const char *instance, const char *class,
 		wfree(buffer);
 	}
 
-	dn = get_value_from_instanceclass(instance);
 	dc = get_value_from_instanceclass(class);
+
+	if (!attr->ignore_instance_settings)
+		dn = get_value_from_instanceclass(instance);
 
 	WMPLSetCaseSensitive(True);
 

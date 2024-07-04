@@ -214,6 +214,9 @@ void wWindowDestroy(WWindow *wwin)
 	if (wwin->wm_class)
 		XFree(wwin->wm_class);
 
+	if (wwin->wm_window_class)
+		wfree(wwin->wm_window_class);
+
 	if (wwin->wm_gnustep_attr)
 		wfree(wwin->wm_gnustep_attr);
 
@@ -239,6 +242,12 @@ void wWindowDestroy(WWindow *wwin)
 
 static void setupGNUstepHints(WWindow *wwin, GNUstepWMAttributes *gs_hints)
 {
+	unsigned int no_border = wwin->client_flags.no_border;
+	unsigned int no_titlebar = wwin->client_flags.no_titlebar;
+	unsigned int no_close_button = wwin->client_flags.no_close_button;
+	unsigned int no_miniaturize_button = wwin->client_flags.no_miniaturize_button;
+	unsigned int no_resizebar = wwin->client_flags.no_resizebar;
+
 	if (gs_hints->flags & GSWindowStyleAttr) {
 		if (gs_hints->window_style == WMBorderlessWindowMask) {
 			wwin->client_flags.no_border = 1;
@@ -289,6 +298,22 @@ static void setupGNUstepHints(WWindow *wwin, GNUstepWMAttributes *gs_hints)
 	}
 	if (gs_hints->extra_flags & GSNoApplicationIconFlag)
 		wwin->client_flags.no_appicon = 1;
+
+	/* override by values set from the config */
+	if (no_border)
+		wwin->client_flags.no_border = no_border;
+
+	if (no_titlebar)
+		wwin->client_flags.no_titlebar = no_titlebar;
+
+	if (no_close_button)
+		wwin->client_flags.no_close_button = no_close_button;
+
+	if (no_miniaturize_button)
+		wwin->client_flags.no_miniaturize_button = no_miniaturize_button;
+
+	if (no_resizebar)
+		wwin->client_flags.no_resizebar = no_resizebar;
 }
 
 static void discard_hints_from_gtk(WWindow *wwin)
@@ -321,7 +346,13 @@ void wWindowSetupInitialAttributes(WWindow *wwin, int *level, int *workspace)
 	WScreen *scr = wwin->screen_ptr;
 
 	/* sets global default stuff */
-	wDefaultFillAttributes(wwin->wm_instance, wwin->wm_class, &wwin->user_flags, NULL, True);
+	if (wwin->flags.is_gnustep && wwin->wm_window_class != NULL) {
+		wwin->user_flags.ignore_instance_settings = 1;
+		wDefaultFillAttributes(wwin->wm_instance, wwin->wm_window_class, &wwin->user_flags, NULL, True);
+	} else {
+		wDefaultFillAttributes(wwin->wm_instance, wwin->wm_class, &wwin->user_flags, NULL, True);
+	}
+
 	wwin->defined_user_flags = wwin->user_flags;
 
 	/*
@@ -369,6 +400,12 @@ void wWindowSetupInitialAttributes(WWindow *wwin, int *level, int *workspace)
 			/* setup defaults */
 			*level = WMNormalLevel;
 		}
+
+		if (WFLAGP(wwin, floating))
+			*level = WMFloatingLevel;
+		else if (WFLAGP(wwin, sunken))
+			*level = WMSunkenLevel;
+
 	} else {
 		int tmp_workspace = -1;
 		int tmp_level = INT_MIN;	/* INT_MIN is never used by the window levels */
@@ -413,7 +450,11 @@ void wWindowSetupInitialAttributes(WWindow *wwin, int *level, int *workspace)
 	 * Set attributes specified only for that window/class.
 	 * This might do duplicate work with the 1st wDefaultFillAttributes().
 	 */
-	wDefaultFillAttributes(wwin->wm_instance, wwin->wm_class, &wwin->user_flags,
+	if (wwin->flags.is_gnustep && wwin->wm_window_class != NULL)
+		wDefaultFillAttributes(wwin->wm_instance, wwin->wm_window_class, &wwin->user_flags,
+			       &wwin->defined_user_flags, False);
+	else
+		wDefaultFillAttributes(wwin->wm_instance, wwin->wm_class, &wwin->user_flags,
 			       &wwin->defined_user_flags, False);
 
 	/* Restore decoration if the user has enabled the
@@ -732,6 +773,13 @@ WWindow *wManageWindow(WScreen *scr, Window window)
 	if (wwin->wm_class != NULL && strcmp(wwin->wm_class, "DockApp") == 0) {
 		wwin->flags.is_dockapp = 1;
 		withdraw = True;
+	}
+	
+	if (wwin->flags.is_gnustep) {
+		int size = 0;
+		wwin->wm_window_class = (char *)PropGetCheckProperty(window, 
+				w_global.atom.gnustep.window_class, 
+				w_global.atom.utf8_string, 0, 0, &size);
 	}
 
 	wwin->client_leader = PropGetClientLeader(window);
