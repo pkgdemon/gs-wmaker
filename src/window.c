@@ -345,8 +345,12 @@ void wWindowSetupInitialAttributes(WWindow *wwin, int *level, int *workspace)
 {
 	WScreen *scr = wwin->screen_ptr;
 
+	//fprintf(stderr, "====>%x %s %s<\n", wwin->client_win, wwin->wm_instance, wwin->wm_class);
+
 	/* sets global default stuff */
-	if (wwin->flags.is_gnustep && wwin->wm_window_class != NULL) {
+	if (wwin->flags.is_gnustep && strcmp(wwin->wm_instance, "CheckWindowStyle") == 0) {
+		wDefaultFillAttributes(wwin->wm_instance, wwin->wm_class, &wwin->user_flags, NULL, True);
+	} else if (wwin->flags.is_gnustep && wwin->wm_window_class != NULL) {
 		wwin->user_flags.ignore_instance_settings = 1;
 		wDefaultFillAttributes(wwin->wm_instance, wwin->wm_window_class, &wwin->user_flags, NULL, True);
 	} else {

@@ -1174,7 +1174,6 @@ static void handleConfigureRequest(XEvent * event)
 				wIsXDNDSource(dpy, event->xconfigurerequest.window) == Success && \
 				GNUstep_popup_menu != event->xconfigure.window && \
 				isGNUstepWindow(event->xconfigurerequest.window)) {
-
 			WScreen* scr = wScreenForRootWindow(event->xconfigurerequest.window);
 			WAppIcon* aicon = wAppIconCreateForDrag(scr, "DUMMY", "DUMMY", "DUMMY");
 
