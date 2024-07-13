@@ -595,6 +595,7 @@ extern struct wmaker_global_variables {
 			Atom titlebar_state;
 			Atom window_class;
 			Atom window_number;
+			Atom frame_offsets;
 		} gnustep;
 
 		/* Destkop-environment related */

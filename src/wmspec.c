@@ -34,6 +34,7 @@
 #include <X11/Xatom.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdint.h>
 
 #include <WINGs/WUtil.h>
 #include "WindowMaker.h"
@@ -642,6 +643,49 @@ static void wNETWMShowingDesktop(WScreen *scr, Bool show)
 		scr->netdata->show_desktop = NULL;
 		updateShowDesktop(scr, False);
 	}
+}
+
+void wGNUstepUpdateUpdateOffsets(WScreen *scr)
+{
+	uint16_t off[60];
+  int i, count = 0;
+
+	GNUstepOffsets offsets[16];
+
+#define SET_OFFSET(_n, _l, _r, _t, _b) \
+	offsets[_n].l = _l; \
+	offsets[_n].r = _r; \
+	offsets[_n].t = _t; \
+	offsets[_n].b = _b;
+
+	SET_OFFSET(0,  0, 0,  0, 0)
+	SET_OFFSET(1,  1, 1, 22, 1)
+	SET_OFFSET(2,  1, 1, 22, 1)
+	SET_OFFSET(3,  1, 1, 22, 1)
+	SET_OFFSET(4,  1, 1, 22, 1)
+	SET_OFFSET(5,  1, 1, 22, 1)
+	SET_OFFSET(6,  1, 1, 22, 1)
+	SET_OFFSET(7,  1, 1, 22, 1)
+	SET_OFFSET(8,  1, 1, 22, 9)
+	SET_OFFSET(9,  1, 1, 22, 9)
+	SET_OFFSET(10, 1, 1, 22, 9)
+	SET_OFFSET(11, 1, 1, 22, 9)
+	SET_OFFSET(12, 1, 1, 22, 9)
+	SET_OFFSET(13, 1, 1, 22, 9)
+	SET_OFFSET(14, 1, 1, 22, 9)
+	SET_OFFSET(15, 1, 1, 22, 9)
+  
+	for (i = 1; i < 16; i++) {
+    off[count++] = (uint16_t)offsets[i].l;
+    off[count++] = (uint16_t)offsets[i].r;
+    off[count++] = (uint16_t)offsets[i].t;
+    off[count++] = (uint16_t)offsets[i].b;
+  }
+
+  XChangeProperty(dpy, DefaultRootWindow(dpy),
+  	w_global.atom.gnustep.frame_offsets,
+    XA_CARDINAL, 16, PropModeReplace,
+   	(unsigned char *)off, 60);
 }
 
 void wNETWMInitStuff(WScreen *scr)

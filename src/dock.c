@@ -1231,7 +1231,11 @@ static WMenu *dockMenuCreate(WScreen *scr, int type)
 	if (type == WM_DRAWER && scr->drawer_menu)
 		return scr->drawer_menu;
 
-	menu = wMenuCreate(scr, "Dock Icon", False);
+	if (type == WM_CLIP)
+		menu = wMenuCreate(scr, "Clip Icon", False);
+	else
+		menu = wMenuCreate(scr, "Dock Icon", False);
+
 	if (type == WM_DOCK) {
 		entry = wMenuAddCallback(menu, _("Dock position"), NULL, NULL);
 		if (scr->dock_pos_menu == NULL)
@@ -1251,6 +1255,14 @@ static WMenu *dockMenuCreate(WScreen *scr, int type)
 			scr->clip_options = makeClipOptionsMenu(scr);
 
 		wMenuEntrySetCascade(menu, entry, scr->clip_options);
+
+		if (type == WM_CLIP) {
+			if (!scr->clip_ws_menu)
+				scr->clip_ws_menu = wWorkspaceMenuMake(scr, True);
+
+			entry = wMenuAddCallback(menu, _("Workspaces"), NULL, NULL);
+			wMenuEntrySetCascade(menu, entry, scr->clip_ws_menu);
+		}
 
 		 /* The same menu is used for the dock and its appicons. If the menu
 		  * entry text is different between the two contexts, or if it can
@@ -3541,6 +3553,8 @@ static void openDockMenu(WDock *dock, WAppIcon *aicon, XEvent *event)
 		n_selected = numberOfSelectedIcons(dock);
 
 		if (dock->type == WM_CLIP) {
+			/* Workspaces menu */
+			++index;
 			/* Rename Workspace */
 			entry = dock->menu->entries[++index];
 			if (aicon == scr->clip_icon) {
@@ -4088,9 +4102,6 @@ static void iconMouseDown(WObjDescriptor *desc, XEvent *event)
 				iconDblClick(desc, event);
 		}
 	} else if (event->xbutton.button == Button2 && aicon == scr->clip_icon) {
-		if (!scr->clip_ws_menu)
-			scr->clip_ws_menu = wWorkspaceMenuMake(scr, False);
-
 		if (scr->clip_ws_menu) {
 			WMenu *wsMenu = scr->clip_ws_menu;
 			int xpos;

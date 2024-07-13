@@ -402,6 +402,7 @@ static char *atomNames[] = {
 	
 	"_GNUSTEP_WINDOW_CLASS",
 	"_GNUSTEP_WINDOW_NUMBER",
+	"_GNUSTEP_FRAME_OFFSETS",
 	"UTF8_STRING"
 };
 
@@ -482,7 +483,8 @@ void StartUp(Bool defaultScreenOnly)
 
 	w_global.atom.gnustep.window_class = atom[23];
 	w_global.atom.gnustep.window_number = atom[24];
-	w_global.atom.utf8_string = atom[25];
+	w_global.atom.gnustep.frame_offsets = atom[25];
+	w_global.atom.utf8_string = atom[26];
 
 #ifdef USE_DOCK_XDND
 	wXDNDInitializeAtoms();

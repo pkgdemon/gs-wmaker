@@ -28,6 +28,14 @@
 #include "window.h"
 #include <X11/Xlib.h>
 
+typedef struct {
+  short	l;	// offset from left
+  short	r;	// offset from right
+  short	t;	// offset from top
+  short	b;	// offset from bottom
+} GNUstepOffsets;
+
+void wGNUstepUpdateUpdateOffsets(WScreen *scr);
 void wNETWMInitStuff(WScreen *scr);
 void wNETWMCleanup(WScreen *scr);
 void wNETWMUpdateWorkarea(WScreen *scr);

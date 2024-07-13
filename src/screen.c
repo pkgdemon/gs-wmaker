@@ -784,6 +784,7 @@ WScreen *wScreenInit(int screen_number)
 	createInternalWindows(scr);
 
 	wNETWMInitStuff(scr);
+	wGNUstepUpdateUpdateOffsets(scr);
 
 	/* create initial workspace */
 	wWorkspaceNew(scr);
