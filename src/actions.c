@@ -1813,9 +1813,11 @@ void wHideGNUstepMenu(WScreen *scr)
 
 	while (wlist) {
 		if (wlist->flags.is_gnustep && 
+		    wlist->flags.mapped && 
 				wlist->client_flags.no_titlebar && 
 				IS_GNUSTEP_MENU(wlist)) {
 			wWindowUnmap(wlist);
+			fprintf(stderr, "1 HIDE: %xl %s\n", wlist->client_win, wlist->wm_instance);
 			wlist->flags.is_temp_hidden = 1;
 		}
 		else {
@@ -1836,13 +1838,18 @@ void wHideGNUstepMenuExcept(WScreen *scr, WWindow* wwin)
 		return;
 
 	while (wlist) {
-		if (wlist->main_window == wwin->main_window) {
-		}
-		else if (wlist->flags.is_gnustep && 
+		if (wlist->flags.is_gnustep && 
 				wlist->client_flags.no_titlebar && 
 				wlist->flags.is_suppressed == 0 && 
 				IS_GNUSTEP_MENU(wlist)) {
-			wWindowUnmap(wlist);
+			if (wlist->main_window == wwin->main_window) {
+				wWindowMap(wlist);
+				fprintf(stderr, "...except: %x %s\n", wlist->client_win, wlist->wm_instance);
+			}
+			else {
+				wWindowUnmap(wlist);
+				fprintf(stderr, "2 HIDE: %x %s\n", wlist->client_win, wlist->wm_instance);
+			}
 			wlist->flags.is_temp_hidden = 0;
 		}
 
@@ -1885,6 +1892,7 @@ void wRestoreGNUstepMenu(WScreen *scr)
 	while (wlist) {
 		if (wlist->flags.is_temp_hidden &&
 				wlist->flags.is_suppressed == 0) {
+			fprintf(stderr, "menu restore: %s\n", wlist->wm_instance);
 			wWindowMap(wlist);
 			wlist->flags.is_temp_hidden = 0;
 		}
@@ -2487,10 +2495,10 @@ static void shade_animate(WWindow *wwin, Bool what)
 
 void wenforce_focus(Window win)
 {
-	fprintf(stderr, "FORCE FOCUS %lx\n", win);
 	WWindow *wwin = wWindowFor(win);
-	if (wwin) {
-		//wSetFocusTo(wwin->screen_ptr, wwin, FOCUS_INTERACTIVE);
+	if (wwin && !wwin->flags.focused) {
+		fprintf(stderr, "FORCE FOCUS %lx %s\n", win, wwin->wm_instance);
+		wSetFocusTo(wwin->screen_ptr, wwin, FOCUS_INTERACTIVE);
 	}
 }
 

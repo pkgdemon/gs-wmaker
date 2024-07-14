@@ -344,7 +344,7 @@ static void handle_global_timer(void)
 		}
 	}
 	else if (w_global.promise.enforce_focus > 0) {
-		if (dd > 500) {
+		if (dd > 400) {
 			wenforce_focus(w_global.promise.enforce_focus);
 			w_global.promise.validate_focus = 0;
 			w_global.promise.enforce_focus = 0;
@@ -1359,19 +1359,21 @@ static void handleClientMessage(XEvent * event)
 			return;
 
 		long tw = event->xclient.data.l[0];
-		fprintf(stderr, "C: %lx %s %d %d\n", event->xclient.window, wwin->wm_instance, tw, wwin->flags.miniaturized);
 		w_global.promise.validate_focus = 1;
 
 		switch (tw) {
 		case WMTitleBarNormal:
+			fprintf(stderr, "C: %lx %s\n", event->xclient.window, wwin->wm_instance);
 			wFrameWindowChangeState(wwin->frame, WS_UNFOCUSED);
 			wwin->last_focus_change = GetTimestamp();
 			break;
 		case WMTitleBarMain:
+			fprintf(stderr, "C: %lx %s -> MAIN\n", event->xclient.window, wwin->wm_instance);
 			wFrameWindowChangeState(wwin->frame, WS_PFOCUSED);
 			wwin->last_focus_change = GetTimestamp();
 			break;
 		case WMTitleBarKey:
+			fprintf(stderr, "C: %lx %s -> KEY\n", event->xclient.window, wwin->wm_instance);
 			wFrameWindowChangeState(wwin->frame, WS_FOCUSED);
 			wwin->last_focus_change = GetTimestamp();
 			break;
