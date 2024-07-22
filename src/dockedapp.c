@@ -229,9 +229,13 @@ void ShowDockAppSettingsPanel(WAppIcon * aicon)
 	int wmScaleWidth, wmScaleHeight;
 	int pwidth, pheight;
 	int iconSize;
+	int is_drawer = 0;
 
 	/* get the width and height values of the system font for use with the WMScaleX/WMScaleY macros */
 	WMGetScaleBaseFromSystemFont(scr->wmscreen, &wmScaleWidth, &wmScaleHeight);
+
+	if (aicon->wm_class && strcmp(aicon->wm_class, "WMDrawer") == 0)
+		is_drawer = 1;
 
 	/* calculate the required width and height for the panel */
 	iconSize = wPreferences.icon_size;
@@ -239,14 +243,17 @@ void ShowDockAppSettingsPanel(WAppIcon * aicon)
 	pheight = WMScaleY(10)                  /* upper margin */
 		+ iconSize                      /* icon and its label */
 		+ WMScaleY(10)                  /* padding */
-		+ WMScaleY(20) + WMScaleY(2)    /* start option */
 		+ WMScaleY(20) + WMScaleY(5)    /* lock option */
-		+ WMScaleY(50) + WMScaleY(5)    /* app path and arguments */
 		+ WMScaleY(70) + WMScaleY(5)    /* middle-click command */
 		+ WMScaleY(70) + WMScaleY(5)    /* drag&drop command */
 		+ WMScaleY(50) + WMScaleY(10)   /* icon file */
 		+ WMScaleY(24)                  /* buttons */
 		+ WMScaleY(10);                 /* lower margin */
+
+	if (!is_drawer) {
+		pheight += WMScaleY(20) + WMScaleY(2)    /* start option */
+		+ WMScaleY(50) + WMScaleY(5);            /* app path and arguments */
+	}
 
 	panel = wmalloc(sizeof(AppSettingsPanel));
 
@@ -270,7 +277,10 @@ void ShowDockAppSettingsPanel(WAppIcon * aicon)
 	WMSetLabelTextAlignment(panel->nameLabel, WALeft);
 	WMSetLabelFont(panel->nameLabel, font);
 	WMReleaseFont(font);
-	if (aicon->wm_class && strcmp(aicon->wm_class, "DockApp") == 0)
+
+	if (is_drawer)
+		WMSetLabelText(panel->nameLabel, "Icon Drawer");
+	else if (aicon->wm_class && strcmp(aicon->wm_class, "DockApp") == 0)
 		WMSetLabelText(panel->nameLabel, aicon->wm_instance);
 	else
 		WMSetLabelText(panel->nameLabel, aicon->wm_class);
@@ -279,26 +289,30 @@ void ShowDockAppSettingsPanel(WAppIcon * aicon)
 	WMResizeWidget(vbox, pwidth - 2 * WMScaleX(10), pheight - iconSize - 3 * WMScaleY(10));
 	WMMoveWidget(vbox, WMScaleX(10), iconSize + 2 * WMScaleY(10));
 
-	panel->autoLaunchBtn = WMCreateSwitchButton(vbox);
-	WMAddBoxSubview(vbox, WMWidgetView(panel->autoLaunchBtn), False, True, WMScaleY(20), WMScaleY(20), WMScaleY(2));
-	WMSetButtonText(panel->autoLaunchBtn, _("Start when Window Maker is started"));
-	WMSetButtonSelected(panel->autoLaunchBtn, aicon->auto_launch);
+	if (!is_drawer) {
+		panel->autoLaunchBtn = WMCreateSwitchButton(vbox);
+		WMAddBoxSubview(vbox, WMWidgetView(panel->autoLaunchBtn), False, True, WMScaleY(20), WMScaleY(20), WMScaleY(2));
+		WMSetButtonText(panel->autoLaunchBtn, _("Start when Window Maker is started"));
+		WMSetButtonSelected(panel->autoLaunchBtn, aicon->auto_launch);
+	}
 
 	panel->lockBtn = WMCreateSwitchButton(vbox);
 	WMAddBoxSubview(vbox, WMWidgetView(panel->lockBtn), False, True, WMScaleY(20), WMScaleY(20), WMScaleY(5));
 	WMSetButtonText(panel->lockBtn, _("Lock (prevent accidental removal)"));
 	WMSetButtonSelected(panel->lockBtn, aicon->lock);
 
-	panel->commandFrame = WMCreateFrame(vbox);
-	WMSetFrameTitle(panel->commandFrame, _("Application path and arguments"));
-	WMAddBoxSubview(vbox, WMWidgetView(panel->commandFrame), False, True, WMScaleY(50), WMScaleY(50), WMScaleY(5));
+	if (!is_drawer) {
+		panel->commandFrame = WMCreateFrame(vbox);
+		WMSetFrameTitle(panel->commandFrame, _("Application path and arguments"));
+		WMAddBoxSubview(vbox, WMWidgetView(panel->commandFrame), False, True, WMScaleY(50), WMScaleY(50), WMScaleY(5));
 
-	panel->commandField = WMCreateTextField(panel->commandFrame);
-	WMResizeWidget(panel->commandField, WMScaleX(260), WMScaleY(20));
-	WMMoveWidget(panel->commandField, WMScaleX(10), WMScaleY(20));
-	WMSetTextFieldText(panel->commandField, aicon->command);
+		panel->commandField = WMCreateTextField(panel->commandFrame);
+		WMResizeWidget(panel->commandField, WMScaleX(260), WMScaleY(20));
+		WMMoveWidget(panel->commandField, WMScaleX(10), WMScaleY(20));
+		WMSetTextFieldText(panel->commandField, aicon->command);
 
-	WMMapSubwidgets(panel->commandFrame);
+		WMMapSubwidgets(panel->commandFrame);
+	}
 
 	panel->pasteCommandFrame = WMCreateFrame(vbox);
 	WMSetFrameTitle(panel->pasteCommandFrame, _("Command for middle-click launch"));
