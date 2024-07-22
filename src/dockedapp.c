@@ -237,6 +237,9 @@ void ShowDockAppSettingsPanel(WAppIcon * aicon)
 	if (aicon->wm_class && strcmp(aicon->wm_class, "WMDrawer") == 0)
 		is_drawer = 1;
 
+	if (aicon->wm_class && strcmp(aicon->wm_class, "WMClip") == 0)
+		is_drawer = 1;
+
 	/* calculate the required width and height for the panel */
 	iconSize = wPreferences.icon_size;
 	pwidth = WMScaleX(300);
@@ -278,9 +281,7 @@ void ShowDockAppSettingsPanel(WAppIcon * aicon)
 	WMSetLabelFont(panel->nameLabel, font);
 	WMReleaseFont(font);
 
-	if (is_drawer)
-		WMSetLabelText(panel->nameLabel, "Icon Drawer");
-	else if (aicon->wm_class && strcmp(aicon->wm_class, "DockApp") == 0)
+	if (aicon->wm_class && strcmp(aicon->wm_class, "DockApp") == 0)
 		WMSetLabelText(panel->nameLabel, aicon->wm_instance);
 	else
 		WMSetLabelText(panel->nameLabel, aicon->wm_class);

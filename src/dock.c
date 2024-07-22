@@ -1224,12 +1224,16 @@ static WMenu *dockMenuCreate(WScreen *scr, int type)
 {
 	WMenu *menu;
 	WMenuEntry *entry;
+	int app_cmd = 1;
 
 	if (type == WM_CLIP && scr->clip_menu)
 		return scr->clip_menu;
 
 	if (type == WM_DRAWER && scr->drawer_menu)
 		return scr->drawer_menu;
+
+	if (type == WM_CLIP || type == WM_DRAWER)
+		app_cmd = 0;
 
 	if (type == WM_CLIP)
 		menu = wMenuCreate(scr, "Clip Icon", False);
@@ -1303,19 +1307,21 @@ static WMenu *dockMenuCreate(WScreen *scr, int type)
 		wMenuAddCallback(menu, _("Attract Icons"), attractIconsCallback, NULL);
 	}
 
-	wMenuAddCallback(menu, _("Launch"), launchCallback, NULL);
+	if (app_cmd) {
+		wMenuAddCallback(menu, _("Launch"), launchCallback, NULL);
 
-	wMenuAddCallback(menu, _("Unhide Here"), unhideHereCallback, NULL);
+		wMenuAddCallback(menu, _("Unhide Here"), unhideHereCallback, NULL);
 
-	entry = wMenuAddCallback(menu, _("Hide"), hideCallback, NULL);
-	wfree(entry->text);
-	entry->text = _("Hide"); /* can be: Unhide */
+		entry = wMenuAddCallback(menu, _("Hide"), hideCallback, NULL);
+		wfree(entry->text);
+		entry->text = _("Hide"); /* can be: Unhide */
+
+		entry = wMenuAddCallback(menu, _("Kill"), killCallback, NULL);
+		wfree(entry->text);
+		entry->text = _("Kill"); /* can be: Remove drawer */
+	}
 
 	wMenuAddCallback(menu, _("Settings..."), settingsCallback, NULL);
-
-	entry = wMenuAddCallback(menu, _("Kill"), killCallback, NULL);
-	wfree(entry->text);
-	entry->text = _("Kill"); /* can be: Remove drawer */
 
 	if (type == WM_CLIP)
 		scr->clip_menu = menu;
@@ -3534,6 +3540,10 @@ static void openDockMenu(WDock *dock, WAppIcon *aicon, XEvent *event)
 	int x_pos;
 	int n_selected;
 	int appIsRunning = aicon->running && aicon->icon && aicon->icon->owner;
+	int app_cmd = 1;
+
+	if (dock->type == WM_CLIP || dock->type == WM_DRAWER)
+		app_cmd = 0;
 
 	if (dock->type == WM_DOCK) {
 		/* Dock position menu */
@@ -3640,48 +3650,50 @@ static void openDockMenu(WDock *dock, WAppIcon *aicon, XEvent *event)
 	else
 		wapp = NULL;
 
-	/* launch */
-	entry = dock->menu->entries[++index];
-	entry->clientdata = aicon;
-	wMenuSetEnabled(dock->menu, index, aicon->command != NULL);
+	if (app_cmd) {
+		/* launch */
+		entry = dock->menu->entries[++index];
+		entry->clientdata = aicon;
+		wMenuSetEnabled(dock->menu, index, aicon->command != NULL);
 
-	/* unhide here */
-	entry = dock->menu->entries[++index];
-	entry->clientdata = aicon;
-	if (wapp && wapp->flags.hidden)
-		entry->text = _("Unhide Here");
-	else
-		entry->text = _("Bring Here");
+		/* unhide here */
+		entry = dock->menu->entries[++index];
+		entry->clientdata = aicon;
+		if (wapp && wapp->flags.hidden)
+			entry->text = _("Unhide Here");
+		else
+			entry->text = _("Bring Here");
 
-	wMenuSetEnabled(dock->menu, index, appIsRunning);
+		wMenuSetEnabled(dock->menu, index, appIsRunning);
 
-	/* hide */
-	entry = dock->menu->entries[++index];
-	entry->clientdata = aicon;
-	if (wapp && wapp->flags.hidden)
-		entry->text = _("Unhide");
-	else
-		entry->text = _("Hide");
+		/* hide */
+		entry = dock->menu->entries[++index];
+		entry->clientdata = aicon;
+		if (wapp && wapp->flags.hidden)
+			entry->text = _("Unhide");
+		else
+			entry->text = _("Hide");
 
-	wMenuSetEnabled(dock->menu, index, appIsRunning);
+		wMenuSetEnabled(dock->menu, index, appIsRunning);
+
+		/* kill or remove drawer */
+		entry = dock->menu->entries[++index];
+		entry->clientdata = aicon;
+		if (wIsADrawer(aicon)) {
+			entry->callback = removeDrawerCallback;
+			entry->text = _("Remove drawer");
+			wMenuSetEnabled(dock->menu, index, True);
+		} else {
+			entry->callback = killCallback;
+			entry->text = _("Kill");
+			wMenuSetEnabled(dock->menu, index, appIsRunning);
+		}
+	}
 
 	/* settings */
 	entry = dock->menu->entries[++index];
 	entry->clientdata = aicon;
 	wMenuSetEnabled(dock->menu, index, !aicon->editing && !wPreferences.flags.noupdates);
-
-	/* kill or remove drawer */
-	entry = dock->menu->entries[++index];
-	entry->clientdata = aicon;
-	if (wIsADrawer(aicon)) {
-		entry->callback = removeDrawerCallback;
-		entry->text = _("Remove drawer");
-		wMenuSetEnabled(dock->menu, index, True);
-	} else {
-		entry->callback = killCallback;
-		entry->text = _("Kill");
-		wMenuSetEnabled(dock->menu, index, appIsRunning);
-	}
 
 	if (!dock->menu->flags.realized)
 		wMenuRealize(dock->menu);
