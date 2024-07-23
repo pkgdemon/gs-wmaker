@@ -1315,11 +1315,11 @@ static WMenu *dockMenuCreate(WScreen *scr, int type)
 		entry = wMenuAddCallback(menu, _("Hide"), hideCallback, NULL);
 		wfree(entry->text);
 		entry->text = _("Hide"); /* can be: Unhide */
-
-		entry = wMenuAddCallback(menu, _("Kill"), killCallback, NULL);
-		wfree(entry->text);
-		entry->text = _("Kill"); /* can be: Remove drawer */
 	}
+
+	entry = wMenuAddCallback(menu, _("Kill"), killCallback, NULL);
+	wfree(entry->text);
+	entry->text = _("Kill"); /* can be: Remove drawer */
 
 	wMenuAddCallback(menu, _("Settings..."), settingsCallback, NULL);
 
@@ -3676,18 +3676,19 @@ static void openDockMenu(WDock *dock, WAppIcon *aicon, XEvent *event)
 
 		wMenuSetEnabled(dock->menu, index, appIsRunning);
 
-		/* kill or remove drawer */
-		entry = dock->menu->entries[++index];
-		entry->clientdata = aicon;
-		if (wIsADrawer(aicon)) {
-			entry->callback = removeDrawerCallback;
-			entry->text = _("Remove drawer");
-			wMenuSetEnabled(dock->menu, index, True);
-		} else {
-			entry->callback = killCallback;
-			entry->text = _("Kill");
-			wMenuSetEnabled(dock->menu, index, appIsRunning);
-		}
+	}
+
+	/* kill or remove drawer */
+	entry = dock->menu->entries[++index];
+	entry->clientdata = aicon;
+	if (wIsADrawer(aicon)) {
+		entry->callback = removeDrawerCallback;
+		entry->text = _("Remove drawer");
+		wMenuSetEnabled(dock->menu, index, True);
+	} else {
+		entry->callback = killCallback;
+		entry->text = _("Kill");
+		wMenuSetEnabled(dock->menu, index, appIsRunning);
 	}
 
 	/* settings */

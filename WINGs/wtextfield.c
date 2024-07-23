@@ -795,6 +795,7 @@ static void paintTextField(TextField * tPtr)
 				   view->size.width, view->size.height, screen->depth);
 	XFillRectangle(screen->display, drawbuffer, WMColorGC(screen->white),
 		       0, 0, view->size.width, view->size.height);
+
 	/* this is quite dirty */
 	viewbuffer.screen = view->screen;
 	viewbuffer.size = view->size;
@@ -853,8 +854,14 @@ static void paintTextField(TextField * tPtr)
 					  tPtr->font, rx, ty, &(text[count]), count2);
 		}
 	} else {
-		XFillRectangle(screen->display, drawbuffer, WMColorGC(screen->white),
+		if (tPtr->flags.enabled) {
+			XFillRectangle(screen->display, drawbuffer, WMColorGC(screen->white),
 			       bd, bd, totalWidth, view->size.height - 2 * bd);
+		}
+		else {
+			XFillRectangle(screen->display, drawbuffer, WMColorGC(screen->gray),
+			       bd, bd, totalWidth, view->size.height - 2 * bd);
+		}
 	}
 
 	/* draw relief */
