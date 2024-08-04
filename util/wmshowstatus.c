@@ -90,6 +90,9 @@ GC create_gc(Display* display, Window win, int reverse_video)
 void
 main(int argc, char* argv[])
 {
+  char text_string[256];
+  char bg_color[256];
+
   Display* display;
   int screen_num;
   Window win;
@@ -118,35 +121,50 @@ main(int argc, char* argv[])
 
   win = root_window(display);
 
-  gc = create_gc(display, win, 1);
-  XSync(display, False);
+  if (argc > 2) {
+    strcpy(bg_color, argv[2]);
+    XColor color, colorx;
+    XAllocNamedColor(display,
+                     DefaultColormapOfScreen(DefaultScreenOfDisplay(display)),
+                     bg_color,
+                     &color, &colorx);
 
-  /* try to load the given font. */
-  font_info = XLoadQueryFont(display, font_name);
-  if (!font_info) {
-      fprintf(stderr, "XLoadQueryFont: failed loading font '%s'\n", font_name);
-      exit(-1);
+    XSetWindowBackground(display, win, color.pixel);
+    XClearWindow(display, win);
   }
+  if (argc >= 2) {
+    gc = create_gc(display, win, 1);
+    XSync(display, False);
 
-  /* assign the given font to our GC. */
-  XSetFont(display, gc, font_info->fid);
+    /* try to load the given font. */
+    font_info = XLoadQueryFont(display, font_name);
+    if (!font_info) {
+        fprintf(stderr, "XLoadQueryFont: failed loading font '%s'\n", font_name);
+        exit(-1);
+    }
 
-  /* variables used for drawing the text strings. */
-  int x, y;
-  char* text_string;
-  int string_width;
-  int font_height;
+    /* assign the given font to our GC. */
+    XSetFont(display, gc, font_info->fid);
 
-  /* find the height of the characters drawn using this font.        */
-  font_height = font_info->ascent + font_info->descent;
+    /* variables used for drawing the text strings. */
+    int x, y;
+    int string_width;
+    int font_height;
 
-  /* draw a "hello world" string on the top-left side of our window. */
-  text_string = argv[1];
-  x = 10;
-  y = font_height;
+    /* find the height of the characters drawn using this font.        */
+    font_height = font_info->ascent + font_info->descent;
 
-  XClearWindow(display, win);
-  XDrawString(display, win, gc, x, y, text_string, strlen(text_string));
+
+    x = 10;
+    y = font_height;
+
+    strcpy(text_string, argv[1]);
+    XClearWindow(display, win);
+    XDrawString(display, win, gc, x, y, text_string, strlen(text_string));
+  }
+  else {
+    XClearWindow(display, win);
+  }
 
   /* flush all pending requests to the X server. */
   XFlush(display);
