@@ -171,4 +171,6 @@ main(int argc, char* argv[])
 
   /* close the connection to the X server. */
   XCloseDisplay(display);
+
+  exit(0);
 }
