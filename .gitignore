@@ -66,6 +66,7 @@ util/wmsetbg
 util/wmsetup
 util/wxcopy
 util/wxpaste
+util/wmshowstatus
 
 wrlib/tests/testdraw
 wrlib/tests/testgrad
