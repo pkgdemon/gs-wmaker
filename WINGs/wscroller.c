@@ -369,7 +369,14 @@ static void paintScroller(Scroller * sPtr)
 	XFillRectangle(scr->display, d, WMColorGC(scr->gray), 0, 0, view->size.width, view->size.height);
 #endif
 
-	XDrawRectangle(scr->display, d, WMColorGC(scr->black), 0, 0, view->size.width - 1, view->size.height - 1);
+	if (sPtr->flags.horizontal) {
+		XDrawLine(scr->display, d, WMColorGC(scr->black), 0, 0, view->size.width - 1, 0);
+		XDrawLine(scr->display, d, WMColorGC(scr->black), 0, 0, 0, view->size.height - 1);
+	}
+	else {
+		XDrawRectangle(scr->display, d, WMColorGC(scr->black), 0, 0, view->size.width - 1, view->size.height - 1);
+	}
+
 #ifndef DOUBLE_BUFFER
 	XDrawRectangle(scr->display, d, WMColorGC(scr->gray), 1, 1, view->size.width - 3, view->size.height - 3);
 #endif

@@ -474,7 +474,8 @@ static void paintItem(WMList * lPtr, int index, Drawable d, char *text, int stat
 	WMView *view = W_VIEW(lPtr);
 	W_Screen *scr = view->screen;
 	Display *display = scr->display;
-	WMFont *font = ((state & WLDSIsBranch) ? scr->boldFont : scr->normalFont);
+	//WMFont *font = ((state & WLDSIsBranch) ? scr->boldFont : scr->normalFont);
+	WMFont *font = scr->normalFont;
 	WMColor *backColor = ((state & WLDSSelected) ? scr->white : view->backColor);
 	int width, height, x, y;
 

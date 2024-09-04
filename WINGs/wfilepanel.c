@@ -260,6 +260,7 @@ static WMFilePanel *makeFilePanel(WMScreen * scrPtr, const char *name, const cha
 	WMSetButtonAltImage(fPtr->homeButton, scrPtr->altHomeIcon);
 	WMSetButtonAction(fPtr->homeButton, goHome, fPtr);
 
+	/*
 	fPtr->disketteButton = WMCreateCommandButton(fPtr->win);
 	WMMoveWidget(fPtr->disketteButton, 97, 325);
 	WMResizeWidget(fPtr->disketteButton, 28, 28);
@@ -276,6 +277,7 @@ static WMFilePanel *makeFilePanel(WMScreen * scrPtr, const char *name, const cha
 	WMSetButtonAltImage(fPtr->unmountButton, scrPtr->altUnmountIcon);
 	WMSetButtonAction(fPtr->unmountButton, goUnmount, fPtr);
 	WMSetButtonEnabled(fPtr->unmountButton, False);
+	*/
 
 	WMRealizeWidget(fPtr->win);
 	WMMapSubwidgets(fPtr->win);
@@ -511,6 +513,9 @@ static void listDirectoryOnColumn(WMFilePanel * panel, int column, const char *p
 	/* list contents in the column */
 	while ((dentry = readdir(dir))) {
 		if (strcmp(dentry->d_name, ".") == 0 || strcmp(dentry->d_name, "..") == 0)
+			continue;
+
+		if (dentry->d_name[0] == '.')
 			continue;
 
 		if (wstrlcpy(pbuf, path, sizeof(pbuf)) >= sizeof(pbuf))

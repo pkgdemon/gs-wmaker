@@ -557,10 +557,10 @@ void Initialize(WMScreen * scr)
 
 	WMSetLabelText(WPrefs.statusL, _("Initializing configuration panels..."));
 
-	InitFocus(WPrefs.banner);
+	//InitFocus(WPrefs.banner);
 	InitWindowHandling(WPrefs.banner);
 
-	InitMenuPreferences(WPrefs.banner);
+	//InitMenuPreferences(WPrefs.banner);
 	InitIcons(WPrefs.banner);
 	InitPreferences(WPrefs.banner);
 
