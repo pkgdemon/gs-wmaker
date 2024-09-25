@@ -161,9 +161,16 @@ void wClientConfigure(WWindow * wwin, XConfigureRequestEvent * xcre)
 		xwc.width = xcre->width;
 		xwc.height = xcre->height;
 		xwc.border_width = xcre->border_width;
-		//xwc.stack_mode = xcre->detail;
-		//xwc.sibling = xcre->above;
-		//fprintf(stderr, ">>%x %d %x %d\n", xcre->window, xcre->detail, xcre->above, xcre->value_mask);
+		if (xcre->value_mask == CWStackMode) {
+			//BUG: might happen with placing menus sometimes
+			if (xcre->above != 0 && xcre->detail != 0) {
+				xwc.stack_mode = xcre->detail;
+				xwc.sibling = xcre->above;
+			}
+			else {
+				return;
+			}
+		}
 		XConfigureWindow(dpy, xcre->window, xcre->value_mask, &xwc);
 		return;
 	}
