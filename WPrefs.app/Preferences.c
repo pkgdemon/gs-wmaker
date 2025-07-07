@@ -281,7 +281,8 @@ static void createPanel(Panel * p)
     /***************** Options ****************/
 	panel->optF = WMCreateFrame(panel->box);
 	WMResizeWidget(panel->optF, 255, 94);
-	WMMoveWidget(panel->optF, 15, 125);
+	//GSDE WMMoveWidget(panel->optF, 15, 125);
+	WMMoveWidget(panel->optF, 1500, 125);
 	WMSetFrameTitle(panel->optF, _("AppIcon bouncing"));
 
 	for (i = 0; i < wlengthof(appicon_bouncing); i++) {

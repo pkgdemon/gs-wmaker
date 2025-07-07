@@ -344,7 +344,8 @@ static void createPanel(Panel *p)
 
 	panel->dithF = WMCreateFrame(panel->box);
 	WMResizeWidget(panel->dithF, 277, 97);
-	WMMoveWidget(panel->dithF, 237, 120);
+	//GSDE WMMoveWidget(panel->dithF, 237, 120);
+	WMMoveWidget(panel->dithF, 2370, 120);
 	WMSetFrameTitle(panel->dithF, _("Dithering colormap for 8bpp"));
 
 	WMSetBalloonTextForView(_("Number of colors to reserve for Window Maker\n"

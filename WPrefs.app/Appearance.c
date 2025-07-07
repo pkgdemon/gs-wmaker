@@ -2014,13 +2014,14 @@ static void createPanel(Panel * p)
 
     /*** options ***/
 	panel->optF = WMCreateFrame(panel->box);
+	WMMoveWidget(panel->optF, 1000, 10); //GSDE
 	WMSetFrameRelief(panel->optF, WRFlat);
 
 	item = WMCreateTabViewItemWithIdentifier(TAB_OPTIONS);
 	WMSetTabViewItemView(item, WMWidgetView(panel->optF));
 	WMSetTabViewItemLabel(item, _("Options"));
 
-	WMAddItemInTabView(panel->tabv, item);
+	//GSDE WMAddItemInTabView(panel->tabv, item);
 
 	panel->mstyF = WMCreateFrame(panel->optF);
 	WMResizeWidget(panel->mstyF, 215, 85);
@@ -2051,7 +2052,7 @@ static void createPanel(Panel * p)
 	WMGroupButtons(panel->mstyB[0], panel->mstyB[1]);
 	WMGroupButtons(panel->mstyB[0], panel->mstyB[2]);
 
-	WMMapSubwidgets(panel->mstyF);
+	//GSDE WMMapSubwidgets(panel->mstyF);
 
 	panel->taliF = WMCreateFrame(panel->optF);
 	WMResizeWidget(panel->taliF, 110, 80);
@@ -2072,7 +2073,7 @@ static void createPanel(Panel * p)
 
 	WMMapSubwidgets(panel->optF);
 
-	 /**/ WMRealizeWidget(panel->box);
+	WMRealizeWidget(panel->box);
 	WMMapSubwidgets(panel->box);
 
 	WMSetPopUpButtonSelectedItem(panel->secP, 0);

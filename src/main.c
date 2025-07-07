@@ -524,6 +524,24 @@ static void execInitScript(void)
 	}
 }
 
+static void execWsScript(void)
+{
+	char *file, *paths;
+
+	paths = wstrconcat(wusergnusteppath(), "/Library/WindowMaker");
+	paths = wstrappend(paths, ":" DEF_CONFIG_PATHS);
+
+	file = wfindfile(paths, DEF_WS_SCRIPT);
+	wfree(paths);
+
+	if (file) {
+		if (system(file) != 0)
+			werror(_("%s:could not execute ws script"), file);
+
+		wfree(file);
+	}
+}
+
 void ExecExitScript(void)
 {
 	char *file, *paths;
@@ -605,13 +623,17 @@ static int real_main(int argc, char **argv)
 {
 	int i;
 	char *pos;
+	char pid[20];
 	int d, s;
 
 	setlocale(LC_ALL, "");
 	wsetabort(wAbort);
 
+	snprintf(pid, sizeof(pid), "%d", getpid());
+
 	/* for telling WPrefs what's the name of the wmaker binary being ran */
 	setenv("WMAKER_BIN_NAME", argv[0], 1);
+	setenv("WMAKER_BIN_PID", pid, 1);
 
 	ArgCount = argc;
 	Arguments = wmalloc(sizeof(char *) * (ArgCount + 1));
@@ -800,6 +822,7 @@ static int real_main(int argc, char **argv)
 	if (w_global.screen_count == 1)
 		multiHead = False;
 
+	execWsScript();
 	execInitScript();
 #ifdef HAVE_INOTIFY
 	inotifyWatchConfig();

@@ -122,7 +122,9 @@ void CommitStacking(WScreen * scr)
 	WM_ETARETI_BAG(scr->stacking_list, tmp, iter) {
 		while (tmp) {
 			windows[i++] = tmp->window;
-			tmp = tmp->stacking->under;
+			if (tmp && tmp->stacking) {
+				tmp = tmp->stacking->under;
+			}
 		}
 	}
 	XRestackWindows(dpy, windows, i);

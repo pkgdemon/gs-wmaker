@@ -460,7 +460,8 @@ static void createPanel(Panel * p)
 
 	panel->speedF = WMCreateFrame(panel->box);
 	WMResizeWidget(panel->speedF, 219, 85);
-	WMMoveWidget(panel->speedF, 9, 54);
+	//GSDE WMMoveWidget(panel->speedF, 9, 54);
+	WMMoveWidget(panel->speedF, 900, 54);
 	if (!nox) WMSetFrameTitle(panel->speedF, _("Mouse Speed"));
 
 	panel->speedL = WMCreateLabel(panel->speedF);
@@ -481,7 +482,8 @@ static void createPanel(Panel * p)
 
 	panel->speedS = WMCreateSlider(panel->speedF);
 	WMResizeWidget(panel->speedS, 150, 15);
-	WMMoveWidget(panel->speedS, 58, 30);
+	//GSDE WMMoveWidget(panel->speedS, 58, 30);
+	WMMoveWidget(panel->speedS, 1000, 30);
 	WMSetSliderMinValue(panel->speedS, 0);
 	WMSetSliderMaxValue(panel->speedS, 40);
 	WMSetSliderContinuous(panel->speedS, False);
@@ -532,8 +534,9 @@ static void createPanel(Panel * p)
 
 	panel->ddelaF = WMCreateFrame(panel->box);
 	WMResizeWidget(panel->ddelaF, 219, 80);
-	WMMoveWidget(panel->ddelaF, 9, 142);
-	if (!nox) WMSetFrameTitle(panel->ddelaF, _("Double-Click Delay"));
+	//GSDE WMMoveWidget(panel->ddelaF, 9, 142);
+	WMMoveWidget(panel->ddelaF, 900, 142);
+	WMSetFrameTitle(panel->ddelaF, _("Double-Click Delay"));
 
 	buf1 = wmalloc(strlen(DELAY_ICON) + 2);
 	buf2 = wmalloc(strlen(DELAY_ICON_S) + 2);
@@ -600,7 +603,7 @@ static void createPanel(Panel * p)
 	}
 	WMSetLabelText(panel->ddelaL, _("ms"));
 
-	if (!nox) WMMapSubwidgets(panel->ddelaF);
+	WMMapSubwidgets(panel->ddelaF);
 
 	/* ************** Workspace Action Buttons **************** */
 

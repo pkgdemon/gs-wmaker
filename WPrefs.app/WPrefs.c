@@ -564,7 +564,6 @@ void Initialize(WMScreen * scr)
 	InitIcons(WPrefs.banner);
 	InitPreferences(WPrefs.banner);
 
-	InitPaths(WPrefs.banner);
 	InitDocks(WPrefs.banner);
 	InitWorkspace(WPrefs.banner);
 	InitConfigurations(WPrefs.banner);
@@ -584,6 +583,7 @@ void Initialize(WMScreen * scr)
 #ifdef not_yet_fully_implemented
 	InitThemes(WPrefs.banner);
 #endif
+	InitPaths(WPrefs.banner);
 	InitExpert(WPrefs.banner);
 
 	WMRealizeWidget(WPrefs.scrollV);

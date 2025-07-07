@@ -250,7 +250,8 @@ static void createPanel(Panel * p)
 
     /***************** Positioning of Icons *****************/
 	panel->posF = WMCreateFrame(panel->box);
-	WMResizeWidget(panel->posF, 268, 155);
+	//GSDE WMResizeWidget(panel->posF, 268, 155);
+	WMResizeWidget(panel->posF, 268, 214);
 	WMMoveWidget(panel->posF, 12, 6);
 	WMSetFrameTitle(panel->posF, _("Icon Positioning"));
 
@@ -330,7 +331,8 @@ static void createPanel(Panel * p)
     /***************** Icon Size ****************/
 	panel->sizeF = WMCreateFrame(panel->box);
 	WMResizeWidget(panel->sizeF, 100, 52);
-	WMMoveWidget(panel->sizeF, 12, 168);
+	//GSDE WMMoveWidget(panel->sizeF, 12, 168);
+	WMMoveWidget(panel->sizeF, 1200, 168);
 	WMSetFrameTitle(panel->sizeF, _("Icon Size"));
 
 	WMSetBalloonTextForView(_("The size of the dock/application icon and miniwindows"),
@@ -349,7 +351,8 @@ static void createPanel(Panel * p)
 	/***************** Mini-Previews ****************/
 	panel->minipreview.frame = WMCreateFrame(panel->box);
 	WMResizeWidget(panel->minipreview.frame, 156, 52);
-	WMMoveWidget(panel->minipreview.frame, 124, 168);
+	//GSDE WMMoveWidget(panel->minipreview.frame, 124, 168);
+	WMMoveWidget(panel->minipreview.frame, 1240, 168);
 	WMSetFrameTitle(panel->minipreview.frame, _("Mini-Previews for Icons"));
 
 	WMSetBalloonTextForView(_("The Mini-Preview provides a small view of the content of the\n"

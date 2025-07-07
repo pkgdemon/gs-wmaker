@@ -300,6 +300,7 @@ char *wfindfile(const char *paths, const char *file)
 		wfree(path);
 
 		if (fullpath) {
+			//fprintf(stderr, "file [%s] exists?\n", fullpath);
 			if (access(fullpath, F_OK) == 0) {
 				return fullpath;
 			}
