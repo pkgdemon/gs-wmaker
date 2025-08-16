@@ -26,6 +26,25 @@
 #import	<AppKit/AppKit.h>
 #import <GNUstepGUI/GSTheme.h>
 
+// Automatic GNUstep runtime initialization
+static void __attribute__((constructor)) init_gnustep_runtime(void) {
+    static int initialized = 0;
+    if (initialized) return;
+    
+    extern char **environ;
+    
+    // Initialize GNUstep runtime with dummy argc/argv
+    // This is sufficient for the runtime to work properly
+    char *dummy_argv[] = {"wmaker", NULL};
+    GSInitializeProcess(1, dummy_argv, environ);
+    
+    // Create a persistent autorelease pool
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    // Don't release - let it persist for the lifetime of the program
+    
+    initialized = 1;
+}
+
 //static __GNUstepLib_exec_queue = NULL;
 
 int GSLaunchApp(const char *xcmd) {
