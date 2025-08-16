@@ -4,6 +4,19 @@ This is fork of the legendary [WindowMaker](https://github.com/window-maker/wmak
 
 It contains many enhancements and tweaks to create consistent user experience for GNUstep applications. Although it could be possible to run it on its own, that's not its purpose.  
 
+## Instructions for FreeBSD
+
+```
+. /usr/local/GNUstep/System/Library/Makefiles.sh
+DBINC="`pkg-config --cflags dbus-1`"
+export CPPFLAGS="$DBINC -I/usr/local/include -I/usr/include"
+export LDFLAGS="-L/usr/local/lib -I/usr/lib -linotify"
+./autogen.sh
+./configure --prefix=/usr/local --disable-randr --disable-dbus
+gmake
+sudo -E gmake install
+```
+
 ## Building Window Maker
 
 This fork is inteded to be built and installed as part of [GNUstep Desktop](https://github.com/onflapp/gs-desktop).
